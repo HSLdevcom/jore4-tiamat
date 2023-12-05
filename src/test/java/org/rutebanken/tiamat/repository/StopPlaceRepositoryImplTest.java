@@ -18,6 +18,7 @@ package org.rutebanken.tiamat.repository;
 import com.google.common.collect.Sets;
 import org.assertj.core.api.Assertions;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Envelope;
@@ -370,6 +371,7 @@ public class StopPlaceRepositoryImplTest extends TiamatIntegrationTest {
         assertThat(actual.getName().getValue()).isEqualTo(stopPlace.getName().getValue());
     }
 
+    @Ignore // Test disabled due to not using H2 database for testing
     @Test
     public void findNearbyStopPlaceFuzzyMatch() throws Exception {
         StopPlace stopPlace = new StopPlace();
@@ -403,6 +405,7 @@ public class StopPlaceRepositoryImplTest extends TiamatIntegrationTest {
         assertThat(result).isNull();
     }
 
+    @Ignore // Test disabled due to not using H2 database for testing
     @Test
     public void noNearbyStopPlaceIfNameIsDifferent() throws Exception {
         StopPlace stopPlace = new StopPlace();
