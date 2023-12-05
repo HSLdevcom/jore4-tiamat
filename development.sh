@@ -20,6 +20,11 @@ function start {
   $DOCKER_COMPOSE_CMD up --build -d jore4-tiamat jore4-testdb
 }
 
+function start_dependencies {
+  check_docker
+  $DOCKER_COMPOSE_CMD up -d jore4-testdb
+}
+
 function stop_all {
   check_docker
   $DOCKER_COMPOSE_CMD stop
