@@ -49,14 +49,17 @@ public class OAuth2Config {
      *
      * @return a @{@link JwtDecoder} for Auth0.
      */
-    @Bean
-    @Profile("!test")
-    public JwtDecoder rorAuth0JwtDecoder(OAuth2ResourceServerProperties properties,
+    // TODO: replace with proper authentication
+    //@Bean
+    //@Profile("!test")
+    public JwtDecoder rorAuth0JwtDecoder(/*OAuth2ResourceServerProperties properties,*/
                                                                                              @Value("${tiamat.oauth2.resourceserver.auth0.ror.jwt.audience}") String rorAuth0Audience,
-                                         @Value("${tiamat.oauth2.resourceserver.auth0.ror.claim.namespace}") String rorAuth0ClaimNamespace) {
+                                         @Value("${tiamat.oauth2.resourceserver.auth0.ror.claim.namespace}") String rorAuth0ClaimNamespace,
+                                         @Value("${tiamat.oauth2.resourceserver.auth0.ror.issuer}") String rorAuth0Issuer
+    ) {
 
-        String rorAuth0Issuer = properties.getJwt().getIssuerUri();
-        return new RoRJwtDecoderBuilder().withIssuer(rorAuth0Issuer)
+        return new RoRJwtDecoderBuilder()
+                .withIssuer(rorAuth0Issuer)
                 .withAudience(rorAuth0Audience)
                 .withAuth0ClaimNamespace(rorAuth0ClaimNamespace)
                 .build();
