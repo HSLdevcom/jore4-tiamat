@@ -1,5 +1,7 @@
 FROM maven:3-openjdk-11-slim AS builder
 
+ARG HELPERS_VERSION="1.89-SNAPSHOT"
+
 # set up workdir
 WORKDIR /build
 
@@ -9,12 +11,35 @@ RUN mvn de.qaware.maven:go-offline-maven-plugin:resolve-dependencies
 
 # copy sources
 COPY ./src /build/src
-# package using "prod" profile
-# COPY ./profiles/prod /build/profiles/prod
-# RUN mvn -Pprod clean package spring-boot:repackage
-RUN mvn clean package spring-boot:repackage
 
-FROM amazoncorretto:11-al2-full
+# manually install local dependency jar files
+RUN mvn install:install-file \
+-Dfile=src/main/resources/helper-jars/oauth2-${HELPERS_VERSION}.jar \
+-DgroupId=org.entur.helpers \
+-DartifactId=oauth2 \
+-Dversion=${HELPERS_VERSION} \
+-Dpackaging=jar \
+-DgeneratePom=true
+
+RUN mvn install:install-file \
+-Dfile=src/main/resources/helper-jars/organisation-${HELPERS_VERSION}.jar \
+-DgroupId=org.entur.helpers \
+-DartifactId=organisation \
+-Dversion=${HELPERS_VERSION} \
+-Dpackaging=jar \
+-DgeneratePom=true
+
+RUN mvn install:install-file \
+-Dfile=src/main/resources/helper-jars/hazelcast4-helper-${HELPERS_VERSION}.jar \
+-DgroupId=org.entur.helpers \
+-DartifactId=hazelcast4-helper \
+-Dversion=${HELPERS_VERSION} \
+-Dpackaging=jar \
+-DgeneratePom=true
+
+RUN mvn clean package spring-boot:repackage -DskipTests
+
+FROM eclipse-temurin:11-jre
 
 # expose server port
 EXPOSE 8080
@@ -29,7 +54,7 @@ COPY ./script/build-jdbc-urls.sh /tmp/
 COPY --from=builder /build/target/*.jar /usr/src/jore4-tiamat/jore4-tiamat.jar
 
 # read Docker secrets into environment variables and run application
-CMD /bin/sh -c "source /tmp/read-secrets.sh && source /tmp/build-jdbc-urls.sh && java -jar /usr/src/jore4-tiamat/jore4-tiamat.jar"
+CMD /bin/bash -c "source /tmp/read-secrets.sh && source /tmp/build-jdbc-urls.sh && java -jar /usr/src/jore4-tiamat/jore4-tiamat.jar"
 
 HEALTHCHECK --interval=1m --timeout=5s \
     CMD curl --fail http://localhost:8080/actuator/health
