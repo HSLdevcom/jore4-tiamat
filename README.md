@@ -1,3 +1,43 @@
+
+# Jore4 - Tiamat
+
+## Build
+`mvn clean package spring-boot:repackage`
+
+You need the directory `/deployments/data` with rights for the user who
+performs the build.
+
+### Dependencies
+Tiamat uses helper libraries which are not available at any Maven repository, but they are included in this git repository.
+You need to install the local versions of the helper libraries, this can be done using the development script: `.development.sh libs`
+The libraries need to be installed once, they will stay in your local Maven repository.
+
+Dependencies in question:
+* `org.entur.helpers.hazelcast4-helper`
+* `org.entur.helpers.oauth2`
+* `org.entur.helpers.organisation`
+
+### Tests
+Running `install` will also run tests. To run tests you need to also have a database running, do this by starting dependencies: `./development.sh start:deps`
+
+## Run
+
+You can run Tiamat by running the jar file created by the build command. `java -jar target/tiamat.VERSION.jar`
+
+It is also possible to run Tiamat inside Docker, using the development script `./development.sh start`
+
+## GraphQL
+
+When running Tiamat in the Docker container, GraphQL endpoint is available at `http://jore4-tiamat:8080/services/stop-places/graphql` for other Docker containers. To access it from localhost, use `http://localhost:3019/services/stop-places/graphql`. Use `http://localhost:8080/services/stop-places/graphql` when running the service locally.
+
+---
+
+# Original readme:
+
+Not modified. Info regarding building and running Tiamat is not valid for Jore4-Tiamat.
+
+---
+
 # Tiamat
 
 Tiamat is the Stop Place Register.
