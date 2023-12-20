@@ -6,6 +6,8 @@ set -eo pipefail
 WD=$(dirname "$0")
 cd "${WD}"
 
+HELPERS_VERSION="1.89-SNAPSHOT"
+
 # initialize package folder
 mkdir -p ./docker
 
@@ -43,6 +45,32 @@ function run_tests {
   mvn test
 }
 
+function install_helpers {
+  mvn install:install-file \
+    -Dfile=src/main/resources/helper-jars/oauth2-${HELPERS_VERSION}.jar \
+    -DgroupId=org.entur.helpers \
+    -DartifactId=oauth2 \
+    -Dversion=${HELPERS_VERSION} \
+    -Dpackaging=jar \
+    -DgeneratePom=true
+
+  mvn install:install-file \
+    -Dfile=src/main/resources/helper-jars/organisation-${HELPERS_VERSION}.jar \
+    -DgroupId=org.entur.helpers \
+    -DartifactId=organisation \
+    -Dversion=${HELPERS_VERSION} \
+    -Dpackaging=jar \
+    -DgeneratePom=true
+
+  mvn install:install-file \
+    -Dfile=src/main/resources/helper-jars/hazelcast4-helper-${HELPERS_VERSION}.jar \
+    -DgroupId=org.entur.helpers \
+    -DartifactId=hazelcast4-helper \
+    -Dversion=${HELPERS_VERSION} \
+    -Dpackaging=jar \
+    -DgeneratePom=true
+}
+
 function usage {
   echo "
   Usage $0 <command>
@@ -64,6 +92,9 @@ function usage {
 
   test
     Run tests locally
+
+  libs
+    Install the required helper libraries to local Maven repository
 
   help
     Show this usage information
@@ -100,6 +131,10 @@ else
 
   test)
     run_tests
+    ;;
+
+  libs)
+    install_helpers
     ;;
 
   *)
