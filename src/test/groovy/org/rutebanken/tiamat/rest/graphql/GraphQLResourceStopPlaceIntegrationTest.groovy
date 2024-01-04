@@ -39,7 +39,7 @@ import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.*
 import static org.rutebanken.tiamat.rest.graphql.operations.MultiModalityOperationsBuilder.INPUT
 import static org.rutebanken.tiamat.rest.graphql.scalars.DateScalar.DATE_TIME_PATTERN
 
-def class GraphQLResourceStopPlaceIntegrationTest extends AbstractGraphQLResourceIntegrationTest {
+class GraphQLResourceStopPlaceIntegrationTest extends AbstractGraphQLResourceIntegrationTest {
 
     @Autowired
     private EntityChangedJMSListener entityChangedJMSListener

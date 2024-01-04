@@ -87,7 +87,7 @@
         <hazelcast-hibernate53.version>2.1.1</hazelcast-hibernate53.version>
         <hibernate.version>5.4.0.Final</hibernate.version>
         <hibernate-spatial.version>5.4.0.Final</hibernate-spatial.version>
-        <groovy-all.version>3.0.9</groovy-all.version>
+        <groovy-all.version>3.0.19</groovy-all.version>
         <jaxb-version>2.3.0.1</jaxb-version>
         <swagger-jersey2.version>1.6.2</swagger-jersey2.version>
         <jackson-version>2.11.3</jackson-version>
