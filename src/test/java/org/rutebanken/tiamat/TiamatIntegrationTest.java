@@ -169,6 +169,8 @@ public abstract class TiamatIntegrationTest {
 
         fareZoneRepository.deleteAll();
         fareZoneRepository.flush();
+        groupOfTariffZonesRepository.deleteAll();
+        groupOfTariffZonesRepository.flush();
         tariffZonesLookupService.resetFareZone();
 
 
