@@ -70,7 +70,6 @@
         <geotools.version>24.0</geotools.version>
         <activemq-client.version>5.15.9</activemq-client.version>
         <maven-javadoc-plugin.version>2.10.4</maven-javadoc-plugin.version>
-        <flyway-core.version>8.5.10</flyway-core.version>
         <logstash-logback.version>5.2</logstash-logback.version>
         <kubernetes-client.version>4.1.1</kubernetes-client.version>
         <janino.version>3.0.8</janino.version>
@@ -199,7 +198,6 @@
         <dependency>
             <groupId>org.flywaydb</groupId>
             <artifactId>flyway-core</artifactId>
-            <version>${flyway-core.version}</version>
         </dependency>
 
         <dependency>
