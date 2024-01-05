@@ -67,7 +67,7 @@
         <spring.security.version>5.3.5.RELEASE</spring.security.version>
         <postgresql.version>42.2.4</postgresql.version>
         <geodb.version>0.9</geodb.version>
-        <geotools.version>20.1</geotools.version>
+        <geotools.version>24.0</geotools.version>
         <activemq-client.version>5.15.9</activemq-client.version>
         <maven-javadoc-plugin.version>2.10.4</maven-javadoc-plugin.version>
         <flyway-core.version>8.5.10</flyway-core.version>
@@ -100,7 +100,7 @@
         <entur.helpers.version>1.89-SNAPSHOT</entur.helpers.version>
 
         <javax-jms.version>2.0.1</javax-jms.version>
-        <jts-core.version>1.16.0</jts-core.version>
+        <jts-core.version>1.19.0</jts-core.version>
 
         <maven-surefire-plugin.version>3.0.0-M6</maven-surefire-plugin.version>
         <maven-antrun-plugin.version>3.0.0</maven-antrun-plugin.version>
