@@ -70,7 +70,7 @@
         <maven.compiler.plugin.version>3.8.1</maven.compiler.plugin.version>
         <plexus.compiler.javac.version>2.8.8</plexus.compiler.javac.version>
         <geodb.version>0.9</geodb.version>
-        <geotools.version>24.0</geotools.version>
+        <geotools.version>29.1</geotools.version>
         <activemq-client.version>5.15.9</activemq-client.version>
         <maven-javadoc-plugin.version>2.10.4</maven-javadoc-plugin.version>
         <logstash-logback.version>5.2</logstash-logback.version>
