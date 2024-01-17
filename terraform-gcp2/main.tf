@@ -1,13 +1,13 @@
 # Contains main description of bulk of terraform?
 terraform {
-  required_version = ">= 0.13.2"
+  required_version = ">= 1.7.0"
 }
 
 provider "google" {
-  version = ">= 4.26"
+  version = ">= 5.12.0"
 }
 provider "kubernetes" {
-  version = ">= 2.13.1"
+  version = ">= 2.25.2"
 }
 # Create bucket
 resource "google_storage_bucket" "storage_bucket" {
