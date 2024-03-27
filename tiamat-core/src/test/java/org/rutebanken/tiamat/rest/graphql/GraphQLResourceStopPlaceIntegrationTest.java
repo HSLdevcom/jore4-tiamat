@@ -2623,7 +2623,7 @@ public class GraphQLResourceStopPlaceIntegrationTest extends AbstractGraphQLReso
 //                .body("nameType", equalTo(altName.getNameType())) //RestAssured apparently does not like comparing response with enums...
                 .body("generalSign[0]", notNullValue())
                 .body("generalSign[0].privateCode.type", comparesEqualTo(type))
-                .body("generalSign[0].privateCode.value", comparesEqualTo(value));
+                    .body("generalSign[0].privateCode.value", comparesEqualTo(value));
 
     }
 
@@ -2674,6 +2674,67 @@ public class GraphQLResourceStopPlaceIntegrationTest extends AbstractGraphQLReso
                 .body("mobilityFacilityList", equalTo(expectedMobilityFacilities));
     }
 
+    @Test
+    public void testMutatePlaceEquipmentSignHSLValues() throws Exception {
+
+        StopPlace stopPlace = new StopPlace();
+        stopPlace.setName(new EmbeddableMultilingualString("Name"));
+        stopPlace.setCentroid(geometryFactory.createPoint(new Coordinate(11.1, 60.1)));
+
+        stopPlaceVersionedSaverService.saveNewVersion(stopPlace);
+
+        String netexId = stopPlace.getNetexId();
+        Integer numberOfFrames = 12;
+        Boolean lineSignage = true;
+        Boolean mainLineSign = true;
+        Boolean replacesRailSign = false;
+        String lang = "fin";
+        String value = "Deviation from signage guide";
+
+        String graphQlStopPlaceQuery = "{" +
+                "\"query\":\"mutation { " +
+                "  stopPlace: " + GraphQLNames.MUTATE_STOPPLACE + " (StopPlace: {" +
+                "      id:\\\"" + netexId + "\\\"" +
+                "      placeEquipments: {" +
+                "        generalSign:  [{" +
+                "          numberOfFrames: " + numberOfFrames + "," +
+                "          lineSignage: " + lineSignage + "," +
+                "          mainLineSign: " + mainLineSign + "," +
+                "          replacesRailSign: " + replacesRailSign + "," +
+                "          note: {" +
+                "            value: \\\"" + value + "\\\"" +
+                "            lang:\\\"" + lang + "\\\"" +
+                "          }" +
+                "        }]" +
+                "      }" +
+                "    }) " +
+                "    {" +
+                "      id" +
+                "      placeEquipments {" +
+                "        generalSign {" +
+                "          numberOfFrames, " +
+                "          lineSignage, " +
+                "          mainLineSign, " +
+                "          replacesRailSign, " +
+                "          note { value, lang } " +
+                "        }" +
+                "      }" +
+                "    }" +
+                "  }" +
+                "\",\"variables\":\"\"}";
+
+        executeGraphQL(graphQlStopPlaceQuery)
+                .body("data.stopPlace[0].id", comparesEqualTo(netexId))
+                .body("data.stopPlace[0].placeEquipments", notNullValue())
+                .rootPath("data.stopPlace[0].placeEquipments")
+                .body("generalSign[0]", notNullValue())
+                .body("generalSign[0].numberOfFrames", comparesEqualTo(numberOfFrames))
+                .body("generalSign[0].lineSignage", is(lineSignage))
+                .body("generalSign[0].mainLineSign", is(mainLineSign))
+                .body("generalSign[0].replacesRailSign", is(replacesRailSign))
+                .body("generalSign[0].note.lang", comparesEqualTo(lang))
+                .body("generalSign[0].note.value", comparesEqualTo(value));
+    }
 
     private StopPlace createStopPlaceWithMunicipalityRef(String name, TopographicPlace municipality, StopTypeEnumeration type) {
         StopPlace stopPlace = new StopPlace(new EmbeddableMultilingualString(name));
