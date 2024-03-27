@@ -44,8 +44,13 @@ public abstract class Equipment_VersionStructure
     protected TypeOfEquipmentRefStructure typeOfEquipmentRef;
     @Transient
     protected MultilingualStringEntity description;
-    @Transient
-    protected MultilingualStringEntity note;
+
+    @AttributeOverrides({
+            @AttributeOverride(name = "value", column = @Column(name = "note_value")),
+            @AttributeOverride(name = "lang", column = @Column(name = "note_lang"))
+    })
+    @Embedded
+    protected EmbeddableMultilingualString note;
     protected Boolean outOfService;
 
     public MultilingualStringEntity getName() {
@@ -96,11 +101,11 @@ public abstract class Equipment_VersionStructure
         this.description = value;
     }
 
-    public MultilingualStringEntity getNote() {
+    public EmbeddableMultilingualString getNote() {
         return note;
     }
 
-    public void setNote(MultilingualStringEntity value) {
+    public void setNote(EmbeddableMultilingualString value) {
         this.note = value;
     }
 
