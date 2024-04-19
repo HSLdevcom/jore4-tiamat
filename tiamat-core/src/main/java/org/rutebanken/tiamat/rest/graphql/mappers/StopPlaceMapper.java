@@ -28,9 +28,11 @@ import org.rutebanken.tiamat.model.SiteRefStructure;
 import org.rutebanken.tiamat.model.StopPlace;
 import org.rutebanken.tiamat.model.StopTypeEnumeration;
 import org.rutebanken.tiamat.model.TelecabinSubmodeEnumeration;
+import org.rutebanken.tiamat.model.TopographicPlace;
 import org.rutebanken.tiamat.model.TramSubmodeEnumeration;
 import org.rutebanken.tiamat.model.VehicleModeEnumeration;
 import org.rutebanken.tiamat.model.WaterSubmodeEnumeration;
+import org.rutebanken.tiamat.repository.TopographicPlaceRepository;
 import org.rutebanken.tiamat.rest.graphql.scalars.TransportModeScalar;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,6 +50,7 @@ import java.util.Set;
 import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.ADJACENT_SITES;
 import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.ENTITY_REF_REF;
 import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.FACILITIES;
+import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.ID;
 import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.PARENT_SITE_REF;
 import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.POSTAL_ADDRESS;
 import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.PRIVATE_CODE;
@@ -55,6 +58,7 @@ import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.PUBLIC_CODE;
 import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.QUAYS;
 import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.STOP_PLACE_TYPE;
 import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.SUBMODE;
+import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.TOPOGRAPHIC_PLACE;
 import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.TRANSPORT_MODE;
 import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.TYPE;
 import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.URL;
@@ -85,6 +89,9 @@ public class StopPlaceMapper {
 
     @Autowired
     private PostalAddressMapper postalAddressMapper;
+
+    @Autowired
+    private TopographicPlaceRepository topographicPlaceRepository;
 
     /**
      * @param input
@@ -149,6 +156,14 @@ public class StopPlaceMapper {
 
         if (input.containsKey(POSTAL_ADDRESS)) {
             isUpdated = postalAddressMapper.populatePostalAddressFromInput(stopPlace, (Map) input.get(POSTAL_ADDRESS));
+        }
+
+        if (input.get(TOPOGRAPHIC_PLACE) != null) {
+            Map topographicPlaceInputMap = (Map) input.get(TOPOGRAPHIC_PLACE);
+            String topographicPlaceRef = (String) topographicPlaceInputMap.get(ID);
+            TopographicPlace topographicPlace = topographicPlaceRepository.findFirstByNetexIdOrderByVersionDesc(topographicPlaceRef);
+            stopPlace.setTopographicPlace(topographicPlace);
+            isUpdated = true;
         }
 
         isUpdated |= stopPlaceTariffZoneRefsMapper.populate(input, stopPlace);

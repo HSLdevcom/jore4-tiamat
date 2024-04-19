@@ -816,12 +816,6 @@ public class CustomGraphQLTypes {
             .field(newInputObjectField()
                     .name(ID)
                     .type(GraphQLString))
-            .field(newInputObjectField()
-                    .name(TOPOGRAPHIC_PLACE_TYPE)
-                    .type(topographicPlaceTypeEnum))
-            .field(newInputObjectField()
-                    .name(NAME)
-                    .type(embeddableMultiLingualStringInputObjectType))
             .build();
 
     public static GraphQLInputObjectType transferDurationInputObjectType = GraphQLInputObjectType.newInputObject()
