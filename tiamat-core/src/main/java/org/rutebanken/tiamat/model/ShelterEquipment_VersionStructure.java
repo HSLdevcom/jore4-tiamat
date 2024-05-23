@@ -22,7 +22,7 @@ import jakarta.persistence.Transient;
 
 import java.math.BigDecimal;
 import org.rutebanken.tiamat.model.hsl.ElectricityTypeEnumeration;
-import org.rutebanken.tiamat.model.hsl.HslShelterTypeEnumeration;
+import org.rutebanken.tiamat.model.hsl.ShelterTypeEnumeration;
 import org.rutebanken.tiamat.model.hsl.ShelterConditionEnumeration;
 
 @MappedSuperclass
@@ -34,7 +34,7 @@ public class ShelterEquipment_VersionStructure
     protected BigDecimal distanceFromNearestKerb;
 
     @Enumerated(EnumType.STRING)
-    protected HslShelterTypeEnumeration shelterType;
+    protected ShelterTypeEnumeration shelterType;
 
     @Enumerated(EnumType.STRING)
     protected ElectricityTypeEnumeration shelterElectricity;
@@ -74,11 +74,11 @@ public class ShelterEquipment_VersionStructure
         this.distanceFromNearestKerb = value;
     }
 
-    public HslShelterTypeEnumeration getShelterType() {
+    public ShelterTypeEnumeration getShelterType() {
         return shelterType;
     }
 
-    public void setShelterType(HslShelterTypeEnumeration shelterType) {
+    public void setShelterType(ShelterTypeEnumeration shelterType) {
         this.shelterType = shelterType;
     }
 
