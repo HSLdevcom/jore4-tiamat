@@ -37,12 +37,12 @@ import org.rutebanken.tiamat.model.GeneralSign;
 import org.rutebanken.tiamat.model.hsl.ElectricityTypeEnumeration;
 import org.rutebanken.tiamat.model.hsl.GuidanceTypeEnumeration;
 import org.rutebanken.tiamat.model.hsl.HslAccessibilityProperties;
-import org.rutebanken.tiamat.model.hsl.HslShelterTypeEnumeration;
+import org.rutebanken.tiamat.model.hsl.ShelterTypeEnumeration;
 import org.rutebanken.tiamat.model.hsl.HslStopTypeEnumeration;
 import org.rutebanken.tiamat.model.hsl.MapTypeEnumeration;
 import org.rutebanken.tiamat.model.hsl.PedestrianCrossingRampTypeEnumeration;
 import org.rutebanken.tiamat.model.hsl.ShelterConditionEnumeration;
-import org.rutebanken.tiamat.model.hsl.ShelterTypeEnumeration;
+import org.rutebanken.tiamat.model.hsl.ShelterWidthTypeEnumeration;
 import org.rutebanken.tiamat.model.InterchangeWeightingEnumeration;
 import org.rutebanken.tiamat.model.LightingEnumeration;
 import org.rutebanken.tiamat.model.LimitationStatusEnumeration;
@@ -3045,7 +3045,7 @@ public class GraphQLResourceStopPlaceIntegrationTest extends AbstractGraphQLReso
             .body("stopAreaSurroundingsAccessible", equalTo(true))
             .body("curvedStop", equalTo(true))
             .body("stopType", equalTo(HslStopTypeEnumeration.PULL_OUT.value()))
-            .body("shelterType", equalTo(ShelterTypeEnumeration.WIDE.value()))
+            .body("shelterType", equalTo(ShelterWidthTypeEnumeration.WIDE.value()))
             .body("guidanceType", equalTo(GuidanceTypeEnumeration.BRAILLE.value()))
             .body("mapType", equalTo(MapTypeEnumeration.TACTILE.value()))
             .body("pedestrianCrossingRampType", equalTo(PedestrianCrossingRampTypeEnumeration.RK4_LR.value()));
@@ -3173,7 +3173,7 @@ public class GraphQLResourceStopPlaceIntegrationTest extends AbstractGraphQLReso
             .body("stopAreaSurroundingsAccessible", equalTo(true))
             .body("curvedStop", equalTo(true))
             .body("stopType", equalTo(HslStopTypeEnumeration.BUS_BULB.value()))
-            .body("shelterType", equalTo(ShelterTypeEnumeration.NARROW.value()))
+            .body("shelterType", equalTo(ShelterWidthTypeEnumeration.NARROW.value()))
             .body("guidanceType", equalTo(GuidanceTypeEnumeration.NONE.value()))
             .body("mapType", equalTo(MapTypeEnumeration.OTHER.value()))
             .body("pedestrianCrossingRampType", equalTo(PedestrianCrossingRampTypeEnumeration.LR.value()));
@@ -3427,7 +3427,7 @@ public class GraphQLResourceStopPlaceIntegrationTest extends AbstractGraphQLReso
                 .rootPath("data.stopPlace[0].placeEquipments.shelterEquipment[0]")
                 .body(notNullValue())
                 .body("enclosed", equalTo(true))
-                .body("shelterType", equalTo(HslShelterTypeEnumeration.STEEL.value()))
+                .body("shelterType", equalTo(ShelterTypeEnumeration.STEEL.value()))
                 .body("shelterElectricity", equalTo(ElectricityTypeEnumeration.CONTINUOUS.value()))
                 .body("shelterLighting", equalTo(true))
                 .body("shelterCondition", equalTo(ShelterConditionEnumeration.MEDIOCRE.value()))
@@ -3441,7 +3441,7 @@ public class GraphQLResourceStopPlaceIntegrationTest extends AbstractGraphQLReso
                 .rootPath("data.stopPlace[0].placeEquipments.shelterEquipment[1]")
                 .body(notNullValue())
                 .body("enclosed", equalTo(false))
-                .body("shelterType", equalTo(HslShelterTypeEnumeration.GLASS.value()))
+                .body("shelterType", equalTo(ShelterTypeEnumeration.GLASS.value()))
                 .body("shelterElectricity", equalTo(ElectricityTypeEnumeration.LIGHT.value()))
                 .body("shelterLighting", equalTo(false))
                 .body("shelterCondition", equalTo(ShelterConditionEnumeration.BAD.value()))
@@ -3513,7 +3513,7 @@ public class GraphQLResourceStopPlaceIntegrationTest extends AbstractGraphQLReso
                 .rootPath("data.stopPlace[0].placeEquipments.shelterEquipment[0]")
                 .body(notNullValue())
                 .body("enclosed", equalTo(true))
-                .body("shelterType", equalTo(HslShelterTypeEnumeration.STEEL.value()))
+                .body("shelterType", equalTo(ShelterTypeEnumeration.STEEL.value()))
                 .body("shelterElectricity", equalTo(ElectricityTypeEnumeration.CONTINUOUS.value()))
                 .body("shelterLighting", equalTo(true))
                 .body("shelterCondition", equalTo(ShelterConditionEnumeration.MEDIOCRE.value()))
@@ -3744,7 +3744,7 @@ public class GraphQLResourceStopPlaceIntegrationTest extends AbstractGraphQLReso
         hslAccessibilityProperties.setStopAreaSurroundingsAccessible(false);
         hslAccessibilityProperties.setCurvedStop(true);
         hslAccessibilityProperties.setStopType(HslStopTypeEnumeration.PULL_OUT);
-        hslAccessibilityProperties.setShelterType(ShelterTypeEnumeration.WIDE);
+        hslAccessibilityProperties.setShelterType(ShelterWidthTypeEnumeration.WIDE);
         hslAccessibilityProperties.setGuidanceType(GuidanceTypeEnumeration.BRAILLE);
         hslAccessibilityProperties.setMapType(MapTypeEnumeration.TACTILE);
         hslAccessibilityProperties.setPedestrianCrossingRampType(PedestrianCrossingRampTypeEnumeration.LR);
@@ -3755,7 +3755,7 @@ public class GraphQLResourceStopPlaceIntegrationTest extends AbstractGraphQLReso
     private ShelterEquipment createShelterEquipmentHSl() {
         ShelterEquipment shelterEquipment = new ShelterEquipment();
         shelterEquipment.setEnclosed(true);
-        shelterEquipment.setShelterType(HslShelterTypeEnumeration.GLASS);
+        shelterEquipment.setShelterType(ShelterTypeEnumeration.GLASS);
         shelterEquipment.setShelterElectricity(ElectricityTypeEnumeration.LIGHT);
         shelterEquipment.setShelterLighting(true);
         shelterEquipment.setShelterCondition(ShelterConditionEnumeration.GOOD);
