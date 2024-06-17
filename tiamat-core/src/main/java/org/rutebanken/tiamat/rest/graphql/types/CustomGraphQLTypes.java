@@ -35,6 +35,7 @@ import org.rutebanken.tiamat.model.CycleStorageEnumeration;
 import org.rutebanken.tiamat.model.FunicularSubmodeEnumeration;
 import org.rutebanken.tiamat.model.GenderLimitationEnumeration;
 import org.rutebanken.tiamat.model.hsl.AccessibilityLevelEnumeration;
+import org.rutebanken.tiamat.model.GroupOfStopPlaces;
 import org.rutebanken.tiamat.model.hsl.ElectricityTypeEnumeration;
 import org.rutebanken.tiamat.model.hsl.GuidanceTypeEnumeration;
 import org.rutebanken.tiamat.model.hsl.HslAccessibilityProperties;
