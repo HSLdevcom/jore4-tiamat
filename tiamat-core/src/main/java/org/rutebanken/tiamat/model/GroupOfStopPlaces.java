@@ -90,6 +90,8 @@ public class GroupOfStopPlaces extends GroupOfEntities_VersionStructure {
                 .add("netexId", netexId)
                 .add("version", version)
                 .add("name", name)
+                .add("validBetween", getValidBetween())
+                .add("centroid", getCentroid())
                 .add("members", members)
                 .toString();
     }

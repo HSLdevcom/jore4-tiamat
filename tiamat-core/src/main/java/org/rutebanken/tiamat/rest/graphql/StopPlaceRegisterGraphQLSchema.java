@@ -501,7 +501,7 @@ public class StopPlaceRegisterGraphQLSchema {
         });
 
         GraphQLObjectType purposeOfGroupingType =purposeOfGroupingTypeCreator.create();
-        GraphQLObjectType groupOfStopPlacesObjectType = groupOfStopPlaceObjectTypeCreator.create(stopPlaceInterface, purposeOfGroupingType, entityPermissionObjectType);
+        GraphQLObjectType groupOfStopPlacesObjectType = groupOfStopPlaceObjectTypeCreator.create(stopPlaceInterface, purposeOfGroupingType, entityPermissionObjectType, validBetweenObjectType);
         GraphQLObjectType groupOfTariffZonesObjectType = groupOfTariffZonesObjectTypeCreator.create();
 
         GraphQLObjectType addressablePlaceObjectType = createAddressablePlaceObjectType(commonFieldsList);
@@ -630,7 +630,7 @@ public class StopPlaceRegisterGraphQLSchema {
 
         GraphQLInputObjectType parkingInputObjectType = createParkingInputObjectType(validBetweenInputObjectType);
 
-        GraphQLInputObjectType groupOfStopPlacesInputObjectType = createGroupOfStopPlacesInputObjectType();
+        GraphQLInputObjectType groupOfStopPlacesInputObjectType = createGroupOfStopPlacesInputObjectType(validBetweenInputObjectType);
 
         GraphQLInputObjectType purposeOfGroupingInputObjectType =createPurposeOfGroupingInputObjectType();
 
@@ -761,6 +761,7 @@ public class StopPlaceRegisterGraphQLSchema {
         dataFetcherGeometry(codeRegistryBuilder, OUTPUT_TYPE_FARE_ZONE);
         dataFetcherGeometry(codeRegistryBuilder, OUTPUT_TYPE_BOARDING_POSITION);
         dataFetcherGeometry(codeRegistryBuilder, OUTPUT_TYPE_TOPOGRAPHIC_PLACE);
+        dataFetcherGeometry(codeRegistryBuilder, OUTPUT_TYPE_GROUP_OF_STOPPLACES);
 
 
         dataFetcherPlaceEquipments(codeRegistryBuilder, OUTPUT_TYPE_STOPPLACE);
@@ -1036,6 +1037,8 @@ public class StopPlaceRegisterGraphQLSchema {
                 return source.getMultiSurface();
             } else if (env.getSource() instanceof Link link) {
                 return link.getLineString();
+                        } else if (env.getSource() instanceof GroupOfStopPlaces groupOfStopPlaces) {
+                                return groupOfStopPlaces.getCentroid();
             }
             return null;
         });
@@ -1611,7 +1614,7 @@ public class StopPlaceRegisterGraphQLSchema {
                 .build();
     }
 
-    private GraphQLInputObjectType createGroupOfStopPlacesInputObjectType() {
+    private GraphQLInputObjectType createGroupOfStopPlacesInputObjectType(GraphQLInputObjectType validBetweenInputObjectType) {
         return newInputObject()
                 .name(INPUT_TYPE_GROUP_OF_STOPPLACES)
                 .field(newInputObjectField().name(ID).type(GraphQLString).description("Ignore ID when creating new"))
@@ -1621,6 +1624,8 @@ public class StopPlaceRegisterGraphQLSchema {
                 .field(newInputObjectField().name(ALTERNATIVE_NAMES).type(new GraphQLList(alternativeNameInputObjectType)))
                 .field(newInputObjectField().name(VERSION_COMMENT).type(GraphQLString))
                 .field(newInputObjectField().name(PURPOSE_OF_GROUPING).type(versionLessRefInputObjectType).description("References to purpose of grouping"))
+                .field(newInputObjectField().name(VALID_BETWEEN).type(validBetweenInputObjectType))
+                .field(newInputObjectField().name(GEOMETRY).type(geoJsonInputType).build())
                 .field(newInputObjectField()
                         .name(GROUP_OF_STOP_PLACES_MEMBERS)
                         .description("References to group of stop places members. Stop place IDs.")
