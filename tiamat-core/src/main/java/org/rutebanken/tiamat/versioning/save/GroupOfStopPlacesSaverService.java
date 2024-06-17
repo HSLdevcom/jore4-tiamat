@@ -43,7 +43,6 @@ import java.util.Optional;
 /**
  * No history for group of stop places.
  * Version is incremented and changed date is updated, but the history will not be kept.
- * Valid between must not be populated
  */
 @Transactional
 @Service
@@ -209,13 +208,14 @@ public class GroupOfStopPlacesSaverService {
     }
 
     private void finalizeGOSP(GroupOfStopPlaces groupOfStopPlaces, String username) {
-        groupOfStopPlaces.setValidBetween(null);
         groupOfStopPlaces.setChangedBy(username);
 
-        Optional<Point> centroid = groupOfStopPlacesCentroidComputer.compute(groupOfStopPlaces);
-        if (centroid.isPresent()) {
-            logger.info("Setting centroid for group of stop place {} to {}", groupOfStopPlaces.getNetexId(), centroid.get());
-            groupOfStopPlaces.setCentroid(centroid.get());
+        if (groupOfStopPlaces.getCentroid() == null) {
+            Optional<Point> centroid = groupOfStopPlacesCentroidComputer.compute(groupOfStopPlaces);
+            if (centroid.isPresent()) {
+                logger.info("Setting centroid for group of stop place {} to {}", groupOfStopPlaces.getNetexId(), centroid.get());
+                groupOfStopPlaces.setCentroid(centroid.get());
+            }
         }
 
         versionIncrementor.incrementVersion(groupOfStopPlaces);
