@@ -26,9 +26,8 @@ create table info_spot
 
 create table info_spot_poster
 (
-    id                                bigint primary key,
+    label                             character varying(255) primary key,
     info_spot_id                      bigint not null,
-    label                             character varying(255),
     poster_type                       character varying(255),
     poster_size                       character varying(255),
     lines                             character varying(255),

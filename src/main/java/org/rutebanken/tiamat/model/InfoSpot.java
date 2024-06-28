@@ -3,12 +3,16 @@ package org.rutebanken.tiamat.model;
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
+import javax.persistence.CascadeType;
 import javax.persistence.CollectionTable;
+import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import org.hibernate.annotations.Cache;
@@ -39,10 +43,12 @@ public class InfoSpot extends DataManagedObjectStructure implements Serializable
     protected DisplayTypeEnumeration displayType;
 
     @ElementCollection(targetClass = StopPlaceReference.class, fetch = FetchType.EAGER)
-    @CollectionTable(
-            name = "info_spot_stop_place"
-    )
+    @CollectionTable(name = "info_spot_stop_place")
     private Set<StopPlaceReference> stopPlaces = new HashSet<>();
+
+    @ElementCollection(targetClass = InfoSpotPoster.class, fetch = FetchType.EAGER)
+    @CollectionTable(name = "info_spot_poster")
+    private Set<InfoSpotPoster> posters = new HashSet<>();
 
     public String getLabel() {
         return label;
@@ -146,5 +152,13 @@ public class InfoSpot extends DataManagedObjectStructure implements Serializable
 
     public void setStopPlaces(Set<StopPlaceReference> stopPlaces) {
         this.stopPlaces = stopPlaces;
+    }
+
+    public Set<InfoSpotPoster> getPosters() {
+        return posters;
+    }
+
+    public void setPosters(Set<InfoSpotPoster> posters) {
+        this.posters = posters;
     }
 }
