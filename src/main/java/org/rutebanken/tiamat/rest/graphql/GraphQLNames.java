@@ -511,4 +511,27 @@ public class GraphQLNames {
     public static final String LINE_SIGNAGE = "lineSignage";
     public static final String MAIN_LINE_SIGN = "mainLineSign";
     public static final String REPLACES_RAIL_SIGN = "replacesRailSign";
+
+    public static final String OUTPUT_TYPE_INFO_SPOT = "InfoSpot";
+    public static final String INPUT_TYPE_INFO_SPOT = OUTPUT_TYPE_INFO_SPOT + INPUT_TYPE_POSTFIX;
+
+    public static final String INFO_SPOTS = "infoSpots";
+    public static final String MUTATE_INFO_SPOT = "mutateInfoSpots";
+
+    public static final String POSTER = "poster";
+    public static final String PURPOSE = "purpose";
+    public static final String POSTER_PLACE_TYPE = "posterPlaceType";
+    public static final String POSTER_PLACE_SIZE = "posterPlaceSize";
+    public static final String BACKLIGHT = "backlight";
+    public static final String MAINTENANCE = "maintenance";
+    public static final String ZONE_LABEL = "zoneLabel";
+    public static final String RAIL_INFORMATION = "railInformation";
+    public static final String FLOOR = "floor";
+    public static final String SPEECH_PROPERTY = "speechProperty";
+    public static final String DISPLAY_TYPE = "displayType";
+    public static final String ON_STOP_PLACE = "onStopPlace";
+
+    public static final String POSTER_TYPE = "posterType";
+    public static final String POSTER_SIZE = "posterSize";
+    public static final String LINES = "lines";
 }

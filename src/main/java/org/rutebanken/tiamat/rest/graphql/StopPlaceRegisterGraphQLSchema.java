@@ -46,6 +46,7 @@ import org.rutebanken.tiamat.rest.graphql.types.EntityRefObjectTypeCreator;
 import org.rutebanken.tiamat.rest.graphql.types.FareZoneObjectTypeCreator;
 import org.rutebanken.tiamat.rest.graphql.types.GroupOfStopPlacesObjectTypeCreator;
 import org.rutebanken.tiamat.rest.graphql.types.GroupOfTariffZonesObjectTypeCreator;
+import org.rutebanken.tiamat.rest.graphql.types.InfoSpotObjectTypeCreator;
 import org.rutebanken.tiamat.rest.graphql.types.ParentStopPlaceInputObjectTypeCreator;
 import org.rutebanken.tiamat.rest.graphql.types.ParentStopPlaceObjectTypeCreator;
 import org.rutebanken.tiamat.rest.graphql.types.PathLinkEndObjectTypeCreator;
@@ -172,6 +173,9 @@ public class StopPlaceRegisterGraphQLSchema {
     private FareZoneObjectTypeCreator fareZoneObjectTypeCreator;
 
     @Autowired
+    private InfoSpotObjectTypeCreator infoSpotObjectTypeCreator;
+
+    @Autowired
     private AuthorizationCheckDataFetcher authorizationCheckDataFetcher;
 
     @Autowired
@@ -225,6 +229,8 @@ public class StopPlaceRegisterGraphQLSchema {
     @Autowired
     DataFetcher parkingUpdater;
 
+    @Autowired
+    DataFetcher infoSpotsFetcher;
     @Autowired
     DateScalar dateScalar;
 
@@ -318,6 +324,8 @@ public class StopPlaceRegisterGraphQLSchema {
         GraphQLObjectType pathLinkObjectType = pathLinkObjectTypeCreator.create(pathLinkEndObjectType, netexIdFieldDefinition, geometryFieldDefinition);
 
         GraphQLObjectType parkingObjectType = createParkingObjectType(validBetweenObjectType);
+
+        GraphQLObjectType infoSpotObjectType = infoSpotObjectTypeCreator.createObjectType(stopPlaceInterface, validBetweenObjectType);
 
         GraphQLArgument allVersionsArgument = GraphQLArgument.newArgument()
                 .name(ALL_VERSIONS)
@@ -421,6 +429,12 @@ public class StopPlaceRegisterGraphQLSchema {
                         .type(new GraphQLList(GraphQLString))
                         .description("List all fare zone authorities.")
                         .dataFetcher(fareZoneAuthoritiesFetcher)
+                        .build())
+                .field(newFieldDefinition()
+                        .name(INFO_SPOTS)
+                        .type(new GraphQLList(infoSpotObjectType))
+                        .description("Info spots")
+                        .dataFetcher(infoSpotsFetcher)
                         .build())
                 .build();
 
