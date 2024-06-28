@@ -231,6 +231,10 @@ public class StopPlaceRegisterGraphQLSchema {
 
     @Autowired
     DataFetcher infoSpotsFetcher;
+
+    @Autowired
+    DataFetcher infoSpotsUpdater;
+
     @Autowired
     DateScalar dateScalar;
 
@@ -456,6 +460,8 @@ public class StopPlaceRegisterGraphQLSchema {
 
         GraphQLInputObjectType purposeOfGroupingInputObjectType =createPurposeOfGroupingInputObjectType();
 
+        GraphQLInputObjectType infoSpotInputObjectType = infoSpotObjectTypeCreator.createInputObjectType(validBetweenInputObjectType);
+
         GraphQLObjectType stopPlaceRegisterMutation = newObject()
                 .name("StopPlaceMutation")
                 .description("Create and edit stopplaces")
@@ -528,6 +534,14 @@ public class StopPlaceRegisterGraphQLSchema {
                                 .type(new GraphQLNonNull(GraphQLString)))
                         .description("Hard delete group of stop places by ID")
                         .dataFetcher(groupOfStopPlacesDeleterFetcher))
+                .field(newFieldDefinition()
+                        .type(new GraphQLList(infoSpotObjectType))
+                        .name(MUTATE_INFO_SPOT)
+                        .description("Create new or update existing InfoSpots")
+                        .argument(GraphQLArgument.newArgument()
+                                .name(OUTPUT_TYPE_INFO_SPOT)
+                                .type(infoSpotInputObjectType))
+                        .dataFetcher(infoSpotsUpdater))
                 .build();
 
         stopPlaceRegisterSchema = GraphQLSchema.newSchema()
