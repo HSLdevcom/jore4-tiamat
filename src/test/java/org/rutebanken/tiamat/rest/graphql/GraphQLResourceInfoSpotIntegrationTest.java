@@ -59,13 +59,13 @@ public class GraphQLResourceInfoSpotIntegrationTest extends AbstractGraphQLResou
                 "    purpose " +
                 "    railInformation " +
                 "    zoneLabel " +
-                "    poster { " +
-                "      label " +
-                "      posterSize " +
-                "      posterType " +
-                "      lines " +
-                "    } " +
-                "    onStopPlace " +
+//                "    poster { " +
+//                "      label " +
+//                "      posterSize " +
+//                "      posterType " +
+//                "      lines " +
+//                "    } " +
+//                "    onStopPlace " +
                 "  } " +
                 "}\"," +
                 "\"variables\":\"\"}";
@@ -113,13 +113,13 @@ public class GraphQLResourceInfoSpotIntegrationTest extends AbstractGraphQLResou
                 "    purpose " +
                 "    railInformation " +
                 "    zoneLabel " +
-                "    poster { " +
-                "      label " +
-                "      posterSize " +
-                "      posterType " +
-                "      lines " +
-                "    } " +
-                "    onStopPlace " +
+//                "    poster { " +
+//                "      label " +
+//                "      posterSize " +
+//                "      posterType " +
+//                "      lines " +
+//                "    } " +
+//                "    onStopPlace " +
                 "  } " +
                 "}\"," +
                 "\"variables\":\"\"}";
@@ -198,13 +198,13 @@ public class GraphQLResourceInfoSpotIntegrationTest extends AbstractGraphQLResou
                 "    purpose " +
                 "    railInformation " +
                 "    zoneLabel " +
-                "    poster { " +
-                "      label " +
-                "      posterSize " +
-                "      posterType " +
-                "      lines " +
-                "    } " +
-                "    onStopPlace " +
+//                "    poster { " +
+//                "      label " +
+//                "      posterSize " +
+//                "      posterType " +
+//                "      lines " +
+//                "    } " +
+//                "    onStopPlace " +
                 "  } " +
                 "}\"," +
                 "\"variables\":\"\"}";

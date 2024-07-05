@@ -134,12 +134,12 @@ public class InfoSpotObjectTypeCreator {
                 .field(newFieldDefinition()
                         .name(DISPLAY_TYPE)
                         .type(displayTypeEnum))
-                .field(newFieldDefinition()
-                        .name(POSTER)
-                        .type(new GraphQLList(posterObjectType)))
-                .field(newFieldDefinition()
-                        .name(ON_STOP_PLACE)
-                        .type(new GraphQLList(GraphQLString)))
+//                .field(newFieldDefinition()
+//                        .name(POSTER)
+//                        .type(new GraphQLList(posterObjectType)))
+//                .field(newFieldDefinition()
+//                        .name(ON_STOP_PLACE)
+//                        .type(new GraphQLList(GraphQLString)))
                 .build();
     }
 
@@ -186,12 +186,12 @@ public class InfoSpotObjectTypeCreator {
                 .field(newInputObjectField()
                         .name(DISPLAY_TYPE)
                         .type(displayTypeEnum))
-                .field(newInputObjectField()
-                        .name(POSTER)
-                        .type(new GraphQLList(posterObjectType)))
-                .field(newInputObjectField()
-                        .name(ON_STOP_PLACE)
-                        .type(new GraphQLList(GraphQLString)))
+//                .field(newInputObjectField()
+//                        .name(POSTER)
+//                        .type(new GraphQLList(posterObjectType)))
+//                .field(newInputObjectField()
+//                        .name(ON_STOP_PLACE)
+//                        .type(new GraphQLList(GraphQLString)))
                 .build();
 
     }
