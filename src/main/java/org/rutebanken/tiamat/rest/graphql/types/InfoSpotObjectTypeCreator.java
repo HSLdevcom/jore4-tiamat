@@ -143,9 +143,10 @@ public class InfoSpotObjectTypeCreator {
                 .build();
     }
 
-    public GraphQLInputObjectType infoSpotInputType(GraphQLInputObjectType validBetweenInputObjectType) {
+
+    public GraphQLInputObjectType createInputObjectType(GraphQLInputObjectType validBetweenInputObjectType) {
         return newInputObject()
-                .name(INFO_SPOTS)
+                .name(INPUT_TYPE_INFO_SPOT)
                 .field(newInputObjectField()
                         .name(ID)
                         .type(GraphQLString))
@@ -191,15 +192,6 @@ public class InfoSpotObjectTypeCreator {
                 .field(newInputObjectField()
                         .name(ON_STOP_PLACE)
                         .type(new GraphQLList(GraphQLString)))
-                .build();
-    }
-
-    public GraphQLInputObjectType createInputObjectType(GraphQLInputObjectType validBetweenInputObjectType) {
-        return newInputObject()
-                .name(INPUT_TYPE_INFO_SPOT)
-                .field(newInputObjectField()
-                        .name(INFO_SPOTS)
-                        .type(new GraphQLList(infoSpotInputType(validBetweenInputObjectType))))
                 .build();
 
     }

@@ -535,7 +535,7 @@ public class StopPlaceRegisterGraphQLSchema {
                         .description("Hard delete group of stop places by ID")
                         .dataFetcher(groupOfStopPlacesDeleterFetcher))
                 .field(newFieldDefinition()
-                        .type(new GraphQLList(infoSpotObjectType))
+                        .type(infoSpotObjectType)
                         .name(MUTATE_INFO_SPOT)
                         .description("Create new or update existing InfoSpots")
                         .argument(GraphQLArgument.newArgument()

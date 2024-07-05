@@ -516,7 +516,7 @@ public class GraphQLNames {
     public static final String INPUT_TYPE_INFO_SPOT = OUTPUT_TYPE_INFO_SPOT + INPUT_TYPE_POSTFIX;
 
     public static final String INFO_SPOTS = "infoSpots";
-    public static final String MUTATE_INFO_SPOT = "mutateInfoSpots";
+    public static final String MUTATE_INFO_SPOT = "mutateInfoSpot";
 
     public static final String POSTER = "poster";
     public static final String PURPOSE = "purpose";
