@@ -46,6 +46,7 @@ import org.rutebanken.tiamat.rest.graphql.types.EntityRefObjectTypeCreator;
 import org.rutebanken.tiamat.rest.graphql.types.FareZoneObjectTypeCreator;
 import org.rutebanken.tiamat.rest.graphql.types.GroupOfStopPlacesObjectTypeCreator;
 import org.rutebanken.tiamat.rest.graphql.types.GroupOfTariffZonesObjectTypeCreator;
+import org.rutebanken.tiamat.rest.graphql.types.InfoSpotObjectTypeCreator;
 import org.rutebanken.tiamat.rest.graphql.types.ParentStopPlaceInputObjectTypeCreator;
 import org.rutebanken.tiamat.rest.graphql.types.ParentStopPlaceObjectTypeCreator;
 import org.rutebanken.tiamat.rest.graphql.types.PathLinkEndObjectTypeCreator;
@@ -172,6 +173,9 @@ public class StopPlaceRegisterGraphQLSchema {
     private FareZoneObjectTypeCreator fareZoneObjectTypeCreator;
 
     @Autowired
+    private InfoSpotObjectTypeCreator infoSpotObjectTypeCreator;
+
+    @Autowired
     private AuthorizationCheckDataFetcher authorizationCheckDataFetcher;
 
     @Autowired
@@ -224,6 +228,12 @@ public class StopPlaceRegisterGraphQLSchema {
 
     @Autowired
     DataFetcher parkingUpdater;
+
+    @Autowired
+    DataFetcher infoSpotsFetcher;
+
+    @Autowired
+    DataFetcher infoSpotsUpdater;
 
     @Autowired
     DateScalar dateScalar;
@@ -318,6 +328,8 @@ public class StopPlaceRegisterGraphQLSchema {
         GraphQLObjectType pathLinkObjectType = pathLinkObjectTypeCreator.create(pathLinkEndObjectType, netexIdFieldDefinition, geometryFieldDefinition);
 
         GraphQLObjectType parkingObjectType = createParkingObjectType(validBetweenObjectType);
+
+        GraphQLObjectType infoSpotObjectType = infoSpotObjectTypeCreator.createObjectType(stopPlaceInterface, validBetweenObjectType);
 
         GraphQLArgument allVersionsArgument = GraphQLArgument.newArgument()
                 .name(ALL_VERSIONS)
@@ -422,6 +434,12 @@ public class StopPlaceRegisterGraphQLSchema {
                         .description("List all fare zone authorities.")
                         .dataFetcher(fareZoneAuthoritiesFetcher)
                         .build())
+                .field(newFieldDefinition()
+                        .name(INFO_SPOTS)
+                        .type(new GraphQLList(infoSpotObjectType))
+                        .description("Info spots")
+                        .dataFetcher(infoSpotsFetcher)
+                        .build())
                 .build();
 
 
@@ -441,6 +459,8 @@ public class StopPlaceRegisterGraphQLSchema {
         GraphQLInputObjectType groupOfStopPlacesInputObjectType = createGroupOfStopPlacesInputObjectType(validBetweenInputObjectType);
 
         GraphQLInputObjectType purposeOfGroupingInputObjectType =createPurposeOfGroupingInputObjectType();
+
+        GraphQLInputObjectType infoSpotInputObjectType = infoSpotObjectTypeCreator.createInputObjectType(validBetweenInputObjectType);
 
         GraphQLObjectType stopPlaceRegisterMutation = newObject()
                 .name("StopPlaceMutation")
@@ -514,6 +534,14 @@ public class StopPlaceRegisterGraphQLSchema {
                                 .type(new GraphQLNonNull(GraphQLString)))
                         .description("Hard delete group of stop places by ID")
                         .dataFetcher(groupOfStopPlacesDeleterFetcher))
+                .field(newFieldDefinition()
+                        .type(infoSpotObjectType)
+                        .name(MUTATE_INFO_SPOT)
+                        .description("Create new or update existing InfoSpots")
+                        .argument(GraphQLArgument.newArgument()
+                                .name(OUTPUT_TYPE_INFO_SPOT)
+                                .type(infoSpotInputObjectType))
+                        .dataFetcher(infoSpotsUpdater))
                 .build();
 
         stopPlaceRegisterSchema = GraphQLSchema.newSchema()
