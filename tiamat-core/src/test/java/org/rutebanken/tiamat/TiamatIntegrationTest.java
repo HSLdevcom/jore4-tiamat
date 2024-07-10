@@ -26,6 +26,7 @@ import org.rutebanken.tiamat.model.StopPlace;
 import org.rutebanken.tiamat.repository.FareZoneRepository;
 import org.rutebanken.tiamat.repository.GroupOfStopPlacesRepository;
 import org.rutebanken.tiamat.repository.GroupOfTariffZonesRepository;
+import org.rutebanken.tiamat.repository.OrganisationRepository;
 import org.rutebanken.tiamat.repository.ParkingRepository;
 import org.rutebanken.tiamat.repository.PathJunctionRepository;
 import org.rutebanken.tiamat.repository.PathLinkRepository;
@@ -119,6 +120,8 @@ public abstract class TiamatIntegrationTest {
     @Autowired
     protected FareZoneRepository fareZoneRepository;
 
+    @Autowired
+    protected OrganisationRepository organisationRepository;
 
     @Autowired
     protected EntityManagerFactory entityManagerFactory;
@@ -210,6 +213,8 @@ public abstract class TiamatIntegrationTest {
         fareZoneRepository.flush();
         tariffZonesLookupService.resetFareZone();
 
+        organisationRepository.deleteAll();
+        organisationRepository.flush();
 
         clearIdGeneration();
 
