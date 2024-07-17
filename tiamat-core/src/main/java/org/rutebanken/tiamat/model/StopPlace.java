@@ -107,6 +107,12 @@ public class StopPlace
     )
     private Set<TariffZoneRef> tariffZones = new HashSet<>();
 
+    @ElementCollection(targetClass = StopPlaceOrganisationRef.class, fetch = FetchType.EAGER)
+    @CollectionTable(
+            name = "stop_place_organisations"
+    )
+    private Set<StopPlaceOrganisationRef> organisations = new HashSet<>();
+
     @Enumerated(EnumType.STRING)
     private ModificationEnumeration modificationEnumeration;
 
@@ -291,6 +297,14 @@ public class StopPlace
 
     public void setTariffZones(Set<TariffZoneRef> tariffZones) {
         this.tariffZones = tariffZones;
+    }
+
+    public Set<StopPlaceOrganisationRef> getOrganisations() {
+        return organisations;
+    }
+
+    public void setOrganisations(Set<StopPlaceOrganisationRef> organisations) {
+        this.organisations = organisations;
     }
 
     public boolean isParentStopPlace() {
