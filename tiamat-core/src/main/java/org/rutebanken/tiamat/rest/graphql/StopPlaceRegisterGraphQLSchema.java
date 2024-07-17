@@ -102,6 +102,7 @@ import org.rutebanken.tiamat.rest.graphql.types.PathLinkObjectTypeCreator;
 import org.rutebanken.tiamat.rest.graphql.types.PurposeOfGroupingTypeCreator;
 import org.rutebanken.tiamat.rest.graphql.types.StopPlaceInterfaceCreator;
 import org.rutebanken.tiamat.rest.graphql.types.StopPlaceObjectTypeCreator;
+import org.rutebanken.tiamat.rest.graphql.types.StopPlaceOrganisationRefObjectTypeCreator;
 import org.rutebanken.tiamat.rest.graphql.types.TagObjectTypeCreator;
 import org.rutebanken.tiamat.rest.graphql.types.TariffZoneObjectTypeCreator;
 import org.rutebanken.tiamat.rest.graphql.types.TopographicPlaceObjectTypeCreator;
@@ -170,6 +171,7 @@ import static org.rutebanken.tiamat.rest.graphql.types.CustomGraphQLTypes.privat
 import static org.rutebanken.tiamat.rest.graphql.types.CustomGraphQLTypes.scopingMethodEnumType;
 import static org.rutebanken.tiamat.rest.graphql.types.CustomGraphQLTypes.siteFacilitySetInputObjectType;
 import static org.rutebanken.tiamat.rest.graphql.types.CustomGraphQLTypes.siteFacilitySetObjectType;
+import static org.rutebanken.tiamat.rest.graphql.types.CustomGraphQLTypes.stopPlaceOrganisationRefInputObjectType;
 import static org.rutebanken.tiamat.rest.graphql.types.CustomGraphQLTypes.stopPlaceTypeEnum;
 import static org.rutebanken.tiamat.rest.graphql.types.CustomGraphQLTypes.submodeEnum;
 import static org.rutebanken.tiamat.rest.graphql.types.CustomGraphQLTypes.topographicPlaceInputObjectType;
@@ -251,6 +253,9 @@ public class StopPlaceRegisterGraphQLSchema {
 
     @Autowired
     DataFetcher stopPlaceFetcher;
+
+    @Autowired
+    private StopPlaceOrganisationRefObjectTypeCreator stopPlaceOrganisationRefObjectTypeCreator;
 
     @Autowired
     private DataFetcher<Page<GroupOfStopPlaces>> groupOfStopPlacesFetcher;
@@ -498,7 +503,10 @@ public class StopPlaceRegisterGraphQLSchema {
         List<GraphQLFieldDefinition> stopPlaceInterfaceFields = stopPlaceInterfaceCreator.createCommonInterfaceFields(tariffZoneObjectType,fareZoneObjectType, topographicPlaceObjectType, validBetweenObjectType, entityPermissionObjectType);
         GraphQLInterfaceType stopPlaceInterface = stopPlaceInterfaceCreator.createInterface(stopPlaceInterfaceFields, commonFieldsList);
 
-        GraphQLObjectType stopPlaceObjectType = stopPlaceObjectTypeCreator.create(stopPlaceInterface, stopPlaceInterfaceFields, commonFieldsList, quayObjectType);
+        GraphQLObjectType organisationObjectType = createOrganisationObjectType(validBetweenObjectType);
+        GraphQLObjectType stopPlaceOrganisationRefObjectType = stopPlaceOrganisationRefObjectTypeCreator.create(organisationObjectType);
+
+        GraphQLObjectType stopPlaceObjectType = stopPlaceObjectTypeCreator.create(stopPlaceInterface, stopPlaceInterfaceFields, commonFieldsList, quayObjectType, stopPlaceOrganisationRefObjectType);
         GraphQLObjectType parentStopPlaceObjectType = parentStopPlaceObjectTypeCreator.create(stopPlaceInterface, stopPlaceInterfaceFields, commonFieldsList, stopPlaceObjectType);
 
         stopPlaceTypeResolver.setResolveFunction(object -> {
@@ -525,8 +533,6 @@ public class StopPlaceRegisterGraphQLSchema {
         GraphQLObjectType pathLinkObjectType = pathLinkObjectTypeCreator.create(pathLinkEndObjectType, netexIdFieldDefinition, geometryFieldDefinition);
 
         GraphQLObjectType parkingObjectType = createParkingObjectType(validBetweenObjectType);
-
-        GraphQLObjectType organisationObjectType = createOrganisationObjectType(validBetweenObjectType);
 
         GraphQLArgument allVersionsArgument = GraphQLArgument.newArgument()
                 .name(ALL_VERSIONS)
@@ -1649,6 +1655,9 @@ public class StopPlaceRegisterGraphQLSchema {
                         .name(TARIFF_ZONES)
                         .description("List of tariff zone references without version")
                         .type(new GraphQLList(versionLessRefInputObjectType)))
+                .field(newInputObjectField()
+                        .name(ORGANISATIONS)
+                        .type(new GraphQLList(stopPlaceOrganisationRefInputObjectType)))
                 .field(newInputObjectField()
                         .name(ADJACENT_SITES)
                         .description(ADJACENT_SITES_DESCRIPTION)
