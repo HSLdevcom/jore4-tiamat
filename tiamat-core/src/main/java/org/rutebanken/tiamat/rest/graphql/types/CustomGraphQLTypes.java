@@ -40,7 +40,6 @@ import org.rutebanken.tiamat.model.hsl.AccessibilityLevelEnumeration;
 import org.rutebanken.tiamat.model.GroupOfStopPlaces;
 import org.rutebanken.tiamat.model.hsl.ElectricityTypeEnumeration;
 import org.rutebanken.tiamat.model.hsl.GuidanceTypeEnumeration;
-import org.rutebanken.tiamat.model.hsl.HslAccessibilityProperties;
 import org.rutebanken.tiamat.model.hsl.ShelterTypeEnumeration;
 import org.rutebanken.tiamat.model.hsl.HslStopTypeEnumeration;
 import org.rutebanken.tiamat.model.hsl.MapTypeEnumeration;
@@ -77,7 +76,6 @@ import org.rutebanken.tiamat.model.TramSubmodeEnumeration;
 import org.rutebanken.tiamat.model.VehicleModeEnumeration;
 import org.rutebanken.tiamat.model.WaterSubmodeEnumeration;
 import org.rutebanken.tiamat.model.ZoneTopologyEnumeration;
-import org.rutebanken.tiamat.rest.graphql.fetchers.OrganisationFetcher;
 import org.rutebanken.tiamat.rest.graphql.fetchers.PrivateCodeFetcher;
 
 import java.lang.reflect.Method;
@@ -497,8 +495,6 @@ public class CustomGraphQLTypes {
      */
     private static PrivateCodeFetcher privateCodeFetcher = new PrivateCodeFetcher();
 
-    private static OrganisationFetcher organisationFetcher = new OrganisationFetcher();
-
     public static GraphQLObjectType privateCodeObjectType = newObject()
             .name(OUTPUT_TYPE_PRIVATE_CODE)
             .field(newFieldDefinition()
@@ -788,11 +784,7 @@ public class CustomGraphQLTypes {
 
     public static GraphQLObjectType hslAccessibilityPropertiesObjectType = newObject()
             .name(OUTPUT_TYPE_HSL_ACCESSIBILITY_PROPERTIES)
-            .field(newFieldDefinition()
-                    .name(ID)
-                    .type(GraphQLString)
-                    .dataFetcher(env -> ((HslAccessibilityProperties) env.getSource()).getNetexId())
-            )
+            .field(netexIdFieldDefinition)
             .field(newFieldDefinition()
                     .name(VERSION)
                     .type(GraphQLString))
@@ -917,8 +909,7 @@ public class CustomGraphQLTypes {
                     .type(limitationStatusEnum))
             .field(newFieldDefinition()
                     .name(HSL_ACCESSIBILITY_PROPERTIES)
-                    .type(hslAccessibilityPropertiesObjectType)
-                    .dataFetcher(env -> ((AccessibilityAssessment) env.getSource()).getHslAccessibilityProperties()))
+                    .type(hslAccessibilityPropertiesObjectType))
             .build();
 
 
