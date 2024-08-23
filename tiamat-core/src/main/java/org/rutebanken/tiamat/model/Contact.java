@@ -1,18 +1,9 @@
 package org.rutebanken.tiamat.model;
 
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.SequenceGenerator;
 
 @Entity
-public class Contact {
-    @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "contactSequenceGenerator")
-    @SequenceGenerator(name = "contactSequenceGenerator", sequenceName = "contact_seq", allocationSize = 10)
-    private long id;
-
+public class Contact extends VersionedChildStructure {
     private String contactPerson;
 
     private String email;
@@ -24,14 +15,6 @@ public class Contact {
     private String url;
 
     private String furtherDetails;
-
-    public long getId() {
-        return id;
-    }
-
-    public void setId(long id) {
-        this.id = id;
-    }
 
     public String getContactPerson() {
         return contactPerson;
