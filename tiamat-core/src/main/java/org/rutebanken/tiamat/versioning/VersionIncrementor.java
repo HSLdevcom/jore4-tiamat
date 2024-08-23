@@ -24,6 +24,7 @@ import org.rutebanken.tiamat.model.Parking;
 import org.rutebanken.tiamat.model.ParkingArea;
 import org.rutebanken.tiamat.model.ParkingEntranceForVehicles;
 import org.rutebanken.tiamat.model.ParkingProperties;
+import org.rutebanken.tiamat.model.Organisation;
 import org.rutebanken.tiamat.model.hsl.HslAccessibilityProperties;
 import org.rutebanken.tiamat.model.PlaceEquipment;
 import org.rutebanken.tiamat.model.SiteElement;
@@ -191,5 +192,16 @@ public class VersionIncrementor {
         if (boardingPosition != null) {
             initiateOrIncrement(boardingPosition);
         }
+    }
+
+    public Organisation initiateOrIncrementVersions(Organisation organisation) {
+        initiateOrIncrement(organisation);
+        if (organisation.getContactDetails() != null) {
+            initiateOrIncrement(organisation.getContactDetails());
+        }
+        if (organisation.getPrivateContactDetails() != null) {
+            initiateOrIncrement(organisation.getPrivateContactDetails());
+        }
+        return organisation;
     }
 }
