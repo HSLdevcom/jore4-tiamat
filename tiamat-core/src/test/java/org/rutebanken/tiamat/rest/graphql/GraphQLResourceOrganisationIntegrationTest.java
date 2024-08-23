@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.nullValue;
 
 public class GraphQLResourceOrganisationIntegrationTest extends AbstractGraphQLResourceIntegrationTest {
 
@@ -35,6 +36,40 @@ public class GraphQLResourceOrganisationIntegrationTest extends AbstractGraphQLR
                     .withAccessAllTypesForRole(AuthorizationConstants.ROLE_EDIT_STOPS)
                     .build()
         );
+    }
+
+    @Test
+    public void testClearOrganisationAndContactFields() {
+        Organisation organisation = createTestOrganisation();
+        organisationRepository.save(organisation);
+
+        String query = """
+            mutation {
+              organisation: mutateOrganisation(Organisation: {
+                id: "%s"
+                privateCode: null
+                companyNumber: null
+                name: null
+                organisationType: null
+                legalName: null
+                contactDetails: {email: null, phone: null}
+              }) {
+                id privateCode companyNumber name organisationType
+                legalName {value lang}
+                contactDetails {email phone}
+              }
+            }
+            """.formatted(organisation.getNetexId());
+
+        executeGraphqQLQueryOnly(query)
+                .body("data.organisation[0].id", equalTo(organisation.getNetexId()))
+                .body("data.organisation[0].privateCode", nullValue())
+                .body("data.organisation[0].companyNumber", nullValue())
+                .body("data.organisation[0].name", nullValue())
+                .body("data.organisation[0].organisationType", nullValue())
+                .body("data.organisation[0].legalName", nullValue())
+                .body("data.organisation[0].contactDetails.email", nullValue())
+                .body("data.organisation[0].contactDetails.phone", nullValue());
     }
 
     @Test
