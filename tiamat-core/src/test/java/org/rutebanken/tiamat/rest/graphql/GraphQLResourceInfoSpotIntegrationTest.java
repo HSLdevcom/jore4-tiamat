@@ -15,6 +15,7 @@ import org.rutebanken.tiamat.model.PosterSizeEnumeration;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.nullValue;
 
 public class GraphQLResourceInfoSpotIntegrationTest extends AbstractGraphQLResourceIntegrationTest {
 
@@ -32,6 +33,34 @@ public class GraphQLResourceInfoSpotIntegrationTest extends AbstractGraphQLResou
     static InfoSpotPoster otherPoster;
 
     @Test
+        public void clearNullableInfoSpotValues() throws Exception {
+                insertInfoSpots();
+                String query = """
+                        mutation {
+                            infoSpots: mutateInfoSpots(infoSpot: {
+                                id: "%s"
+                                label: null
+                                purpose: null
+                                backlight: null
+                                infoSpotLocations: null
+                                poster: null
+                            }) {
+                                id label purpose backlight infoSpotLocations
+                                poster {label}
+                            }
+                        }
+                        """.formatted(updatedInfoSpot.getNetexId());
+
+                executeGraphqQLQueryOnly(query)
+                                .body("data.infoSpots[0].id", equalTo(updatedInfoSpot.getNetexId()))
+                                .body("data.infoSpots[0].label", nullValue())
+                                .body("data.infoSpots[0].purpose", nullValue())
+                                .body("data.infoSpots[0].backlight", nullValue())
+                                .body("data.infoSpots[0].infoSpotLocations", hasSize(0))
+                                .body("data.infoSpots[0].poster", hasSize(0));
+        }
+
+        @Test
     public void testListInfoSpots() throws Exception {
 
         insertInfoSpots();
