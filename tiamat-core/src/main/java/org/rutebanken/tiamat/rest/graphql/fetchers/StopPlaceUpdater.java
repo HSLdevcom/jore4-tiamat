@@ -19,6 +19,7 @@ import com.google.api.client.util.Preconditions;
 import graphql.language.Field;
 import graphql.schema.DataFetcher;
 import graphql.schema.DataFetchingEnvironment;
+import java.util.Objects;
 import org.rutebanken.tiamat.lock.MutateLock;
 import org.rutebanken.tiamat.model.StopPlace;
 import org.rutebanken.tiamat.rest.graphql.helpers.CleanupHelper;
@@ -88,50 +89,62 @@ class StopPlaceUpdater implements DataFetcher {
     }
 
     private StopPlace createOrUpdateStopPlace(DataFetchingEnvironment environment, boolean mutateParent) {
-        StopPlace updatedStopPlace;
-        StopPlace existingStopPlace = null;
-
         Map input = environment.getArgument(OUTPUT_TYPE_STOPPLACE);
         if (input == null) {
             input = environment.getArgument(OUTPUT_TYPE_PARENT_STOPPLACE);
         }
 
         if (input != null) {
+            return createOrUpdateStopPlace(input, mutateParent);
+        }
+        return null;
+    }
 
-            String netexId = (String) input.get(ID);
-            if (netexId != null) {
+    private StopPlace createOrUpdateStopPlace(Map input, boolean mutateParent) {
+        StopPlace updatedStopPlace;
+        StopPlace existingStopPlace = null;
 
-                logger.info("About to update StopPlace {}", netexId);
+        String netexId = (String) input.get(ID);
+        if (netexId != null) {
+            logger.info("About to update StopPlace {}", netexId);
+            existingStopPlace = stopPlaceMutationValidator.validateStopPlaceUpdate(netexId, mutateParent, true);
+            if (existingStopPlace.getParentSiteRef() != null) {
+                StopPlace parentStopPlace = stopPlaceMutationValidator.validateStopPlaceUpdate(existingStopPlace.getParentSiteRef().getRef(), true);
+                Map parentMap = Map.of(
+                        ID, parentStopPlace.getNetexId(),
+                        CHILDREN, List.of(input));
 
-                existingStopPlace = stopPlaceMutationValidator.validateStopPlaceUpdate(netexId, mutateParent);
-                updatedStopPlace = versionCreator.createCopy(existingStopPlace, StopPlace.class);
-
-            } else {
-                Preconditions.checkArgument(!mutateParent,
-                        "Cannot create new parent stop place. Use mutation %s", CREATE_MULTI_MODAL_STOPPLACE);
-
-                logger.info("Creating new StopPlace");
-                updatedStopPlace = new StopPlace();
+                StopPlace parent = createOrUpdateStopPlace(parentMap, true);
+                final String childNetexId = existingStopPlace.getNetexId();
+                return parent.getChildren().stream().filter(stop -> Objects.equals(stop.getNetexId(), childNetexId)).findFirst().orElse(null);
             }
 
-            if (updatedStopPlace != null) {
-                boolean hasValuesChanged = stopPlaceMapper.populateStopPlaceFromInput(input, updatedStopPlace);
+            updatedStopPlace = versionCreator.createCopy(existingStopPlace, StopPlace.class);
 
-                Set<String> childStopsUpdated;
-                if (updatedStopPlace.isParentStopPlace()) {
-                    childStopsUpdated = handleChildStops(input, updatedStopPlace);
-                    hasValuesChanged |= !childStopsUpdated.isEmpty();
-                } else {
-                    childStopsUpdated = new HashSet<>();
-                }
+        } else {
+            Preconditions.checkArgument(!mutateParent,
+                    "Cannot create new parent stop place. Use mutation %s", CREATE_MULTI_MODAL_STOPPLACE);
 
-                if (hasValuesChanged) {
-                    stopPlaceMutationValidator.validateStopPlaceName(updatedStopPlace);
+            logger.info("Creating new StopPlace");
+            updatedStopPlace = new StopPlace();
+        }
 
-                    updatedStopPlace = stopPlaceVersionedSaverService.saveNewVersion(existingStopPlace, updatedStopPlace, childStopsUpdated);
+        if (updatedStopPlace != null) {
+            boolean hasValuesChanged = stopPlaceMapper.populateStopPlaceFromInput(input, updatedStopPlace);
 
-                    return updatedStopPlace;
-                }
+            Set<String> childStopsUpdated;
+            if (updatedStopPlace.isParentStopPlace()) {
+                childStopsUpdated = handleChildStops(input, updatedStopPlace);
+                hasValuesChanged |= !childStopsUpdated.isEmpty();
+            } else {
+                childStopsUpdated = new HashSet<>();
+            }
+
+            if (hasValuesChanged) {
+                stopPlaceMutationValidator.validateStopPlaceName(updatedStopPlace);
+                updatedStopPlace = stopPlaceVersionedSaverService.saveNewVersion(existingStopPlace, updatedStopPlace, childStopsUpdated);
+
+                return updatedStopPlace;
             }
         }
         return existingStopPlace;

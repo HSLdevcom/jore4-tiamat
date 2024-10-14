@@ -62,9 +62,13 @@ public class StopPlaceMutationValidator {
     }
 
     public StopPlace validateStopPlaceUpdate(String netexId, boolean isParentMutation) throws IllegalArgumentException {
+        return validateStopPlaceUpdate(netexId, isParentMutation, false);
+    }
+
+    public StopPlace validateStopPlaceUpdate(String netexId, boolean isParentMutation, boolean allowChildMutation) throws IllegalArgumentException {
         StopPlace existingStopPlace = findAndVerifyExists(netexId);
         validateNotDeleted(existingStopPlace);
-        validateParentChildType(existingStopPlace, isParentMutation, netexId);
+        validateParentChildType(existingStopPlace, isParentMutation, netexId, allowChildMutation);
         return existingStopPlace;
     }
 
@@ -162,7 +166,7 @@ public class StopPlaceMutationValidator {
         );
     }
 
-    private void validateParentChildType(StopPlace stopPlace, boolean isParentMutation, String netexId) {
+    private void validateParentChildType(StopPlace stopPlace, boolean isParentMutation, String netexId, boolean allowChildMutation) {
         if (isParentMutation) {
             Preconditions.checkArgument(
                     stopPlace.isParentStopPlace(),
@@ -175,7 +179,7 @@ public class StopPlaceMutationValidator {
             );
 
             Preconditions.checkArgument(
-                    stopPlace.getParentSiteRef() == null,
+                    allowChildMutation || stopPlace.getParentSiteRef() == null,
                     "Cannot update stop place [id = %s] which has parent. Edit parent instead: %s",
                     netexId, stopPlace.getParentSiteRef()
             );
