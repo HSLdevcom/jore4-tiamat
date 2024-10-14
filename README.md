@@ -218,6 +218,9 @@ async.export.path=/tmp
 # OAuth2 Resource Server (e.g. local Keycloak, see Keycloak_Setup_Guide.md)
 spring.security.oauth2.resourceserver.jwt.issuer-uri=http://localhost:8082/realms/entur
 
+# Preserve child names and validity when a parent stop place is saved.
+tiamat.multimodal.allowSameNameForChild=false
+
 spring.cloud.gcp.pubsub.enabled=false
 
 # Optional overrides — sensible defaults ship in the jar
