@@ -598,6 +598,7 @@ public class GraphQLResourceInfoSpotIntegrationTest extends AbstractGraphQLResou
                     ) {
                         id
                         poster {
+                            version
                             label
                             posterSize
                             lines
@@ -616,6 +617,7 @@ public class GraphQLResourceInfoSpotIntegrationTest extends AbstractGraphQLResou
                 .body("id", equalTo(updatedInfoSpot.getNetexId()))
                 .body("poster", hasSize(1))
                 .appendRootPath("poster[0]")
+                .body("version", equalTo(Long.toString(updatedPoster.getVersion() + 1)))
                 .body("label", equalTo(updatedPoster.getLabel()))
                 .body("posterSize", equalTo(updatedPoster.getPosterSize().value()))
                 .body("lines", equalTo(newLines));
