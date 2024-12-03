@@ -29,7 +29,7 @@ import java.util.List;
 import java.util.Set;
 
 @MappedSuperclass
-public abstract class SiteElement extends AddressablePlace {
+public abstract class SiteElement extends AddressablePlace implements EntityWithAlternativeNames {
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     private final List<AlternativeName> alternativeNames = new ArrayList<>();
