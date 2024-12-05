@@ -12,7 +12,7 @@ COPY ./src /build/src
 # package
 RUN mvn clean package -DskipTests
 
-FROM eclipse-temurin:21.0.2_13-jre
+FROM eclipse-temurin:21.0.5_11-jre
 
 # expose server port
 EXPOSE 1888
