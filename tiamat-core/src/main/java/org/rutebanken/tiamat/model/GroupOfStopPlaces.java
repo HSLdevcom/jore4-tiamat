@@ -39,15 +39,15 @@ public class GroupOfStopPlaces extends GroupOfEntities_VersionStructure implemen
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     private final List<AlternativeName> alternativeNames = new ArrayList<>();
+
     @ElementCollection(targetClass = StopPlaceReference.class, fetch = FetchType.EAGER)
-    @CollectionTable(
-            name = "group_of_stop_places_members"
-    )
+    @CollectionTable(name = "group_of_stop_places_members")
     @AttributeOverrides({
             @AttributeOverride(name = "ref", column = @Column(name = "ref")),
             @AttributeOverride(name = "version", column = @Column(name = "version"))
     })
-    private Set<StopPlaceReference> members = new HashSet<>();
+    private final Set<StopPlaceReference> members = new HashSet<>();
+
     private Point centroid;
 
     @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
@@ -61,6 +61,7 @@ public class GroupOfStopPlaces extends GroupOfEntities_VersionStructure implemen
     public GroupOfStopPlaces() {
     }
 
+
     public Point getCentroid() {
         return centroid;
     }
@@ -69,13 +70,26 @@ public class GroupOfStopPlaces extends GroupOfEntities_VersionStructure implemen
         this.centroid = centroid;
     }
 
+
     public Set<StopPlaceReference> getMembers() {
         return members;
     }
 
+    public void setMembers(Set<StopPlaceReference> members) {
+        this.members.clear();
+        this.members.addAll(members);
+    }
+
+
     public List<AlternativeName> getAlternativeNames() {
         return alternativeNames;
     }
+
+    public void setAlternativeNames(List<AlternativeName> alternativeNames) {
+        this.alternativeNames.clear();
+        this.alternativeNames.addAll(alternativeNames);
+    }
+
 
     public PurposeOfGrouping getPurposeOfGrouping() {
         return purposeOfGrouping;
@@ -85,6 +99,7 @@ public class GroupOfStopPlaces extends GroupOfEntities_VersionStructure implemen
         this.purposeOfGrouping=purposeOfGrouping;
     }
 
+
     @Override
     public String toString() {
         return MoreObjects.toStringHelper(this)
@@ -92,6 +107,7 @@ public class GroupOfStopPlaces extends GroupOfEntities_VersionStructure implemen
                 .add("netexId", netexId)
                 .add("version", version)
                 .add("name", name)
+                .add("alternativeNames", alternativeNames)
                 .add("validBetween", getValidBetween())
                 .add("centroid", getCentroid())
                 .add("members", members)
