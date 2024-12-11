@@ -214,7 +214,7 @@ public class GroupOfStopPlacesSaverService {
             }
         }
 
-        versionIncrementor.incrementVersion(groupOfStopPlaces);
+        versionIncrementor.initiateOrIncrementGroupOfStopPlaces(groupOfStopPlaces);
     }
 
 
