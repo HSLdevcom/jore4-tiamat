@@ -1664,6 +1664,9 @@ public class StopPlaceRegisterGraphQLSchema {
                     .field(newFieldDefinition()
                             .name(LIGHTING)
                             .type(lightingEnumType))
+                    .field(newFieldDefinition()
+                            .name(VERSION_COMMENT)
+                            .type(GraphQLString))
                     .build();
     }
 
@@ -1817,6 +1820,7 @@ public class StopPlaceRegisterGraphQLSchema {
                 .field(newInputObjectField()
                     .name(LIGHTING)
                     .type(lightingEnumType))
+                .field(newInputObjectField().name(VERSION_COMMENT).type(GraphQLString))
                 .build();
     }
 
