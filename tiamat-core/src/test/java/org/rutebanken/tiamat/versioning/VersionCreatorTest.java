@@ -15,6 +15,7 @@
 
 package org.rutebanken.tiamat.versioning;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.locationtech.jts.geom.Coordinate;
 import org.rutebanken.tiamat.TiamatIntegrationTest;
@@ -168,7 +169,9 @@ public class VersionCreatorTest extends TiamatIntegrationTest {
      * This is because of historical reasons where we had an issue with unique constrainst, due to inconsistent place/installed equipment versions.
      * See NRP-2348 and relevant queries for detecting this issue here: https://github.com/entur/tiamat-scripts/tree/master/fix_inconsistent_equipment
      */
+    // Ignored due to this functionality being needed in HSL Tiamat
     @Test
+    @Ignore
     public void stopPlacePlaceEquipmentSholdBeCopiedWithoutNetexIdAndVersion() {
         StopPlace stopPlace = new StopPlace();
         stopPlace.setNetexId(randomizedTestNetexIdGenerator.generateRandomizedNetexId(stopPlace));
@@ -179,7 +182,9 @@ public class VersionCreatorTest extends TiamatIntegrationTest {
         assertPlaceEquipmentIdAndVersionIsEmpty(copy.getPlaceEquipments());
     }
 
+    // Ignored due to this functionality being needed in HSL Tiamat
     @Test
+    @Ignore
     public void quayPlaceEquipmentSholdBeCopiedWithoutNetexIdAndVersion() {
         Quay quay = new Quay();
         quay.setNetexId(randomizedTestNetexIdGenerator.generateRandomizedNetexId(quay));
