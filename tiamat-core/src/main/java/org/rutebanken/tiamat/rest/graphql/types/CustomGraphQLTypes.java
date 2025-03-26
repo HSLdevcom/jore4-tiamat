@@ -348,6 +348,14 @@ public class CustomGraphQLTypes {
                     .name(SHELTER_FASCIA_BOARD_TAPING)
                     .description("Pysäkkikatoksen otsalaudan teippaus")
                     .type(GraphQLBoolean))
+            .field(newFieldDefinition()
+                    .name(SHELTER_NUMBER)
+                    .description("Pysäkkikatoksen numero")
+                    .type(GraphQLInt))
+            .field(newFieldDefinition()
+                    .name(SHELTER_EXTERNAL_ID)
+                    .description("Pysäkkikatoksen varustenumero")
+                    .type(GraphQLString))
             .build();
 
     public static GraphQLInputObjectType shelterEquipmentInputType = GraphQLInputObjectType.newInputObject()
@@ -408,6 +416,14 @@ public class CustomGraphQLTypes {
                     .name(SHELTER_FASCIA_BOARD_TAPING)
                     .description("Pysäkkikatoksen otsalaudan teippaus")
                     .type(GraphQLBoolean))
+            .field(newInputObjectField()
+                    .name(SHELTER_NUMBER)
+                    .description("Pysäkkikatoksen numero")
+                    .type(GraphQLInt))
+            .field(newInputObjectField()
+                    .name(SHELTER_EXTERNAL_ID)
+                    .description("Pysäkkikatoksen varustenumero")
+                    .type(GraphQLString))
             .build();
 
     public static GraphQLObjectType ticketingEquipmentType = newObject()
