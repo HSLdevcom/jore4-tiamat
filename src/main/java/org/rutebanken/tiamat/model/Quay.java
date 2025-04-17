@@ -17,8 +17,13 @@ package org.rutebanken.tiamat.model;
 
 import com.google.common.base.MoreObjects;
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.CollectionTable;
+import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.OrderColumn;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import org.hibernate.annotations.Cache;
@@ -47,6 +52,13 @@ public class Quay extends StopPlaceSpace_VersionStructure {
      */
     protected Float compassBearing;
 
+    @ElementCollection(fetch = FetchType.LAZY)
+    @CollectionTable(
+            joinColumns = @JoinColumn(name = "quayId")
+    )
+    @OrderColumn(name = "orderNum")
+    protected List<QuayExternalLink> externalLinks;
+
     public Quay(EmbeddableMultilingualString name) {
         super(name);
     }
@@ -72,6 +84,14 @@ public class Quay extends StopPlaceSpace_VersionStructure {
 
     public List<BoardingPosition> getBoardingPositions() {
         return boardingPositions;
+    }
+
+    public List<QuayExternalLink> getExternalLinks() {
+        return externalLinks;
+    }
+
+    public void setExternalLinks(List<QuayExternalLink> externalLinks) {
+        this.externalLinks = List.copyOf(externalLinks);
     }
 
     @Override
