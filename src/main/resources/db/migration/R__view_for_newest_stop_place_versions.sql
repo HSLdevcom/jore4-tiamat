@@ -1,17 +1,61 @@
 DROP VIEW IF EXISTS stop_place_newest_version;
 
 CREATE VIEW stop_place_newest_version AS
-SELECT
-    sp.*,
-    streetAddress.items AS street_address,
-    priority.items AS priority,
-    validityStart.items AS validity_start,
-    validityEnd.items AS validity_end
+SELECT -- Stop Place's own fields
+       sp.id,
+       sp.netex_id,
+       sp.changed,
+       sp.created,
+       sp.from_date,
+       sp.to_date,
+       sp.version,
+       sp.version_comment,
+       sp.description_lang,
+       sp.description_value,
+       sp.name_lang,
+       sp.name_value,
+       sp.private_code_type,
+       sp.private_code_value,
+       sp.short_name_lang,
+       sp.short_name_value,
+       sp.centroid,
+       sp.all_areas_wheelchair_accessible,
+       sp.covered,
+       sp.parent_site_ref,
+       sp.parent_site_ref_version,
+       sp.air_submode,
+       sp.border_crossing,
+       sp.bus_submode,
+       sp.coach_submode,
+       sp.funicular_submode,
+       sp.metro_submode,
+       sp.public_code,
+       sp.rail_submode,
+       sp.stop_place_type,
+       sp.telecabin_submode,
+       sp.tram_submode,
+       sp.transport_mode,
+       sp.water_submode,
+       sp.weighting,
+       sp.polygon_id,
+       sp.accessibility_assessment_id,
+       sp.place_equipments_id,
+       sp.topographic_place_id,
+       sp.changed_by,
+       sp.parent_stop_place,
+       sp.modification_enumeration,
+
+       -- Extra location bits
+       streetAddress.items AS street_address,
+
+       -- HSL validity info
+       priority.items AS priority,
+       validityStart.items AS validity_start,
+       validityEnd.items AS validity_end
 
 FROM stop_place AS sp
 
-    INNER JOIN stop_place_max_version AS maxVersion ON
-        sp.netex_id = maxVersion.netex_id AND sp.version = maxVersion.version
+     INNER JOIN stop_place_max_version AS maxVersion ON sp.id = maxVersion.id
 
     --- These can technically contain multiple values -> Duplicate result rows.
     --- But in practice these should never contain duplicates on our use cases.

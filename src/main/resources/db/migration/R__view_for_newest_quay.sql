@@ -21,18 +21,57 @@ LEFT JOIN alternative_name AS an ON qan.alternative_names_id = an.id;
 
 
 CREATE VIEW quay_newest_version AS
-SELECT  q.*,
-        qanbt.name_value     AS location_swe,
-        streetAddress.items  AS street_address,
-        priority.items       AS priority,
-        validityStart.items  AS validity_start,
-        validityEnd.items    AS validity_end,
-        ELYCode.items        AS ely_code,
-        postalCode.items     AS postal_code,
-        functionalArea.items AS functional_area,
-        spmv.id              AS stop_place_id,
-        spmv.version         AS stop_place_version,
-        spmv.netex_id        AS stop_place_netex_id
+SELECT -- Quay's own fields
+       q.id,
+       q.netex_id,
+       q.changed,
+       q.created,
+       q.from_date,
+       q.to_date,
+       q.version,
+       q.version_comment,
+       q.description_lang,
+       q.description_value,
+       q.name_lang,
+       q.name_value,
+       q.private_code_type,
+       q.private_code_value,
+       q.short_name_lang,
+       q.short_name_value,
+       q.centroid,
+       q.all_areas_wheelchair_accessible,
+       q.covered,
+       q.level_ref,
+       q.level_ref_version,
+       q.site_ref,
+       q.site_ref_version,
+       q.label_lang,
+       q.label_value,
+       q.compass_bearing,
+       q.public_code,
+       q.polygon_id,
+       q.accessibility_assessment_id,
+       q.place_equipments_id,
+       q.changed_by,
+
+       -- Extra location bits
+       qanbt.name_value     AS location_swe,
+       streetAddress.items  AS street_address,
+
+       -- HSL validity info
+       priority.items       AS priority,
+       validityStart.items  AS validity_start,
+       validityEnd.items    AS validity_end,
+
+       -- Extra used keyvalues
+       ELYCode.items        AS ely_code,
+       postalCode.items     AS postal_code,
+       functionalArea.items AS functional_area,
+
+       -- Stop Place info
+       spmv.id              AS stop_place_id,
+       spmv.version         AS stop_place_version,
+       spmv.netex_id        AS stop_place_netex_id
 
 FROM quay AS q
 

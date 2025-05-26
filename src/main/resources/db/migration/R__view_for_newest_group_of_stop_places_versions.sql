@@ -1,5 +1,2 @@
-create or replace view group_of_stop_places_newest_version as
-  select distinct on (netex_id) *
-  from group_of_stop_places
-  order by netex_id, version desc;
-
+-- Groups of Stop Places are not used in HSL anymore.
+DROP VIEW IF EXISTS group_of_stop_places_newest_version;
