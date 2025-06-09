@@ -512,6 +512,7 @@ public class GraphQLNames {
     public static final String STOP_PLACE_IDS = "stopPlaceIds";
     public static final String FROM_STOP_PLACE_ID = "fromStopPlaceId";
     public static final String TO_STOP_PLACE_ID = "toStopPlaceId";
+    public static final String MOVE_QUAY_FROM_DATE = "moveQuayFromDate";
     public static final String FROM_QUAY_ID = "fromQuayId";
     public static final String TO_QUAY_ID = "toQuayId";
     public static final String MERGE_STOP_PLACES = "mergeStopPlaces";

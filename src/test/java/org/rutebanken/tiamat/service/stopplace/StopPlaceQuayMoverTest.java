@@ -24,6 +24,7 @@ import org.rutebanken.tiamat.repository.StopPlaceRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
 import java.util.Arrays;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -52,7 +53,7 @@ public class StopPlaceQuayMoverTest extends TiamatIntegrationTest {
         destinationStopPlace.setVersion(1L);
         stopPlaceRepository.save(destinationStopPlace);
 
-        StopPlace result = stopPlaceQuayMover.moveQuays(Arrays.asList(quayToMove.getNetexId()), destinationStopPlace.getNetexId(),null, null);
+        StopPlace result = stopPlaceQuayMover.moveQuays(Arrays.asList(quayToMove.getNetexId()), destinationStopPlace.getNetexId(), Instant.now(),null, null);
 
         assertThat(result.getNetexId()).isEqualTo(destinationStopPlace.getNetexId());
         assertThat(result.getQuays()).hasSize(1);
@@ -82,7 +83,7 @@ public class StopPlaceQuayMoverTest extends TiamatIntegrationTest {
         fromStopPlace.setVersion(1L);
         stopPlaceRepository.save(fromStopPlace);
 
-        StopPlace result = stopPlaceQuayMover.moveQuays(Arrays.asList(quayToMove.getNetexId()), null, null,null);
+        StopPlace result = stopPlaceQuayMover.moveQuays(Arrays.asList(quayToMove.getNetexId()), null, Instant.now(), null,null);
 
         fromStopPlace = stopPlaceRepository.findFirstByNetexIdOrderByVersionDesc(fromStopPlace.getNetexId());
         assertThat(fromStopPlace.getQuays()).isEmpty();
@@ -118,7 +119,7 @@ public class StopPlaceQuayMoverTest extends TiamatIntegrationTest {
         parentDestinationStopPlace = stopPlaceVersionedSaverService.saveNewVersion(parentDestinationStopPlace);
 
 
-        StopPlace actualParentDestinationStopPlace = stopPlaceQuayMover.moveQuays(Arrays.asList(quayToMove.getNetexId()), destinationStopPlace.getNetexId(), "from comment", "to comment");
+        StopPlace actualParentDestinationStopPlace = stopPlaceQuayMover.moveQuays(Arrays.asList(quayToMove.getNetexId()), destinationStopPlace.getNetexId(), Instant.now(), "from comment", "to comment");
 
 
         assertThat(actualParentDestinationStopPlace).isNotNull();
@@ -136,7 +137,7 @@ public class StopPlaceQuayMoverTest extends TiamatIntegrationTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void doNotAcceptInvalidQuayId() {
-        stopPlaceQuayMover.moveQuays(Arrays.asList("NSR:Quay:99999999"), null, null, null);
+        stopPlaceQuayMover.moveQuays(Arrays.asList("NSR:Quay:99999999"), null, Instant.now(), null, null);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -149,6 +150,6 @@ public class StopPlaceQuayMoverTest extends TiamatIntegrationTest {
         fromStopPlace.setVersion(1L);
         stopPlaceRepository.save(fromStopPlace);
 
-        stopPlaceQuayMover.moveQuays(Arrays.asList(quayToMove.getNetexId()), "NSR:StopPlace:91919191", null, null);
+        stopPlaceQuayMover.moveQuays(Arrays.asList(quayToMove.getNetexId()), "NSR:StopPlace:91919191", Instant.now(), null, null);
     }
 }
