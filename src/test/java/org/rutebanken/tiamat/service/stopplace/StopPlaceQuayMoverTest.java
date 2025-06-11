@@ -55,7 +55,7 @@ public class StopPlaceQuayMoverTest extends TiamatIntegrationTest {
         destinationStopPlace.setVersion(1L);
         stopPlaceRepository.save(destinationStopPlace);
 
-        Instant tomorrow = LocalDate.now().plusDays(1).atStartOfDay(ZoneId.systemDefault()).toInstant();
+        Instant tomorrow = getTomorrow();
 
         StopPlace result = stopPlaceQuayMover.moveQuays(Arrays.asList(quayToMove.getNetexId()), destinationStopPlace.getNetexId(), tomorrow,null, null);
 
@@ -94,7 +94,7 @@ public class StopPlaceQuayMoverTest extends TiamatIntegrationTest {
         fromStopPlace.setVersion(1L);
         stopPlaceRepository.save(fromStopPlace);
 
-        Instant tomorrow = LocalDate.now().plusDays(1).atStartOfDay(ZoneId.systemDefault()).toInstant();
+        Instant tomorrow = getTomorrow();
 
         StopPlace result = stopPlaceQuayMover.moveQuays(Arrays.asList(quayToMove.getNetexId()), null, tomorrow, null,null);
 
@@ -147,7 +147,7 @@ public class StopPlaceQuayMoverTest extends TiamatIntegrationTest {
         parentDestinationStopPlace.getChildren().add(destinationStopPlace);
         parentDestinationStopPlace = stopPlaceVersionedSaverService.saveNewVersion(parentDestinationStopPlace);
 
-        Instant tomorrow = LocalDate.now().plusDays(1).atStartOfDay(ZoneId.systemDefault()).toInstant();
+        Instant tomorrow = getTomorrow();
         String fromVersionComment = "from comment";
         String toVersionComment = "to comment";
 
@@ -206,5 +206,10 @@ public class StopPlaceQuayMoverTest extends TiamatIntegrationTest {
         stopPlaceRepository.save(fromStopPlace);
 
         stopPlaceQuayMover.moveQuays(Arrays.asList(quayToMove.getNetexId()), "NSR:StopPlace:91919191", Instant.now(), null, null);
+    }
+
+    private Instant getTomorrow() {
+        Instant tomorrow = LocalDate.now().plusDays(1).atStartOfDay(ZoneId.systemDefault()).toInstant();
+        return tomorrow;
     }
 }

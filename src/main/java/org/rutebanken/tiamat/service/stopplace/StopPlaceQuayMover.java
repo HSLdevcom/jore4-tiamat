@@ -70,17 +70,18 @@ public class StopPlaceQuayMover {
     public StopPlace moveQuays(List<String> quayIds, String destinationStopPlaceId, Instant moveQuayFromDate, String fromVersionComment, String toVersionComment) {
 
         return mutateLock.executeInLock(() -> {
-            Set<Quay> quays = resolveQuays(quayIds);
-
-            Set<StopPlace> sourceStopPlaces = resolveSourceStopPlaces(quays);
+            Set<StopPlace> sourceStopPlaces = resolveSourceStopPlaces(resolveQuays(quayIds));
             verifySize(quayIds, sourceStopPlaces);
 
             StopPlace sourceStopPlace = sourceStopPlaces.iterator().next();
 
             logger.debug("Found stop place to move quays {} from {}", quayIds, sourceStopPlace);
 
-            Set<Quay> quaysToAdd = modifySourceQuaysValidityDates(sourceStopPlace, fromVersionComment, quayIds, moveQuayFromDate);
-            StopPlace response = addQuaysToDestinationStop(destinationStopPlaceId, quaysToAdd, toVersionComment, moveQuayFromDate);
+            // If move date is not given, use current time
+            Instant moveDate = (moveQuayFromDate != null) ? moveQuayFromDate : Instant.now();
+
+            Set<Quay> quaysToAdd = modifySourceQuaysValidityDates(sourceStopPlace, fromVersionComment, quayIds, moveDate);
+            StopPlace response = addQuaysToDestinationStop(destinationStopPlaceId, quaysToAdd, toVersionComment, moveDate);
 
             logger.info("Moved quays: {} from stop {} to {}", quayIds, sourceStopPlace.getNetexId(), response.getNetexId());
             return response;
@@ -104,17 +105,7 @@ public class StopPlaceQuayMover {
 
         // Add correct validity dates to the given quays, so that they are valid starting from the move date
         for (Quay quay : quaysToAdd) {
-            ValidBetween quayValidity = quay.getValidBetween();
-            ValidBetween stopPlaceValidity = stopPlaceToAddQuaysTo.getValidBetween();
-
-            Instant quayValidToDate = (quayValidity == null) ? null : quayValidity.getToDate();
-            Instant stopPlaceValidTo =  (stopPlaceValidity == null) ? null : stopPlaceValidity.getToDate();
-
-            // If quay is valid after the stop place, set the quay validity to end on the same time as the stop place
-            if (quayValidToDate != null && stopPlaceValidTo != null && quayValidToDate.isAfter(stopPlaceValidTo)) {
-                quayValidToDate = stopPlaceValidTo;
-            }
-
+            Instant quayValidToDate = getQuayValidToDate(quay, stopPlaceToAddQuaysTo);
             quay.setValidBetween(new ValidBetween(moveDate, quayValidToDate));
         }
 
@@ -124,6 +115,20 @@ public class StopPlaceQuayMover {
 
         logger.debug("Saved stop place with new quays {} {}", quaysToAdd, destinationStopPlace);
         return save(destination, moveDate);
+    }
+
+    private Instant getQuayValidToDate(Quay quay, StopPlace stopPlaceToAddQuaysTo) {
+        ValidBetween quayValidity = quay.getValidBetween();
+        ValidBetween stopPlaceValidity = stopPlaceToAddQuaysTo.getValidBetween();
+
+        Instant quayValidToDate = (quayValidity == null) ? null : quayValidity.getToDate();
+        Instant stopPlaceValidTo =  (stopPlaceValidity == null) ? null : stopPlaceValidity.getToDate();
+
+        // If quay is valid after the stop place, set the quay validity to end on the same time as the stop place
+        if (quayValidToDate != null && stopPlaceValidTo != null && quayValidToDate.isAfter(stopPlaceValidTo)) {
+            quayValidToDate = stopPlaceValidTo;
+        }
+        return quayValidToDate;
     }
 
     private Set<Quay> modifySourceQuaysValidityDates(StopPlace sourceStopPlace, String fromVersionComment, List<String> quayIds, Instant moveDate) {
