@@ -95,6 +95,58 @@ public class Quay extends StopPlaceSpace_VersionStructure {
         this.externalLinks = List.copyOf(externalLinks);
     }
 
+    public void resetNetexIds() {
+
+        this.setNetexId(null);
+        this.setVersion(0);
+
+        // Manually reset netex ids of the related items to prevent conflicts
+
+        var accessibilityAssessment = this.getAccessibilityAssessment();
+        if (accessibilityAssessment != null) {
+            accessibilityAssessment.setNetexId(null);
+            accessibilityAssessment.setVersion(0);
+        }
+
+        var installedEquipment = this.getPlaceEquipments();
+        if (installedEquipment != null) {
+            installedEquipment.setNetexId(null);
+            installedEquipment.setVersion(0);
+        }
+
+        var alternativeNames = this.getAlternativeNames();
+        if (alternativeNames != null) {
+            for (AlternativeName alternativeName : alternativeNames) {
+                alternativeName.setNetexId(null);
+                alternativeName.setVersion(0);
+            }
+        }
+
+        var boardingPositions = this.getBoardingPositions();
+        if (boardingPositions != null) {
+            for (var boardingPosition : boardingPositions) {
+                boardingPosition.setNetexId(null);
+                boardingPosition.setVersion(0);
+            }
+        }
+
+        var checkConstraints = this.getCheckConstraints();
+        if (checkConstraints != null) {
+            for (var checkConstraint : checkConstraints) {
+                checkConstraint.setNetexId(null);
+                checkConstraint.setVersion(0);
+            }
+        }
+
+        var equipmentPlaces = this.getEquipmentPlaces();
+        if (equipmentPlaces != null) {
+            for (var equipmentPlace : equipmentPlaces) {
+                equipmentPlace.setNetexId(null);
+                equipmentPlace.setVersion(0);
+            }
+        }
+    }
+
     @Override
     public boolean equals(Object object) {
         if (this == object) {
