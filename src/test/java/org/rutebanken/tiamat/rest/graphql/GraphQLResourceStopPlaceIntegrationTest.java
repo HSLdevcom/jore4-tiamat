@@ -1750,6 +1750,7 @@ public class GraphQLResourceStopPlaceIntegrationTest extends AbstractGraphQLReso
 
         String versionComment = "moving quays";
         Instant now = Instant.now();
+        String nowStr = LocalDate.now().toString();
 
         String graphQlJsonQuery = """
                     mutation {
@@ -1758,6 +1759,10 @@ public class GraphQLResourceStopPlaceIntegrationTest extends AbstractGraphQLReso
                         ...on StopPlace {
                             quays {
                                 id
+                                keyValues {
+                                    key
+                                    values
+                                }
                             }
                         }
                         versionComment
@@ -1774,7 +1779,9 @@ public class GraphQLResourceStopPlaceIntegrationTest extends AbstractGraphQLReso
                 .body("data.stopPlace.id", not(comparesEqualTo(stopPlace.getNetexId())))
                 .body("data.stopPlace.versionComment", equalTo(versionComment))
                 .rootPath("data.stopPlace.quays[0]")
-                    .body("id", not(comparesEqualTo(quay.getNetexId())));
+                    .body("id", not(comparesEqualTo(quay.getNetexId())))
+                    .body("keyValues", not(empty()))
+                    .body("keyValues.find { it.key == 'validityStart' }.values[0]", equalTo(nowStr));
 
     }
 
