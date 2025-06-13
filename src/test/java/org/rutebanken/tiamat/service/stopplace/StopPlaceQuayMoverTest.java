@@ -20,10 +20,14 @@ import org.rutebanken.tiamat.TiamatIntegrationTest;
 import org.rutebanken.tiamat.model.EmbeddableMultilingualString;
 import org.rutebanken.tiamat.model.Quay;
 import org.rutebanken.tiamat.model.StopPlace;
+import org.rutebanken.tiamat.model.Value;
 import org.rutebanken.tiamat.repository.StopPlaceRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.Arrays;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -52,20 +56,30 @@ public class StopPlaceQuayMoverTest extends TiamatIntegrationTest {
         destinationStopPlace.setVersion(1L);
         stopPlaceRepository.save(destinationStopPlace);
 
-        StopPlace result = stopPlaceQuayMover.moveQuays(Arrays.asList(quayToMove.getNetexId()), destinationStopPlace.getNetexId(),null, null);
+        Instant tomorrow = getTomorrow();
+        String tomorrowStr = LocalDate.ofInstant(tomorrow, ZoneId.systemDefault()).toString();
+
+        StopPlace result = stopPlaceQuayMover.moveQuays(Arrays.asList(quayToMove.getNetexId()), destinationStopPlace.getNetexId(), tomorrow,null, null);
 
         assertThat(result.getNetexId()).isEqualTo(destinationStopPlace.getNetexId());
         assertThat(result.getQuays()).hasSize(1);
         assertThat(result.getVersion()).isEqualTo(2L);
 
-        Quay actualQuay = result.getQuays().iterator().next();
-        assertThat(actualQuay.getName()).isNotNull();
-        assertThat(actualQuay.getVersion()).isEqualTo(2L);
-        assertThat(actualQuay.getName().getValue()).isEqualTo(quayToMove.getName().getValue());
+        Quay destinationQuay = result.getQuays().iterator().next();
+        assertThat(destinationQuay.getName()).isNotNull();
+        assertThat(destinationQuay.getVersion()).isEqualTo(1L);
+        assertThat(destinationQuay.getName().getValue()).isEqualTo(quayToMove.getName().getValue());
+        assertThat(destinationQuay.getKeyValues().get("validityStart").getItems().stream().findFirst().get()).isEqualTo(tomorrowStr);
 
         fromStopPlace = stopPlaceRepository.findFirstByNetexIdOrderByVersionDesc(fromStopPlace.getNetexId());
-        assertThat(fromStopPlace.getQuays()).isEmpty();
-        assertThat(fromStopPlace.getVersion()).as("new version of source stop place with no quays").isEqualTo(2L);
+        assertThat(fromStopPlace.getQuays()).hasSize(1);
+        assertThat(fromStopPlace.getVersion()).as("new version of source stop place with modified validity quays").isEqualTo(2L);
+
+        Quay sourceQuay = fromStopPlace.getQuays().iterator().next();
+        assertThat(sourceQuay.getName()).isNotNull();
+        assertThat(sourceQuay.getVersion()).isEqualTo(2L);
+        assertThat(sourceQuay.getName().getValue()).isEqualTo(quayToMove.getName().getValue());
+        assertThat(sourceQuay.getKeyValues().get("validityEnd").getItems().stream().findFirst().get()).isEqualTo(tomorrowStr);
 
         destinationStopPlace = stopPlaceRepository.findFirstByNetexIdOrderByVersionDesc(destinationStopPlace.getNetexId());
         assertThat(destinationStopPlace).isEqualTo(result);
@@ -82,61 +96,107 @@ public class StopPlaceQuayMoverTest extends TiamatIntegrationTest {
         fromStopPlace.setVersion(1L);
         stopPlaceRepository.save(fromStopPlace);
 
-        StopPlace result = stopPlaceQuayMover.moveQuays(Arrays.asList(quayToMove.getNetexId()), null, null,null);
+        Instant tomorrow = getTomorrow();
+        String tomorrowStr = LocalDate.ofInstant(tomorrow, ZoneId.systemDefault()).toString();
+
+        StopPlace result = stopPlaceQuayMover.moveQuays(Arrays.asList(quayToMove.getNetexId()), null, tomorrow, null,null);
 
         fromStopPlace = stopPlaceRepository.findFirstByNetexIdOrderByVersionDesc(fromStopPlace.getNetexId());
-        assertThat(fromStopPlace.getQuays()).isEmpty();
-        assertThat(fromStopPlace.getVersion()).as("new version of source stop place with no quays").isEqualTo(2L);
+        assertThat(fromStopPlace.getQuays()).hasSize(1);
+        assertThat(fromStopPlace.getVersion()).as("new version of source stop place with modified validity quays").isEqualTo(2L);
+
+        Quay sourceQuay = fromStopPlace.getQuays().iterator().next();
+        assertThat(sourceQuay.getName()).isNotNull();
+        assertThat(sourceQuay.getVersion()).isEqualTo(2L);
+        assertThat(sourceQuay.getKeyValues().get("validityEnd").getItems().stream().findFirst().get()).isEqualTo(tomorrowStr);
 
         StopPlace createdStopPlace = stopPlaceRepository.findFirstByNetexIdOrderByVersionDesc(result.getNetexId());
         assertThat(createdStopPlace.getQuays()).hasSize(1);
-        Quay actualQuay = createdStopPlace.getQuays().iterator().next();
-        assertThat(actualQuay.getName()).isNotNull();
-        assertThat(actualQuay.getVersion()).isEqualTo(2L);
-        assertThat(actualQuay.getName().getValue()).isEqualTo(quayToMove.getName().getValue());
-        assertThat(result).isEqualTo(createdStopPlace);
 
+        Quay destinationQuay = createdStopPlace.getQuays().iterator().next();
+        assertThat(destinationQuay.getName()).isNotNull();
+        assertThat(destinationQuay.getVersion()).isEqualTo(1L);
+        assertThat(destinationQuay.getName().getValue()).isEqualTo(quayToMove.getName().getValue());
+        assertThat(destinationQuay.getKeyValues().get("validityStart").getItems().stream().findFirst().get()).isEqualTo(tomorrowStr);
+
+        assertThat(result).isEqualTo(createdStopPlace);
     }
 
     @Test
     public void moveQuayBetweenChildStops() {
 
-        StopPlace sourceStopPlace = new StopPlace();
-        Quay quayToMove = new Quay();
+        // Arrange
+        // Quays
+        Quay quayToMove = new Quay(new EmbeddableMultilingualString("Quay to move"));
         quayToMove.setPublicCode("1");
+
+        Quay existingQuay = new Quay(new EmbeddableMultilingualString("Quay to not move"));
+        existingQuay.setPublicCode("2");
+
+        // Stop places
+        StopPlace sourceStopPlace = new StopPlace();
         sourceStopPlace.getQuays().add(quayToMove);
-        StopPlace sourceParentStopPlace = new StopPlace(new EmbeddableMultilingualString("parent from stop place"));
-        sourceParentStopPlace.getChildren().add(sourceStopPlace);
-        sourceParentStopPlace = stopPlaceVersionedSaverService.saveNewVersion(sourceParentStopPlace);
 
         StopPlace destinationStopPlace = new StopPlace();
-        Quay existingQuay = new Quay();
-        existingQuay.setPublicCode("2");
         destinationStopPlace.getQuays().add(existingQuay);
+
+        // Parent stop places
+        StopPlace parentSourceStopPlace = new StopPlace(new EmbeddableMultilingualString("parent from stop place"));
+        parentSourceStopPlace.getChildren().add(sourceStopPlace);
+        parentSourceStopPlace = stopPlaceVersionedSaverService.saveNewVersion(parentSourceStopPlace);
+
         StopPlace parentDestinationStopPlace = new StopPlace(new EmbeddableMultilingualString("destination parent stop place"));
         parentDestinationStopPlace.getChildren().add(destinationStopPlace);
         parentDestinationStopPlace = stopPlaceVersionedSaverService.saveNewVersion(parentDestinationStopPlace);
 
+        Instant tomorrow = getTomorrow();
+        String tomorrowStr = LocalDate.ofInstant(tomorrow, ZoneId.systemDefault()).toString();
+        String fromVersionComment = "from comment";
+        String toVersionComment = "to comment";
 
-        StopPlace actualParentDestinationStopPlace = stopPlaceQuayMover.moveQuays(Arrays.asList(quayToMove.getNetexId()), destinationStopPlace.getNetexId(), "from comment", "to comment");
+        // Act
+        StopPlace actualParentDestinationStopPlace = stopPlaceQuayMover.moveQuays(Arrays.asList(quayToMove.getNetexId()), destinationStopPlace.getNetexId(), tomorrow, fromVersionComment, toVersionComment);
 
+        // Assert source
+        parentSourceStopPlace = stopPlaceRepository.findFirstByNetexIdOrderByVersionDesc(parentSourceStopPlace.getNetexId());
+        assertThat(parentSourceStopPlace.getChildren()).hasSize(1);
 
+        sourceStopPlace = parentSourceStopPlace.getChildren().iterator().next();
+        assertThat(sourceStopPlace.getQuays()).hasSize(1);
+        assertThat(sourceStopPlace.getVersion()).isEqualTo(2L);
+        assertThat(sourceStopPlace.getVersionComment()).isEqualTo(fromVersionComment);
+
+        Quay sourceQuay = sourceStopPlace.getQuays().iterator().next();
+        assertThat(sourceQuay.getName()).isNotNull();
+        assertThat(sourceQuay.getVersion()).isEqualTo(2L);
+        assertThat(sourceQuay.getKeyValues().get("validityEnd").getItems().stream().findFirst().get()).isEqualTo(tomorrowStr);
+
+        // Assert destination
         assertThat(actualParentDestinationStopPlace).isNotNull();
         assertThat(actualParentDestinationStopPlace.getNetexId()).isEqualTo(parentDestinationStopPlace.getNetexId());
-
         assertThat(actualParentDestinationStopPlace.getChildren()).hasSize(1);
 
         StopPlace actualDestinationStopPlace = actualParentDestinationStopPlace.getChildren().iterator().next();
-
         assertThat(actualDestinationStopPlace.getNetexId()).isEqualTo(destinationStopPlace.getNetexId());
-        assertThat(actualDestinationStopPlace.getQuays())
-                .hasSize(2)
-                .extracting(quay -> quay.getNetexId()).contains(quayToMove.getNetexId());
+        assertThat(actualDestinationStopPlace.getQuays()).hasSize(2);
+        assertThat(actualDestinationStopPlace.getQuays()).extracting(Quay::getNetexId).doesNotContain(quayToMove.getNetexId());
+        assertThat(actualDestinationStopPlace.getVersion()).isEqualTo(2L);
+        assertThat(actualDestinationStopPlace.getVersionComment()).isEqualTo(toVersionComment);
+
+        Quay destinationQuay = actualDestinationStopPlace
+                .getQuays()
+                .stream()
+                .filter(quay -> !quay.getNetexId().equals(existingQuay.getNetexId())) // Skip the existingQuay
+                .findFirst()
+                .orElse(null);
+        assertThat(destinationQuay).isNotNull();
+        assertThat(destinationQuay.getVersion()).isEqualTo(1L);
+        assertThat(destinationQuay.getKeyValues().get("validityStart").getItems().stream().findFirst().get()).isEqualTo(tomorrowStr);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void doNotAcceptInvalidQuayId() {
-        stopPlaceQuayMover.moveQuays(Arrays.asList("NSR:Quay:99999999"), null, null, null);
+        stopPlaceQuayMover.moveQuays(Arrays.asList("NSR:Quay:99999999"), null, Instant.now(), null, null);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -149,6 +209,11 @@ public class StopPlaceQuayMoverTest extends TiamatIntegrationTest {
         fromStopPlace.setVersion(1L);
         stopPlaceRepository.save(fromStopPlace);
 
-        stopPlaceQuayMover.moveQuays(Arrays.asList(quayToMove.getNetexId()), "NSR:StopPlace:91919191", null, null);
+        stopPlaceQuayMover.moveQuays(Arrays.asList(quayToMove.getNetexId()), "NSR:StopPlace:91919191", Instant.now(), null, null);
+    }
+
+    private Instant getTomorrow() {
+        Instant tomorrow = LocalDate.now().plusDays(1).atStartOfDay(ZoneId.systemDefault()).toInstant();
+        return tomorrow;
     }
 }
