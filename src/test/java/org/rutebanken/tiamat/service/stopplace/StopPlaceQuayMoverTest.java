@@ -42,7 +42,7 @@ public class StopPlaceQuayMoverTest extends TiamatIntegrationTest {
     private StopPlaceQuayMover stopPlaceQuayMover;
 
     @Test
-    public void moveQuayToExistingStop() {
+    public void moveQuayToExistingStopByCopying() {
 
         StopPlace fromStopPlace = new StopPlace();
 
@@ -57,7 +57,7 @@ public class StopPlaceQuayMoverTest extends TiamatIntegrationTest {
         stopPlaceRepository.save(destinationStopPlace);
 
         Instant tomorrow = getTomorrow();
-        String tomorrowStr = LocalDate.ofInstant(tomorrow, ZoneId.systemDefault()).toString();
+        String tomorrowStr = LocalDate.ofInstant(tomorrow, ZoneId.of("Europe/Helsinki")).toString();
 
         StopPlace result = stopPlaceQuayMover.moveQuays(Arrays.asList(quayToMove.getNetexId()), destinationStopPlace.getNetexId(), tomorrow,null, null);
 
@@ -86,7 +86,7 @@ public class StopPlaceQuayMoverTest extends TiamatIntegrationTest {
     }
 
     @Test
-    public void moveQuayToNewStop() {
+    public void moveQuayToNewStopByCopying() {
 
         StopPlace fromStopPlace = new StopPlace();
 
@@ -97,7 +97,7 @@ public class StopPlaceQuayMoverTest extends TiamatIntegrationTest {
         stopPlaceRepository.save(fromStopPlace);
 
         Instant tomorrow = getTomorrow();
-        String tomorrowStr = LocalDate.ofInstant(tomorrow, ZoneId.systemDefault()).toString();
+        String tomorrowStr = LocalDate.ofInstant(tomorrow, ZoneId.of("Europe/Helsinki")).toString();
 
         StopPlace result = stopPlaceQuayMover.moveQuays(Arrays.asList(quayToMove.getNetexId()), null, tomorrow, null,null);
 
@@ -123,7 +123,7 @@ public class StopPlaceQuayMoverTest extends TiamatIntegrationTest {
     }
 
     @Test
-    public void moveQuayBetweenChildStops() {
+    public void moveQuayBetweenChildStopsByCopying() {
 
         // Arrange
         // Quays
@@ -150,7 +150,7 @@ public class StopPlaceQuayMoverTest extends TiamatIntegrationTest {
         parentDestinationStopPlace = stopPlaceVersionedSaverService.saveNewVersion(parentDestinationStopPlace);
 
         Instant tomorrow = getTomorrow();
-        String tomorrowStr = LocalDate.ofInstant(tomorrow, ZoneId.systemDefault()).toString();
+        String tomorrowStr = LocalDate.ofInstant(tomorrow, ZoneId.of("Europe/Helsinki")).toString();
         String fromVersionComment = "from comment";
         String toVersionComment = "to comment";
 
@@ -194,6 +194,48 @@ public class StopPlaceQuayMoverTest extends TiamatIntegrationTest {
         assertThat(destinationQuay.getKeyValues().get("validityStart").getItems().stream().findFirst().get()).isEqualTo(tomorrowStr);
     }
 
+    @Test
+    public void moveQuayToExistingStopByMoving() {
+
+        // Arrange
+        Instant tomorrow = getTomorrow();
+        String tomorrowStr = LocalDate.ofInstant(tomorrow, ZoneId.of("Europe/Helsinki")).toString();
+
+        Quay quayToMove = new Quay(new EmbeddableMultilingualString("quay to be moved"));
+        quayToMove.setVersion(1L);
+        quayToMove.getKeyValues().put("validityStart", new Value(tomorrowStr));
+
+        StopPlace fromStopPlace = new StopPlace();
+        fromStopPlace.getQuays().add(quayToMove);
+        fromStopPlace.setVersion(1L);
+        stopPlaceRepository.save(fromStopPlace);
+
+        StopPlace destinationStopPlace = new StopPlace(new EmbeddableMultilingualString("Destination stop place"));
+        destinationStopPlace.setVersion(1L);
+        stopPlaceRepository.save(destinationStopPlace);
+
+        // Act
+        StopPlace result = stopPlaceQuayMover.moveQuays(Arrays.asList(quayToMove.getNetexId()), destinationStopPlace.getNetexId(), tomorrow,null, null);
+
+        // Assert
+        assertThat(result.getNetexId()).isEqualTo(destinationStopPlace.getNetexId());
+        assertThat(result.getQuays()).hasSize(1);
+        assertThat(result.getVersion()).isEqualTo(2L);
+
+        Quay quay = result.getQuays().iterator().next();
+        assertThat(quay.getName()).isNotNull();
+        assertThat(quay.getVersion()).isEqualTo(2L);
+        assertThat(quay.getName().getValue()).isEqualTo(quayToMove.getName().getValue());
+        assertThat(quay.getKeyValues().get("validityStart").getItems().stream().findFirst().get()).isEqualTo(tomorrowStr);
+
+        fromStopPlace = stopPlaceRepository.findFirstByNetexIdOrderByVersionDesc(fromStopPlace.getNetexId());
+        assertThat(fromStopPlace.getQuays()).hasSize(0);
+        assertThat(fromStopPlace.getVersion()).isEqualTo(2L);
+
+        destinationStopPlace = stopPlaceRepository.findFirstByNetexIdOrderByVersionDesc(destinationStopPlace.getNetexId());
+        assertThat(destinationStopPlace).isEqualTo(result);
+    }
+
     @Test(expected = IllegalArgumentException.class)
     public void doNotAcceptInvalidQuayId() {
         stopPlaceQuayMover.moveQuays(Arrays.asList("NSR:Quay:99999999"), null, Instant.now(), null, null);
@@ -213,7 +255,7 @@ public class StopPlaceQuayMoverTest extends TiamatIntegrationTest {
     }
 
     private Instant getTomorrow() {
-        Instant tomorrow = LocalDate.now().plusDays(1).atStartOfDay(ZoneId.systemDefault()).toInstant();
+        Instant tomorrow = LocalDate.now().plusDays(1).atStartOfDay(ZoneId.of("Europe/Helsinki")).toInstant();
         return tomorrow;
     }
 }

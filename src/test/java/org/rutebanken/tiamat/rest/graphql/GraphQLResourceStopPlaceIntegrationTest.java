@@ -16,7 +16,6 @@
 package org.rutebanken.tiamat.rest.graphql;
 
 import java.time.LocalDate;
-import java.time.ZoneId;
 import java.util.Set;
 import org.hamcrest.Matchers;
 import org.junit.Before;
@@ -99,7 +98,10 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
-import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.*;
+import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.MOVE_QUAY_FROM_DATE;
+import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.MOVE_QUAYS_TO_STOP;
+import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.QUAY_IDS;
+import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.TO_VERSION_COMMENT;
 import static org.rutebanken.tiamat.rest.graphql.scalars.DateScalar.DATE_TIME_PATTERN;
 
 public class GraphQLResourceStopPlaceIntegrationTest extends AbstractGraphQLResourceIntegrationTest {
