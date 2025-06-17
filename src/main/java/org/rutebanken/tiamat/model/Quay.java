@@ -97,53 +97,50 @@ public class Quay extends StopPlaceSpace_VersionStructure {
 
     public void resetNetexIds() {
 
-        this.setNetexId(null);
-        this.setVersion(0);
+        setNetexId(null);
+        setVersion(0);
 
         // Manually reset netex ids of the related items to prevent conflicts
 
-        var accessibilityAssessment = this.getAccessibilityAssessment();
+        var accessibilityAssessment = getAccessibilityAssessment();
         if (accessibilityAssessment != null) {
             accessibilityAssessment.setNetexId(null);
             accessibilityAssessment.setVersion(0);
         }
 
-        var installedEquipment = this.getPlaceEquipments();
+        var installedEquipment = getPlaceEquipments();
         if (installedEquipment != null) {
             installedEquipment.setNetexId(null);
             installedEquipment.setVersion(0);
         }
 
-        var alternativeNames = this.getAlternativeNames();
-        if (alternativeNames != null) {
-            for (AlternativeName alternativeName : alternativeNames) {
-                alternativeName.setNetexId(null);
-                alternativeName.setVersion(0);
-            }
-        }
+        getAlternativeNames().forEach(alternativeName -> {
+            alternativeName.setNetexId(null);
+            alternativeName.setVersion(0);
+        });
 
-        var boardingPositions = this.getBoardingPositions();
+        var boardingPositions = getBoardingPositions();
         if (boardingPositions != null) {
-            for (var boardingPosition : boardingPositions) {
+            boardingPositions.forEach(boardingPosition -> {
                 boardingPosition.setNetexId(null);
                 boardingPosition.setVersion(0);
-            }
+            });
         }
 
-        var checkConstraints = this.getCheckConstraints();
+        var checkConstraints = getCheckConstraints();
         if (checkConstraints != null) {
-            for (var checkConstraint : checkConstraints) {
+            checkConstraints.forEach(checkConstraint -> {
                 checkConstraint.setNetexId(null);
                 checkConstraint.setVersion(0);
-            }
+            });
         }
 
-        var equipmentPlaces = this.getEquipmentPlaces();
+        var equipmentPlaces = getEquipmentPlaces();
         if (equipmentPlaces != null) {
-            for (var equipmentPlace : equipmentPlaces) {
+            equipmentPlaces.forEach(equipmentPlace -> {
                 equipmentPlace.setNetexId(null);
                 equipmentPlace.setVersion(0);
-            }
+            });
         }
     }
 
