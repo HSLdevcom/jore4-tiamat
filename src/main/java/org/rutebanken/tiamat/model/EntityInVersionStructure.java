@@ -23,6 +23,7 @@ import jakarta.persistence.MappedSuperclass;
 import jakarta.persistence.Transient;
 
 import java.time.Instant;
+import java.util.Collection;
 
 @MappedSuperclass
 public class EntityInVersionStructure extends EntityStructure {
@@ -154,4 +155,16 @@ public class EntityInVersionStructure extends EntityStructure {
         this.derivedFromObjectRef = value;
     }
 
+    protected static void resetEntityInVersionStructureIdentifiers(EntityInVersionStructure entity) {
+        if (entity != null) {
+            entity.setNetexId(null);
+            entity.setVersion(0);
+        }
+    }
+
+    protected static <T extends EntityInVersionStructure> void resetEntityInVersionStructureCollection(Collection<T> entities) {
+        if (entities != null) {
+            entities.forEach(EntityInVersionStructure::resetEntityInVersionStructureIdentifiers);
+        }
+    }
 }

@@ -97,51 +97,14 @@ public class Quay extends StopPlaceSpace_VersionStructure {
 
     public void resetNetexIds() {
 
-        setNetexId(null);
-        setVersion(0);
+        resetEntityInVersionStructureIdentifiers(this);
+        resetEntityInVersionStructureIdentifiers(getAccessibilityAssessment());
+        resetEntityInVersionStructureIdentifiers(getPlaceEquipments());
 
-        // Manually reset netex ids of the related items to prevent conflicts
-
-        var accessibilityAssessment = getAccessibilityAssessment();
-        if (accessibilityAssessment != null) {
-            accessibilityAssessment.setNetexId(null);
-            accessibilityAssessment.setVersion(0);
-        }
-
-        var installedEquipment = getPlaceEquipments();
-        if (installedEquipment != null) {
-            installedEquipment.setNetexId(null);
-            installedEquipment.setVersion(0);
-        }
-
-        getAlternativeNames().forEach(alternativeName -> {
-            alternativeName.setNetexId(null);
-            alternativeName.setVersion(0);
-        });
-
-        var boardingPositions = getBoardingPositions();
-        if (boardingPositions != null) {
-            boardingPositions.forEach(boardingPosition -> {
-                boardingPosition.setNetexId(null);
-                boardingPosition.setVersion(0);
-            });
-        }
-
-        var checkConstraints = getCheckConstraints();
-        if (checkConstraints != null) {
-            checkConstraints.forEach(checkConstraint -> {
-                checkConstraint.setNetexId(null);
-                checkConstraint.setVersion(0);
-            });
-        }
-
-        var equipmentPlaces = getEquipmentPlaces();
-        if (equipmentPlaces != null) {
-            equipmentPlaces.forEach(equipmentPlace -> {
-                equipmentPlace.setNetexId(null);
-                equipmentPlace.setVersion(0);
-            });
-        }
+        resetEntityInVersionStructureCollection(getAlternativeNames());
+        resetEntityInVersionStructureCollection(getBoardingPositions());
+        resetEntityInVersionStructureCollection(getCheckConstraints());
+        resetEntityInVersionStructureCollection(getEquipmentPlaces());
     }
 
     @Override
