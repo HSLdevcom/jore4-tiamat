@@ -19,8 +19,10 @@ import org.rutebanken.tiamat.geo.StopPlaceCentroidComputer;
 import org.rutebanken.tiamat.lock.MutateLock;
 import org.rutebanken.tiamat.model.Quay;
 import org.rutebanken.tiamat.model.StopPlace;
+import org.rutebanken.tiamat.model.Value;
 import org.rutebanken.tiamat.repository.QuayRepository;
 import org.rutebanken.tiamat.repository.StopPlaceRepository;
+import org.rutebanken.tiamat.versioning.VersionCreator;
 import org.rutebanken.tiamat.versioning.save.StopPlaceVersionedSaverService;
 import org.rutebanken.tiamat.versioning.util.CopiedEntity;
 import org.rutebanken.tiamat.versioning.util.StopPlaceCopyHelper;
@@ -31,10 +33,12 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
+import java.time.LocalDate;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
-import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 
 @Transactional
@@ -59,31 +63,78 @@ public class StopPlaceQuayMover {
     private StopPlaceCopyHelper stopPlaceCopyHelper;
 
     @Autowired
+    private VersionCreator versionCreator;
+
+    @Autowired
     private MutateLock mutateLock;
 
-    public StopPlace moveQuays(List<String> quayIds, String destinationStopPlaceId, String fromVersionComment, String toVersionComment) {
+    public StopPlace moveQuays(List<String> quayIds, String destinationStopPlaceId, LocalDate moveQuayFromDate, String fromVersionComment, String toVersionComment) {
 
         return mutateLock.executeInLock(() -> {
             Set<StopPlace> sourceStopPlaces = resolveSourceStopPlaces(resolveQuays(quayIds));
-
             verifySize(quayIds, sourceStopPlaces);
 
             StopPlace sourceStopPlace = sourceStopPlaces.iterator().next();
 
             logger.debug("Found stop place to move quays {} from {}", quayIds, sourceStopPlace);
 
-            Instant now = Instant.now();
-            Set<Quay> quaysToMove = removeQuaysFromStop(sourceStopPlace, fromVersionComment, quayIds, now);
+            // If move date is not given, use the current date
+            LocalDate moveDate = (moveQuayFromDate != null) ? moveQuayFromDate : LocalDate.now();
+            Instant saveDateTime = Instant.now();
 
-            StopPlace response = addQuaysToDestinationStop(destinationStopPlaceId, quaysToMove, toVersionComment, now);
+            if (moveDate.isBefore(LocalDate.now())) {
+                throw new IllegalArgumentException("Selected move date is in the past.");
+            }
+
+            SourceQuayModificationResult sourceQuayResults = modifySourceQuays(sourceStopPlace, fromVersionComment, quayIds, moveDate, saveDateTime);
+            StopPlace response = addQuaysToDestinationStop(destinationStopPlaceId, sourceQuayResults.quaysToAdd, sourceQuayResults.quaysToMove, toVersionComment, moveDate, saveDateTime);
 
             logger.info("Moved quays: {} from stop {} to {}", quayIds, sourceStopPlace.getNetexId(), response.getNetexId());
             return response;
         });
     }
 
-    private StopPlace addQuaysToDestinationStop(String destinationStopPlaceId, Set<Quay> quaysToMove, String toVersionComment, Instant now) {
+    private SourceQuayModificationResult modifySourceQuays(StopPlace sourceStopPlace, String fromVersionComment, List<String> quayIds, LocalDate moveDate, Instant saveDateTime) {
+        CopiedEntity<StopPlace> source = stopPlaceCopyHelper.createCopies(sourceStopPlace);
+        StopPlace stopPlaceToModifyQuays = source.getCopiedEntity();
 
+        Set<Quay> quaysToAdd = new HashSet<>();
+        Set<Quay> quaysToMove = new HashSet<>();
+
+        // Modify the validity of the given quays to end on the given moveDate
+        for (Quay quay : stopPlaceToModifyQuays.getQuays()) {
+            if (quayIds.contains(quay.getNetexId())) {
+                validateQuayIsValidOnDate(quay, moveDate);
+
+                // If quay's validityStart is not null and is on move date, move the quay instead of copying
+                if (quayIsMovable(quay, moveDate)) {
+                    quaysToMove.add(quay);
+                } else {
+                    // Quay is not movable, add validity end date and create a copy
+                    Quay copiedQuay = versionCreator.createCopy(quay, Quay.class);
+                    copiedQuay.resetNetexIds();
+                    quaysToAdd.add(copiedQuay);
+
+                    quay.getKeyValues().put("validityEnd", new Value(moveDate.toString()));
+                }
+            }
+        }
+        stopPlaceToModifyQuays.setVersionComment(fromVersionComment);
+
+        if (!quaysToMove.isEmpty()) {
+            // If moving a quay, remove it from the stop place entirely
+            stopPlaceToModifyQuays.getQuays().removeIf(quay -> quaysToMove.contains(quay));
+        }
+
+        logger.debug("Modified validity of quays {} and removed quays {} from {}", quaysToAdd.stream().map(q -> q.getNetexId()).collect(toSet()), quaysToMove.stream().map(q -> q.getNetexId()).collect(toSet()), stopPlaceToModifyQuays);
+        save(source, saveDateTime);
+
+        return new SourceQuayModificationResult(quaysToAdd, quaysToMove);
+    }
+
+    public record SourceQuayModificationResult(Set<Quay> quaysToAdd, Set<Quay> quaysToMove) {}
+
+    private StopPlace addQuaysToDestinationStop(String destinationStopPlaceId, Set<Quay> quaysToAdd, Set<Quay> quaysToMove, String toVersionComment, LocalDate moveDate, Instant saveDateTime) {
         StopPlace destinationStopPlace;
         if (destinationStopPlaceId == null) {
             destinationStopPlace = new StopPlace();
@@ -92,46 +143,104 @@ public class StopPlaceQuayMover {
         }
 
         if (destinationStopPlace == null) {
-            throw new IllegalArgumentException("Cannot resolve destination stopp place by ID " + destinationStopPlaceId);
+            throw new IllegalArgumentException("Cannot resolve destination stop place by ID " + destinationStopPlaceId);
         }
 
         CopiedEntity<StopPlace> destination = stopPlaceCopyHelper.createCopies(destinationStopPlace);
         StopPlace stopPlaceToAddQuaysTo = destination.getCopiedEntity();
 
+        // Add correct validity dates to the given quays, so that they are valid starting from the move date
+        for (Quay quay : quaysToAdd) {
+            quay.getKeyValues().put("validityStart", new Value(moveDate.toString()));
+
+            Value stopPlaceValidityEnd = stopPlaceToAddQuaysTo.getKeyValues().get("validityEnd");
+
+            // If the stop place has no validity end date, no changes are needed for the quay's validity end date
+            if (stopPlaceValidityEnd == null) {
+                continue;
+            }
+
+            Value quayValidityEnd = quay.getKeyValues().get("validityEnd");
+
+            // If the quay has no validity end or its validity end is after the stop place's validity end,
+            // set the quay's validity end to be the same as the stop place's.
+            if (quayValidityEnd == null || isDateAfter(quayValidityEnd, stopPlaceValidityEnd)) {
+                quay.getKeyValues().put("validityEnd", stopPlaceValidityEnd);
+            }
+        }
+
+        stopPlaceToAddQuaysTo.getQuays().addAll(quaysToAdd);
         stopPlaceToAddQuaysTo.getQuays().addAll(quaysToMove);
         stopPlaceCentroidComputer.computeCentroidForStopPlace(stopPlaceToAddQuaysTo);
         stopPlaceToAddQuaysTo.setVersionComment(toVersionComment);
 
-        logger.debug("Saved stop place with new quays {} {}", quaysToMove.stream().map(q -> q.getNetexId()).collect(toList()), destinationStopPlace);
-
-        return save(destination, now);
+        logger.debug("Saved stop place with copied quays {} and moved quays {} {}", quaysToAdd, quaysToMove, destinationStopPlace);
+        return save(destination, saveDateTime);
     }
 
-    private Set<Quay> removeQuaysFromStop(StopPlace sourceStopPlace, String fromVersionComment, List<String> quayIds, Instant now) {
-        CopiedEntity<StopPlace> source = stopPlaceCopyHelper.createCopies(sourceStopPlace);
-        StopPlace stopPlaceToRemoveQuaysFrom = source.getCopiedEntity();
+    private void validateQuayIsValidOnDate(Quay quay, LocalDate date) throws IllegalArgumentException {
+        Optional<LocalDate> validityStartOpt = getQuayDate(quay, "validityStart");
+        Optional<LocalDate> validityEndOpt = getQuayDate(quay, "validityEnd");
 
-        Set<Quay> quaysToMove = stopPlaceToRemoveQuaysFrom.getQuays().stream().filter(quay -> quayIds.contains(quay.getNetexId())).collect(toSet());
-        stopPlaceToRemoveQuaysFrom.getQuays().removeIf(quay -> quaysToMove.contains(quay));
-        stopPlaceToRemoveQuaysFrom.setVersionComment(fromVersionComment);
+        // Check if the move date is before the quay's validity start date
+        if (validityStartOpt.isPresent() && date.isBefore(validityStartOpt.get())) {
+            throw new IllegalArgumentException("Quay " + quay.getNetexId() + " is not yet valid on the selected date.");
+        }
 
-        save(source, now);
-        logger.debug("Saved stop place without quays {} {}", quayIds, stopPlaceToRemoveQuaysFrom);
-        return quaysToMove;
+        // Check if the move date is after the quay's validity end date
+        if (validityEndOpt.isPresent() && !date.isBefore(validityEndOpt.get())) {
+            throw new IllegalArgumentException("Quay " + quay.getNetexId() + " has already expired on the selected date.");
+        }
     }
 
     /**
-     * Saves parent copy if parent exist. If not, saves monomodal stop place.
+     * Quay is movable if move date is the same as validity start date
+     */
+    private Boolean quayIsMovable(Quay quay, LocalDate moveDate) {
+        Optional<LocalDate> validityStartOpt = getQuayDate(quay, "validityStart");
+        return validityStartOpt.isPresent() && validityStartOpt.get().equals(moveDate);
+    }
+
+    private Optional<LocalDate> getQuayDate(Quay quay, String keyName) {
+        return Optional.ofNullable(quay.getKeyValues().get(keyName))
+                .flatMap(value -> value.getItems().stream().findFirst())
+                .map(LocalDate::parse);
+    }
+
+    /**
+     * Helper method to compare the dates from two Value objects.
+     *
+     * @param dateValue1 The first Value object containing a date string.
+     * @param dateValue2 The second Value object containing a date string.
+     * @return true if the date in dateValue1 is after the date in dateValue2, false otherwise.
+     */
+    private boolean isDateAfter(Value dateValue1, Value dateValue2) {
+        String dateStr1 = dateValue1.getItems().stream().findFirst().orElse(null);
+        String dateStr2 = dateValue2.getItems().stream().findFirst().orElse(null);
+
+        // If either date string is missing, a comparison cannot be made.
+        if (dateStr1 == null || dateStr2 == null) {
+            return false;
+        }
+
+        LocalDate date1 = LocalDate.parse(dateStr1);
+        LocalDate date2 = LocalDate.parse(dateStr2);
+
+        return date1.isAfter(date2);
+    }
+
+    /**
+     * Saves parent copy if a parent exists. If not, save monomodal stop place.
      *
      * @param copiedEntity
-     * @param now
+     * @param saveDateTime
      * @return
      */
-    private StopPlace save(CopiedEntity<StopPlace> copiedEntity, Instant now) {
+    private StopPlace save(CopiedEntity<StopPlace> copiedEntity, Instant saveDateTime) {
         if (copiedEntity.hasParent()) {
-            return stopPlaceVersionedSaverService.saveNewVersion(copiedEntity.getExistingParent(), copiedEntity.getCopiedParent(), now);
+            return stopPlaceVersionedSaverService.saveNewVersion(copiedEntity.getExistingParent(), copiedEntity.getCopiedParent(), saveDateTime);
         } else
-            return stopPlaceVersionedSaverService.saveNewVersion(copiedEntity.getExistingEntity(), copiedEntity.getCopiedEntity(), now);
+            return stopPlaceVersionedSaverService.saveNewVersion(copiedEntity.getExistingEntity(), copiedEntity.getCopiedEntity(), saveDateTime);
     }
 
     private void verifySize(List<String> quayIds, Set<StopPlace> sourceStopPlaces) {

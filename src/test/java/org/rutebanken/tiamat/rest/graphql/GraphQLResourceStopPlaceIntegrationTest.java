@@ -15,6 +15,7 @@
 
 package org.rutebanken.tiamat.rest.graphql;
 
+import java.time.LocalDate;
 import java.util.Set;
 import org.hamcrest.Matchers;
 import org.junit.Before;
@@ -97,6 +98,7 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
+import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.MOVE_QUAY_FROM_DATE;
 import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.MOVE_QUAYS_TO_STOP;
 import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.QUAY_IDS;
 import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.TO_VERSION_COMMENT;
@@ -1749,26 +1751,40 @@ public class GraphQLResourceStopPlaceIntegrationTest extends AbstractGraphQLReso
         stopPlaceRepository.save(stopPlace);
 
         String versionComment = "moving quays";
+        LocalDate now = LocalDate.now();
+        String nowStr = now.toString();
 
         String graphQlJsonQuery = """
                     mutation {
-                    stopPlace: %s (%s: "%s", %s: "%s") {
+                    stopPlace: %s (%s: "%s", %s: "%s", %s: "%s") {
                         id
                         ...on StopPlace {
                             quays {
                                 id
+                                keyValues {
+                                    key
+                                    values
+                                }
                             }
                         }
                         versionComment
                     }
                 }
-              """.formatted(MOVE_QUAYS_TO_STOP,QUAY_IDS,quay.getNetexId(),TO_VERSION_COMMENT,versionComment);
+              """
+                .formatted(
+                        MOVE_QUAYS_TO_STOP,
+                        QUAY_IDS, quay.getNetexId(),
+                        TO_VERSION_COMMENT, versionComment,
+                        MOVE_QUAY_FROM_DATE, now);
 
         executeGraphqQLQueryOnly(graphQlJsonQuery)
                 .body("data.stopPlace.id", not(comparesEqualTo(stopPlace.getNetexId())))
                 .body("data.stopPlace.versionComment", equalTo(versionComment))
                 .rootPath("data.stopPlace.quays[0]")
-                    .body("id", comparesEqualTo(quay.getNetexId()));
+                    .body("id", not(comparesEqualTo(quay.getNetexId())))
+                    .body("keyValues", not(empty()))
+                    .body("keyValues.find { it.key == 'validityStart' }.values[0]", equalTo(nowStr));
+
     }
 
 

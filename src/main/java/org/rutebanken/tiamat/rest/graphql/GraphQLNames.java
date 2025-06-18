@@ -23,6 +23,8 @@ import static org.rutebanken.tiamat.rest.graphql.StopPlaceRegisterGraphQLSchema.
 import static org.rutebanken.tiamat.rest.graphql.StopPlaceRegisterGraphQLSchema.DEFAULT_SIZE_VALUE;
 import static org.rutebanken.tiamat.rest.graphql.scalars.DateScalar.DATE_TIME_PATTERN;
 import static org.rutebanken.tiamat.rest.graphql.scalars.DateScalar.EXAMPLE_DATE_TIME;
+import static org.rutebanken.tiamat.rest.graphql.scalars.LocalDateScalar.DATE_PATTERN;
+import static org.rutebanken.tiamat.rest.graphql.scalars.LocalDateScalar.EXAMPLE_DATE;
 
 public class GraphQLNames {
 
@@ -97,7 +99,9 @@ public class GraphQLNames {
     public static final String VALID_BETWEEN_FROM_DATE = "fromDate";
     public static final String VALID_BETWEEN_TO_DATE = "toDate";
 
-    public static final String DATE_SCALAR_DESCRIPTION = "Date time using the format: " + DATE_TIME_PATTERN + ". Example: "+EXAMPLE_DATE_TIME;
+    public static final String DATE_SCALAR_DESCRIPTION = "Date time using the format: " + DATE_TIME_PATTERN + ". Example: "+ EXAMPLE_DATE_TIME;
+
+    public static final String LOCAL_DATE_SCALAR_DESCRIPTION = "Date using the format: " + DATE_PATTERN + ". Example: "+ EXAMPLE_DATE;
 
     public static final String OUTPUT_TYPE_TRANSFER_DURATION = "TransferDuration";
     public static final String INPUT_TYPE_TRANSFER_DURATION = OUTPUT_TYPE_TRANSFER_DURATION + INPUT_TYPE_POSTFIX;
@@ -512,6 +516,7 @@ public class GraphQLNames {
     public static final String STOP_PLACE_IDS = "stopPlaceIds";
     public static final String FROM_STOP_PLACE_ID = "fromStopPlaceId";
     public static final String TO_STOP_PLACE_ID = "toStopPlaceId";
+    public static final String MOVE_QUAY_FROM_DATE = "moveQuayFromDate";
     public static final String FROM_QUAY_ID = "fromQuayId";
     public static final String TO_QUAY_ID = "toQuayId";
     public static final String MERGE_STOP_PLACES = "mergeStopPlaces";

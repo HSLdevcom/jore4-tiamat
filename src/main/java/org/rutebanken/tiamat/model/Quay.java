@@ -95,6 +95,18 @@ public class Quay extends StopPlaceSpace_VersionStructure {
         this.externalLinks = List.copyOf(externalLinks);
     }
 
+    public void resetNetexIds() {
+
+        resetEntityInVersionStructureIdentifiers(this);
+        resetEntityInVersionStructureIdentifiers(getAccessibilityAssessment());
+        resetEntityInVersionStructureIdentifiers(getPlaceEquipments());
+
+        resetEntityInVersionStructureCollection(getAlternativeNames());
+        resetEntityInVersionStructureCollection(getBoardingPositions());
+        resetEntityInVersionStructureCollection(getCheckConstraints());
+        resetEntityInVersionStructureCollection(getEquipmentPlaces());
+    }
+
     @Override
     public boolean equals(Object object) {
         if (this == object) {
