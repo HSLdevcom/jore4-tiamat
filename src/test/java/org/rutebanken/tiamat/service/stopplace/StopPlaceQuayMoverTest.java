@@ -56,8 +56,8 @@ public class StopPlaceQuayMoverTest extends TiamatIntegrationTest {
         destinationStopPlace.setVersion(1L);
         stopPlaceRepository.save(destinationStopPlace);
 
-        Instant tomorrow = getTomorrow();
-        String tomorrowStr = LocalDate.ofInstant(tomorrow, ZoneId.of("Europe/Helsinki")).toString();
+        LocalDate tomorrow = getTomorrow();
+        String tomorrowStr = tomorrow.toString();
 
         StopPlace result = stopPlaceQuayMover.moveQuays(Arrays.asList(quayToMove.getNetexId()), destinationStopPlace.getNetexId(), tomorrow,null, null);
 
@@ -96,8 +96,8 @@ public class StopPlaceQuayMoverTest extends TiamatIntegrationTest {
         fromStopPlace.setVersion(1L);
         stopPlaceRepository.save(fromStopPlace);
 
-        Instant tomorrow = getTomorrow();
-        String tomorrowStr = LocalDate.ofInstant(tomorrow, ZoneId.of("Europe/Helsinki")).toString();
+        LocalDate tomorrow = getTomorrow();
+        String tomorrowStr = tomorrow.toString();
 
         StopPlace result = stopPlaceQuayMover.moveQuays(Arrays.asList(quayToMove.getNetexId()), null, tomorrow, null,null);
 
@@ -149,8 +149,8 @@ public class StopPlaceQuayMoverTest extends TiamatIntegrationTest {
         parentDestinationStopPlace.getChildren().add(destinationStopPlace);
         parentDestinationStopPlace = stopPlaceVersionedSaverService.saveNewVersion(parentDestinationStopPlace);
 
-        Instant tomorrow = getTomorrow();
-        String tomorrowStr = LocalDate.ofInstant(tomorrow, ZoneId.of("Europe/Helsinki")).toString();
+        LocalDate tomorrow = getTomorrow();
+        String tomorrowStr = tomorrow.toString();
         String fromVersionComment = "from comment";
         String toVersionComment = "to comment";
 
@@ -198,8 +198,8 @@ public class StopPlaceQuayMoverTest extends TiamatIntegrationTest {
     public void moveQuayToExistingStopByMoving() {
 
         // Arrange
-        Instant tomorrow = getTomorrow();
-        String tomorrowStr = LocalDate.ofInstant(tomorrow, ZoneId.of("Europe/Helsinki")).toString();
+        LocalDate tomorrow = getTomorrow();
+        String tomorrowStr = tomorrow.toString();
 
         Quay quayToMove = new Quay(new EmbeddableMultilingualString("quay to be moved"));
         quayToMove.setVersion(1L);
@@ -238,7 +238,7 @@ public class StopPlaceQuayMoverTest extends TiamatIntegrationTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void doNotAcceptInvalidQuayId() {
-        stopPlaceQuayMover.moveQuays(Arrays.asList("NSR:Quay:99999999"), null, Instant.now(), null, null);
+        stopPlaceQuayMover.moveQuays(Arrays.asList("NSR:Quay:99999999"), null, LocalDate.now(), null, null);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -251,11 +251,11 @@ public class StopPlaceQuayMoverTest extends TiamatIntegrationTest {
         fromStopPlace.setVersion(1L);
         stopPlaceRepository.save(fromStopPlace);
 
-        stopPlaceQuayMover.moveQuays(Arrays.asList(quayToMove.getNetexId()), "NSR:StopPlace:91919191", Instant.now(), null, null);
+        stopPlaceQuayMover.moveQuays(Arrays.asList(quayToMove.getNetexId()), "NSR:StopPlace:91919191", LocalDate.now(), null, null);
     }
 
-    private Instant getTomorrow() {
-        Instant tomorrow = LocalDate.now().plusDays(1).atStartOfDay(ZoneId.of("Europe/Helsinki")).toInstant();
+    private LocalDate getTomorrow() {
+        LocalDate tomorrow = LocalDate.now().plusDays(1);
         return tomorrow;
     }
 }

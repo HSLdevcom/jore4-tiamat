@@ -1751,8 +1751,8 @@ public class GraphQLResourceStopPlaceIntegrationTest extends AbstractGraphQLReso
         stopPlaceRepository.save(stopPlace);
 
         String versionComment = "moving quays";
-        Instant now = Instant.now();
-        String nowStr = LocalDate.now().toString();
+        LocalDate now = LocalDate.now();
+        String nowStr = now.toString();
 
         String graphQlJsonQuery = """
                     mutation {

@@ -21,6 +21,7 @@ import graphql.schema.GraphQLInterfaceType;
 import graphql.schema.GraphQLList;
 import graphql.schema.GraphQLNonNull;
 import org.rutebanken.tiamat.rest.graphql.scalars.DateScalar;
+import org.rutebanken.tiamat.rest.graphql.scalars.LocalDateScalar;
 import org.rutebanken.tiamat.rest.graphql.types.CustomGraphQLTypes;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -38,6 +39,7 @@ import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.DRY_RUN;
 import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.FROM_QUAY_ID;
 import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.FROM_STOP_PLACE_ID;
 import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.FROM_VERSION_COMMENT;
+import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.LOCAL_DATE_SCALAR_DESCRIPTION;
 import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.MERGE_QUAYS;
 import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.MERGE_STOP_PLACES;
 import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.MODIFICATION_ENUMERATION;
@@ -59,6 +61,9 @@ import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.DATE_SCALAR_DESCRI
 public class StopPlaceOperationsBuilder {
     @Autowired
     private DateScalar dateScalar;
+    @Autowired
+    private LocalDateScalar localDateScalar;
+
     public List<GraphQLFieldDefinition> getStopPlaceOperations(GraphQLInterfaceType stopPlaceInterfaceType) {
         List<GraphQLFieldDefinition> operations = new ArrayList<>();
 
@@ -100,8 +105,8 @@ public class StopPlaceOperationsBuilder {
                         .type(GraphQLString))
                 .argument(newArgument()
                         .name(MOVE_QUAY_FROM_DATE)
-                        .type(dateScalar.getGraphQLDateScalar())
-                        .description(DATE_SCALAR_DESCRIPTION))
+                        .type(localDateScalar.getGraphQLLocalDateScalar())
+                        .description(LOCAL_DATE_SCALAR_DESCRIPTION))
                 .argument(newArgument().name(FROM_VERSION_COMMENT).type(GraphQLString))
                 .argument(newArgument().name(TO_VERSION_COMMENT).type(GraphQLString))
                 .build());
