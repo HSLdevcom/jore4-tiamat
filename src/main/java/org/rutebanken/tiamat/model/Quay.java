@@ -100,7 +100,7 @@ public class Quay extends StopPlaceSpace_VersionStructure {
         resetEntityInVersionStructureIdentifiers(this);
         resetEntityInVersionStructureIdentifiers(getAccessibilityAssessment());
         resetEntityInVersionStructureIdentifiers(getPlaceEquipments());
-
+        resetEntityInVersionStructureCollection(getPlaceEquipments().installedEquipment);
         resetEntityInVersionStructureCollection(getAlternativeNames());
         resetEntityInVersionStructureCollection(getBoardingPositions());
         resetEntityInVersionStructureCollection(getCheckConstraints());
