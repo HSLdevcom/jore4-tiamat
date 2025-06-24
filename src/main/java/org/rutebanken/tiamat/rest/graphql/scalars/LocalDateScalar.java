@@ -21,18 +21,14 @@ import graphql.language.StringValue;
 import graphql.language.Value;
 import graphql.schema.Coercing;
 import graphql.schema.GraphQLScalarType;
-import org.rutebanken.tiamat.time.ExportTimeZone;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.time.Instant;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeFormatterBuilder;
 import java.time.format.DateTimeParseException;
 import java.util.Locale;
 
-import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.DATE_SCALAR_DESCRIPTION;
+import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.LOCAL_DATE_SCALAR_DESCRIPTION;
 
 @Component
 public class LocalDateScalar {
@@ -56,7 +52,7 @@ public class LocalDateScalar {
     private GraphQLScalarType createGraphQLocalDateScalar() {
         return new GraphQLScalarType.Builder()
                 .name("LocalDate")
-                .description(DATE_SCALAR_DESCRIPTION)
+                .description(LOCAL_DATE_SCALAR_DESCRIPTION)
                 .coercing(new Coercing<LocalDate, String>() {
                     @Override
                     public String serialize(Object input, GraphQLContext graphQLContext, Locale locale) {

@@ -74,20 +74,20 @@ public class StopPlaceQuayMover {
             Set<StopPlace> sourceStopPlaces = resolveSourceStopPlaces(resolveQuays(quayIds));
             verifySize(quayIds, sourceStopPlaces);
 
-            StopPlace sourceStopPlace = sourceStopPlaces.iterator().next();
+            if (moveQuayFromDate == null) {
+                throw new IllegalArgumentException("Move quay from date is null");
+            }
 
-            logger.debug("Found stop place to move quays {} from {}", quayIds, sourceStopPlace);
-
-            // If move date is not given, use the current date
-            LocalDate moveDate = (moveQuayFromDate != null) ? moveQuayFromDate : LocalDate.now();
-            Instant saveDateTime = Instant.now();
-
-            if (moveDate.isBefore(LocalDate.now())) {
+            if (moveQuayFromDate.isBefore(LocalDate.now())) {
                 throw new IllegalArgumentException("Selected move date is in the past.");
             }
 
-            SourceQuayModificationResult sourceQuayResults = modifySourceQuays(sourceStopPlace, fromVersionComment, quayIds, moveDate, saveDateTime);
-            StopPlace response = addQuaysToDestinationStop(destinationStopPlaceId, sourceQuayResults.quaysToAdd, sourceQuayResults.quaysToMove, toVersionComment, moveDate, saveDateTime);
+            StopPlace sourceStopPlace = sourceStopPlaces.iterator().next();
+            logger.debug("Found stop place to move quays {} from {}", quayIds, sourceStopPlace);
+
+            Instant saveDateTime = Instant.now();
+            SourceQuayModificationResult sourceQuayResults = modifySourceQuays(sourceStopPlace, fromVersionComment, quayIds, moveQuayFromDate, saveDateTime);
+            StopPlace response = addQuaysToDestinationStop(destinationStopPlaceId, sourceQuayResults.quaysToAdd, sourceQuayResults.quaysToMove, toVersionComment, moveQuayFromDate, saveDateTime);
 
             logger.info("Moved quays: {} from stop {} to {}", quayIds, sourceStopPlace.getNetexId(), response.getNetexId());
             return response;
