@@ -135,12 +135,8 @@ public class StopPlaceQuayMover {
     public record SourceQuayModificationResult(Set<Quay> quaysToAdd, Set<Quay> quaysToMove) {}
 
     private StopPlace addQuaysToDestinationStop(String destinationStopPlaceId, Set<Quay> quaysToAdd, Set<Quay> quaysToMove, String toVersionComment, LocalDate moveDate, Instant saveDateTime) {
-        StopPlace destinationStopPlace;
-        if (destinationStopPlaceId == null) {
-            destinationStopPlace = new StopPlace();
-        } else {
-            destinationStopPlace = stopPlaceRepository.findFirstByNetexIdOrderByVersionDesc(destinationStopPlaceId);
-        }
+
+        StopPlace destinationStopPlace = stopPlaceRepository.findFirstByNetexIdOrderByVersionDesc(destinationStopPlaceId);
 
         if (destinationStopPlace == null) {
             throw new IllegalArgumentException("Cannot resolve destination stop place by ID " + destinationStopPlaceId);
