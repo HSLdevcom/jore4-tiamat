@@ -86,43 +86,6 @@ public class StopPlaceQuayMoverTest extends TiamatIntegrationTest {
     }
 
     @Test
-    public void moveQuayToNewStopByCopying() {
-
-        StopPlace fromStopPlace = new StopPlace();
-
-        Quay quayToMove = new Quay(new EmbeddableMultilingualString("quay to be moved 2"));
-        quayToMove.setVersion(1L);
-        fromStopPlace.getQuays().add(quayToMove);
-        fromStopPlace.setVersion(1L);
-        stopPlaceRepository.save(fromStopPlace);
-
-        LocalDate tomorrow = getTomorrow();
-        String tomorrowStr = tomorrow.toString();
-
-        StopPlace result = stopPlaceQuayMover.moveQuays(Arrays.asList(quayToMove.getNetexId()), null, tomorrow, null,null);
-
-        fromStopPlace = stopPlaceRepository.findFirstByNetexIdOrderByVersionDesc(fromStopPlace.getNetexId());
-        assertThat(fromStopPlace.getQuays()).hasSize(1);
-        assertThat(fromStopPlace.getVersion()).as("new version of source stop place with modified validity quays").isEqualTo(2L);
-
-        Quay sourceQuay = fromStopPlace.getQuays().iterator().next();
-        assertThat(sourceQuay.getName()).isNotNull();
-        assertThat(sourceQuay.getVersion()).isEqualTo(2L);
-        assertThat(sourceQuay.getKeyValues().get("validityEnd").getItems().stream().findFirst().get()).isEqualTo(tomorrowStr);
-
-        StopPlace createdStopPlace = stopPlaceRepository.findFirstByNetexIdOrderByVersionDesc(result.getNetexId());
-        assertThat(createdStopPlace.getQuays()).hasSize(1);
-
-        Quay destinationQuay = createdStopPlace.getQuays().iterator().next();
-        assertThat(destinationQuay.getName()).isNotNull();
-        assertThat(destinationQuay.getVersion()).isEqualTo(1L);
-        assertThat(destinationQuay.getName().getValue()).isEqualTo(quayToMove.getName().getValue());
-        assertThat(destinationQuay.getKeyValues().get("validityStart").getItems().stream().findFirst().get()).isEqualTo(tomorrowStr);
-
-        assertThat(result).isEqualTo(createdStopPlace);
-    }
-
-    @Test
     public void moveQuayBetweenChildStopsByCopying() {
 
         // Arrange
@@ -234,6 +197,23 @@ public class StopPlaceQuayMoverTest extends TiamatIntegrationTest {
 
         destinationStopPlace = stopPlaceRepository.findFirstByNetexIdOrderByVersionDesc(destinationStopPlace.getNetexId());
         assertThat(destinationStopPlace).isEqualTo(result);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void doNotAllowMoveQuayToNewStop() {
+
+        StopPlace fromStopPlace = new StopPlace();
+
+        Quay quayToMove = new Quay(new EmbeddableMultilingualString("quay to be moved 2"));
+        quayToMove.setVersion(1L);
+        fromStopPlace.getQuays().add(quayToMove);
+        fromStopPlace.setVersion(1L);
+        stopPlaceRepository.save(fromStopPlace);
+
+        LocalDate tomorrow = getTomorrow();
+        String tomorrowStr = tomorrow.toString();
+
+        StopPlace result = stopPlaceQuayMover.moveQuays(Arrays.asList(quayToMove.getNetexId()), null, tomorrow, null,null);
     }
 
     @Test(expected = IllegalArgumentException.class)

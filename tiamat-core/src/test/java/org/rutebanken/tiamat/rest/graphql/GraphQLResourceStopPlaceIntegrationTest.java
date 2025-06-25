@@ -119,6 +119,7 @@ import static org.hamcrest.Matchers.nullValue;
 import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.MOVE_QUAY_FROM_DATE;
 import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.MOVE_QUAYS_TO_STOP;
 import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.QUAY_IDS;
+import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.TO_STOP_PLACE_ID;
 import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.TO_VERSION_COMMENT;
 import static org.rutebanken.tiamat.rest.graphql.scalars.DateScalar.DATE_TIME_PATTERN;
 
@@ -2176,12 +2177,14 @@ public class GraphQLResourceStopPlaceIntegrationTest extends AbstractGraphQLReso
     @Test
     public void testMoveQuayToNewStop() throws Exception {
 
-        StopPlace stopPlace = new StopPlace();
+        StopPlace sourceStopPlace = new StopPlace();
+        StopPlace destinationStopPlace = new StopPlace();
 
         Quay quay = new Quay();
-        stopPlace.getQuays().add(quay);
+        sourceStopPlace.getQuays().add(quay);
 
-        stopPlaceRepository.save(stopPlace);
+        stopPlaceRepository.save(sourceStopPlace);
+        stopPlaceRepository.save(destinationStopPlace);
 
         String versionComment = "moving quays";
         LocalDate now = LocalDate.now();
@@ -2189,7 +2192,7 @@ public class GraphQLResourceStopPlaceIntegrationTest extends AbstractGraphQLReso
 
         String graphQlJsonQuery = """
                     mutation {
-                    stopPlace: %s (%s: "%s", %s: "%s", %s: "%s") {
+                    stopPlace: %s (%s: "%s", %s: "%s", %s: "%s", %s: "%s") {
                         id
                         ...on StopPlace {
                             quays {
@@ -2207,11 +2210,13 @@ public class GraphQLResourceStopPlaceIntegrationTest extends AbstractGraphQLReso
                 .formatted(
                         MOVE_QUAYS_TO_STOP,
                         QUAY_IDS, quay.getNetexId(),
+                        TO_STOP_PLACE_ID, destinationStopPlace.getNetexId(),
                         TO_VERSION_COMMENT, versionComment,
                         MOVE_QUAY_FROM_DATE, now);
 
         executeGraphqQLQueryOnly(graphQlJsonQuery)
-                .body("data.stopPlace.id", not(comparesEqualTo(stopPlace.getNetexId())))
+                .body("data.stopPlace.id", not(comparesEqualTo(sourceStopPlace.getNetexId())))
+                .body("data.stopPlace.id", comparesEqualTo(destinationStopPlace.getNetexId()))
                 .body("data.stopPlace.versionComment", equalTo(versionComment))
                 .rootPath("data.stopPlace.quays[0]")
                     .body("id", not(comparesEqualTo(quay.getNetexId())))
