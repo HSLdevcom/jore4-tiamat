@@ -32,6 +32,7 @@ import static graphql.schema.GraphQLFieldDefinition.newFieldDefinition;
 import static graphql.schema.GraphQLInterfaceType.newInterface;
 import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.ALTERNATIVE_NAMES;
 import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.CHANGED_BY;
+import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.EXTERNAL_LINKS;
 import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.FARE_ZONES;
 import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.INFO_SPOTS;
 import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.OUTPUT_TYPE_GROUP_OF_STOPPLACES;
@@ -63,7 +64,8 @@ public class StopPlaceInterfaceCreator {
                                                                     GraphQLObjectType topographicPlaceObjectType,
                                                                     GraphQLObjectType validBetweenObjectType,
                                                                     GraphQLObjectType entityPermissionObjectType,
-                                                                    GraphQLObjectType infoSpotObjectType) {
+                                                                    GraphQLObjectType infoSpotObjectType,
+                                                                    GraphQLObjectType externalLinkObjectType) {
         List<GraphQLFieldDefinition> stopPlaceInterfaceFields = new ArrayList<>();
         stopPlaceInterfaceFields.add(newFieldDefinition()
                 .name(VERSION_COMMENT)
@@ -116,6 +118,10 @@ public class StopPlaceInterfaceCreator {
                 .name(INFO_SPOTS)
                 .type(new GraphQLList(infoSpotObjectType))
                 .build());
+        stopPlaceInterfaceFields.add(newFieldDefinition()
+                .name(EXTERNAL_LINKS)
+                .type(new GraphQLList(externalLinkObjectType))
+                .description("External links").build());
         return stopPlaceInterfaceFields;
     }
 
