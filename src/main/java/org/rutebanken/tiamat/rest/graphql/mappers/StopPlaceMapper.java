@@ -25,6 +25,7 @@ import org.rutebanken.tiamat.model.PrivateCodeStructure;
 import org.rutebanken.tiamat.model.RailSubmodeEnumeration;
 import org.rutebanken.tiamat.model.SiteRefStructure;
 import org.rutebanken.tiamat.model.StopPlace;
+import org.rutebanken.tiamat.model.StopPlaceExternalLink;
 import org.rutebanken.tiamat.model.StopPlaceOrganisationRef;
 import org.rutebanken.tiamat.model.StopPlaceOrganisationRelationshipEnumeration;
 import org.rutebanken.tiamat.model.StopTypeEnumeration;
@@ -42,9 +43,13 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.ADJACENT_SITES;
 import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.ENTITY_REF_REF;
+import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.EXTERNAL_LINKS;
+import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.EXTERNAL_LINK_LOCATION;
+import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.EXTERNAL_LINK_NAME;
 import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.ID;
 import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.ORGANISATIONS;
 import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.ORGANISATION_REF;
@@ -157,6 +162,24 @@ public class StopPlaceMapper {
             String topographicPlaceRef = (String) topographicPlaceInputMap.get(ID);
             TopographicPlace topographicPlace = topographicPlaceRepository.findFirstByNetexIdOrderByVersionDesc(topographicPlaceRef);
             stopPlace.setTopographicPlace(topographicPlace);
+            isUpdated = true;
+        }
+
+        if (input.get(EXTERNAL_LINKS) != null) {
+            Stream<?> linkStream = ((List) input.get(EXTERNAL_LINKS)).stream();
+            List<StopPlaceExternalLink> externalLinks =
+                    linkStream .map(externalLink -> {
+                                if (externalLink instanceof Map linkMap) {
+                                    var link = new StopPlaceExternalLink();
+                                    link.setName((String) linkMap.get(EXTERNAL_LINK_NAME));
+                                    link.setLocation((String) linkMap.get(EXTERNAL_LINK_LOCATION));
+                                    return link;
+                                }
+                                throw new IllegalArgumentException(externalLink.toString() + " could not be cast as a link");
+                            })
+                            .toList();
+
+            stopPlace.setStopPlaceExternalLinks(externalLinks);
             isUpdated = true;
         }
 

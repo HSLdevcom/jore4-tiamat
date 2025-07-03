@@ -25,8 +25,10 @@ import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.Index;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
+import jakarta.persistence.OrderColumn;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
 import jakarta.persistence.UniqueConstraint;
@@ -35,6 +37,7 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
@@ -114,6 +117,13 @@ public class StopPlace
 
     @Enumerated(EnumType.STRING)
     private ModificationEnumeration modificationEnumeration;
+
+    @ElementCollection(fetch = FetchType.LAZY)
+    @CollectionTable(
+            joinColumns = @JoinColumn(name = "stopPlaceId")
+    )
+    @OrderColumn(name = "orderNum")
+    protected List<StopPlaceExternalLink> externalLinks = new ArrayList<>();
 
     public StopPlace(EmbeddableMultilingualString name) {
         super(name);
@@ -317,6 +327,14 @@ public class StopPlace
 
     public void setModificationEnumeration(ModificationEnumeration modificationEnumeration) {
         this.modificationEnumeration = modificationEnumeration;
+    }
+
+    public List<StopPlaceExternalLink> getStopPlaceExternalLinks() {
+        return externalLinks;
+    }
+
+    public void setStopPlaceExternalLinks(Collection<StopPlaceExternalLink> externalLinks) {
+        this.externalLinks = List.copyOf(externalLinks);
     }
 
     @Override

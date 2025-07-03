@@ -39,6 +39,7 @@ import org.rutebanken.tiamat.model.GeneralSign;
 import org.rutebanken.tiamat.model.Organisation;
 import org.rutebanken.tiamat.model.OrganisationTypeEnumeration;
 import org.rutebanken.tiamat.model.QuayExternalLink;
+import org.rutebanken.tiamat.model.StopPlaceExternalLink;
 import org.rutebanken.tiamat.model.StopPlaceOrganisationRef;
 import org.rutebanken.tiamat.model.StopPlaceOrganisationRelationshipEnumeration;
 import org.rutebanken.tiamat.model.hsl.AccessibilityLevelEnumeration;
@@ -3973,7 +3974,7 @@ public class GraphQLResourceStopPlaceIntegrationTest extends AbstractGraphQLReso
     }
 
     @Test
-    public void readExternalLinksTest() {
+    public void readQuayExternalLinksTest() {
 
         StopPlace stopPlace = new StopPlace();
         stopPlace.setName(new EmbeddableMultilingualString("stop"));
@@ -4027,7 +4028,7 @@ public class GraphQLResourceStopPlaceIntegrationTest extends AbstractGraphQLReso
     }
 
     @Test
-    public void setExternalLinkTest() {
+    public void setQuayExternalLinkTest() {
 
         String stopPlaceName = "testStopPlace";
 
@@ -4075,6 +4076,103 @@ public class GraphQLResourceStopPlaceIntegrationTest extends AbstractGraphQLReso
                 .rootPath("data.stopPlace")
                 .body("quays", hasSize(1))
                 .appendRootPath("quays[0]")
+                // RestAssured fails to parse array in this case and wraps it one time too many, requiring extra [0]
+                .body("externalLinks[0]", hasSize(2))
+                .body("externalLinks[0][0].name", equalTo(link1Name))
+                .body("externalLinks[0][0].location", equalTo(link1Location))
+                .body("externalLinks[0][1].name", equalTo(link2Name))
+                .body("externalLinks[0][1].location", equalTo(link2Location));
+    }
+
+    @Test
+    public void readStopPlaceExternalLinksTest() {
+
+        StopPlace stopPlace = new StopPlace();
+        stopPlace.setName(new EmbeddableMultilingualString("stop"));
+
+        StopPlaceExternalLink link1 = new StopPlaceExternalLink();
+        link1.setName("link one");
+        link1.setLocation("http://www.test.location");
+
+        StopPlaceExternalLink link2 = new StopPlaceExternalLink();
+        link2.setName("second link");
+        link2.setLocation("local://location");
+
+        stopPlace.setStopPlaceExternalLinks(List.of(link1, link2));
+        stopPlace = stopPlaceRepository.save(stopPlace);
+
+        String graphQLJsonQuery = """
+        {
+          stopPlace: stopPlace (query:"%s", allVersions:true) {
+            id
+            externalLinks {
+              name
+              location
+              stopPlaceId
+              orderNum
+            }
+          }
+        }""".formatted(stopPlace.getNetexId());
+
+        int stopPlaceId = stopPlace.getId().intValue();
+
+        executeGraphqQLQueryOnly(graphQLJsonQuery)
+                .rootPath("data.stopPlace[0]")
+                .body("id", equalTo(stopPlace.getNetexId()))
+                .body("externalLinks", hasSize(2))
+                .body("externalLinks[0].name", equalTo(link1.getName()))
+                .body("externalLinks[0].location", equalTo(link1.getLocation()))
+                .body("externalLinks[0].stopPlaceId", equalTo(stopPlaceId))
+                .body("externalLinks[0].orderNum", equalTo(0))
+                .body("externalLinks[1].name", equalTo(link2.getName()))
+                .body("externalLinks[1].location", equalTo(link2.getLocation()))
+                .body("externalLinks[1].stopPlaceId", equalTo(stopPlaceId))
+                .body("externalLinks[1].orderNum", equalTo(1));
+    }
+
+    @Test
+    public void setStopPlaceExternalLinkTest() {
+
+        String stopPlaceName = "testStopPlace";
+
+        String link1Name = "link one";
+        String link1Location = "http://www.test.location";
+
+        String link2Name = "second link";
+        String link2Location = "local://location";
+
+        String graphQLJsonQuery = """
+            mutation {
+              stopPlace: mutateStopPlace(StopPlace: {
+                name: { value: "%s" }
+                externalLinks: [
+                {
+                  name: "%s"
+                  location: "%s"
+                },
+                {
+                  name: "%s"
+                  location: "%s"
+                }
+                ]
+              }) {
+                id
+                externalLinks {
+                  name
+                  location
+                }
+                }
+            }
+            """.formatted(
+                stopPlaceName,
+                link1Name,
+                link1Location,
+                link2Name,
+                link2Location
+        );
+
+        executeGraphqQLQueryOnly(graphQLJsonQuery)
+                .rootPath("data.stopPlace")
                 // RestAssured fails to parse array in this case and wraps it one time too many, requiring extra [0]
                 .body("externalLinks[0]", hasSize(2))
                 .body("externalLinks[0][0].name", equalTo(link1Name))
