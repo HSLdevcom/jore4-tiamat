@@ -14,13 +14,15 @@ import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.EXTERNAL_LINK_LOCA
 import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.EXTERNAL_LINK_NAME;
 import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.EXTERNAL_LINK_QUAY_ID;
 import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.EXTERNAL_LINK_ORDER_NUM;
+import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.EXTERNAL_LINK_STOP_PLACE_ID;
 import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.INPUT_TYPE_EXTERNAL_LINK;
 import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.OUTPUT_TYPE_EXTERNAL_LINK;
+import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.OUTPUT_TYPE_STOP_PLACE_EXTERNAL_LINK;
 
 @Component
 public class ExternalLinkObjectTypeCreator {
 
-    public GraphQLObjectType externalLinkObjectType() {
+    public GraphQLObjectType quayExternalLinkObjectType() {
         return newObject()
                 .name(OUTPUT_TYPE_EXTERNAL_LINK)
                 .field(newFieldDefinition()
@@ -37,6 +39,25 @@ public class ExternalLinkObjectTypeCreator {
                         .type(GraphQLInt))
                 .build();
     }
+
+    public GraphQLObjectType stopPlaceExternalLinkObjectType() {
+        return newObject()
+                .name(OUTPUT_TYPE_STOP_PLACE_EXTERNAL_LINK)
+                .field(newFieldDefinition()
+                        .name(EXTERNAL_LINK_NAME)
+                        .type(GraphQLString))
+                .field(newFieldDefinition()
+                        .name(EXTERNAL_LINK_LOCATION)
+                        .type(GraphQLString))
+                .field(newFieldDefinition()
+                        .name(EXTERNAL_LINK_STOP_PLACE_ID)
+                        .type(GraphQLInt))
+                .field(newFieldDefinition()
+                        .name(EXTERNAL_LINK_ORDER_NUM)
+                        .type(GraphQLInt))
+                .build();
+    }
+
     public GraphQLInputObjectType externalLinkInputType() {
         return newInputObject()
                 .name(INPUT_TYPE_EXTERNAL_LINK)
