@@ -49,7 +49,6 @@ import org.rutebanken.tiamat.model.Link;
 import org.rutebanken.tiamat.model.Parking;
 import org.rutebanken.tiamat.model.PurposeOfGrouping;
 import org.rutebanken.tiamat.model.Quay;
-import org.rutebanken.tiamat.model.QuayExternalLink;
 import org.rutebanken.tiamat.model.SanitaryEquipment;
 import org.rutebanken.tiamat.model.ShelterEquipment;
 import org.rutebanken.tiamat.model.SiteRefStructure;
@@ -489,9 +488,9 @@ public class StopPlaceRegisterGraphQLSchema {
 
         GraphQLObjectType infoSpotObjectType = infoSpotObjectTypeCreator.createObjectType(validBetweenObjectType);
 
-        GraphQLObjectType externalLinkObjectType = externalLinkObjectTypeCreator.externalLinkObjectType();
+        GraphQLObjectType quayExternalLinkObjectType = externalLinkObjectTypeCreator.quayExternalLinkObjectType();
 
-        GraphQLObjectType quayObjectType = createQuayObjectType(commonFieldsList, infoSpotObjectType, externalLinkObjectType, allVersionsArgument);
+        GraphQLObjectType quayObjectType = createQuayObjectType(commonFieldsList, infoSpotObjectType, quayExternalLinkObjectType, allVersionsArgument);
 
 
         GraphQLObjectType topographicPlaceObjectType = topographicPlaceObjectTypeCreator.create();
@@ -501,13 +500,29 @@ public class StopPlaceRegisterGraphQLSchema {
 
         MutableTypeResolver stopPlaceTypeResolver = new MutableTypeResolver();
 
-        List<GraphQLFieldDefinition> stopPlaceInterfaceFields = stopPlaceInterfaceCreator.createCommonInterfaceFields(tariffZoneObjectType,fareZoneObjectType, topographicPlaceObjectType, validBetweenObjectType, entityPermissionObjectType, infoSpotObjectType);
+        GraphQLObjectType stopPlaceExternalLinkObjectType = externalLinkObjectTypeCreator.stopPlaceExternalLinkObjectType();
+
+        List<GraphQLFieldDefinition> stopPlaceInterfaceFields = stopPlaceInterfaceCreator.createCommonInterfaceFields(
+                tariffZoneObjectType,
+                fareZoneObjectType,
+                topographicPlaceObjectType,
+                validBetweenObjectType,
+                entityPermissionObjectType,
+                infoSpotObjectType,
+                stopPlaceExternalLinkObjectType);
+
         GraphQLInterfaceType stopPlaceInterface = stopPlaceInterfaceCreator.createInterface(stopPlaceInterfaceFields, commonFieldsList);
 
         GraphQLObjectType organisationObjectType = createOrganisationObjectType(validBetweenObjectType);
         GraphQLObjectType stopPlaceOrganisationRefObjectType = stopPlaceOrganisationRefObjectTypeCreator.create(organisationObjectType);
 
-        GraphQLObjectType stopPlaceObjectType = stopPlaceObjectTypeCreator.create(stopPlaceInterface, stopPlaceInterfaceFields, commonFieldsList, quayObjectType, stopPlaceOrganisationRefObjectType);
+        GraphQLObjectType stopPlaceObjectType = stopPlaceObjectTypeCreator.create(
+                stopPlaceInterface,
+                stopPlaceInterfaceFields,
+                commonFieldsList,
+                quayObjectType,
+                stopPlaceOrganisationRefObjectType);
+
         GraphQLObjectType parentStopPlaceObjectType = parentStopPlaceObjectTypeCreator.create(stopPlaceInterface, stopPlaceInterfaceFields, commonFieldsList, stopPlaceObjectType);
 
         stopPlaceTypeResolver.setResolveFunction(object -> {
@@ -642,11 +657,11 @@ public class StopPlaceRegisterGraphQLSchema {
                 .build();
 
 
-        List<GraphQLInputObjectField> commonInputFieldList = createCommonInputFieldList(embeddableMultiLingualStringInputObjectType);
-
         GraphQLInputObjectType externalLinkInputObjectType = externalLinkObjectTypeCreator.externalLinkInputType();
 
-        GraphQLInputObjectType quayInputObjectType = createQuayInputObjectType(commonInputFieldList, externalLinkInputObjectType);
+        List<GraphQLInputObjectField> commonInputFieldList = createCommonInputFieldList(embeddableMultiLingualStringInputObjectType, externalLinkInputObjectType);
+
+        GraphQLInputObjectType quayInputObjectType = createQuayInputObjectType(commonInputFieldList);
 
         GraphQLInputObjectType validBetweenInputObjectType = createValidBetweenInputObjectType();
 
@@ -1624,7 +1639,9 @@ public class StopPlaceRegisterGraphQLSchema {
 
     }
 
-    private List<GraphQLInputObjectField> createCommonInputFieldList(GraphQLInputObjectType embeddableMultiLingualStringInputObjectType) {
+    private List<GraphQLInputObjectField> createCommonInputFieldList(
+            GraphQLInputObjectType embeddableMultiLingualStringInputObjectType,
+            GraphQLInputObjectType externalLinkType) {
 
         List<GraphQLInputObjectField> commonInputFieldsList = new ArrayList<>();
         commonInputFieldsList.add(newInputObjectField().name(ID).type(GraphQLString).description("Ignore when creating new").build());
@@ -1644,19 +1661,18 @@ public class StopPlaceRegisterGraphQLSchema {
                         .type(accessibilityAssessmentInputObjectType)
                         .build()
         );
+        commonInputFieldsList.add(newInputObjectField()
+                        .name(EXTERNAL_LINKS)
+                        .type(new GraphQLList(externalLinkType)).build());
         return commonInputFieldsList;
     }
 
 
     private GraphQLInputObjectType createQuayInputObjectType(
-            List<GraphQLInputObjectField> graphQLCommonInputObjectFieldsList,
-            GraphQLInputObjectType externalLinkType) {
+            List<GraphQLInputObjectField> graphQLCommonInputObjectFieldsList) {
         return newInputObject()
                 .name(INPUT_TYPE_QUAY)
                 .fields(graphQLCommonInputObjectFieldsList)
-                .field(newInputObjectField()
-                        .name(EXTERNAL_LINKS)
-                        .type(new GraphQLList(externalLinkType)))
                 .field(newInputObjectField().name(COMPASS_BEARING).type(GraphQLBigDecimal))
                 .field(newInputObjectField().name(BOARDING_POSITIONS).type(new GraphQLList(boardingPositionsInputObjectType)))
                 .field(newInputObjectField().name(VERSION_COMMENT).type(GraphQLString))
