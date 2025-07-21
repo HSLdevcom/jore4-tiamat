@@ -78,6 +78,7 @@ import org.rutebanken.tiamat.rest.graphql.fetchers.TagFetcher;
 import org.rutebanken.tiamat.rest.graphql.fetchers.UserPermissionsFetcher;
 import org.rutebanken.tiamat.rest.graphql.mappers.AlternativeNameMapper;
 import org.rutebanken.tiamat.rest.graphql.mappers.GeometryMapper;
+import org.rutebanken.tiamat.rest.graphql.mappers.KeyValueMapper;
 import org.rutebanken.tiamat.rest.graphql.mappers.PrivateCodeMapper;
 import org.rutebanken.tiamat.rest.graphql.mappers.ValidBetweenMapper;
 import org.rutebanken.tiamat.rest.graphql.operations.MultiModalityOperationsBuilder;
@@ -124,7 +125,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -1004,25 +1004,7 @@ public class StopPlaceRegisterGraphQLSchema {
                     EmbeddableMultilingualString name = getEmbeddableString((Map) input.get(NAME));
                     PrivateCodeStructure privateCode = PrivateCodeMapper.getPrivateCodeStructure((Map) input.get(PRIVATE_CODE));
                     List<AlternativeName> alternativeNames = alternativeNameMapper.mapAlternativeNames((List) input.get(ALTERNATIVE_NAMES));
-
-                    List<Map<String, Object>> keyValueInput = (List) input.get(KEY_VALUES);
-                    Map<String, Value> keyValues = new HashMap<>();
-
-                    if (keyValueInput != null) {
-                        keyValueInput.forEach(kvInput -> {
-                            var key = (String) kvInput.get("key");
-
-                            if (key != null && !key.isBlank()) {
-                                var values = kvInput.get("values");
-
-                                if (values != null) {
-                                    keyValues.put(key, new Value((List<String>) values));
-                                } else {
-                                    keyValues.put(key, null);
-                                }
-                            }
-                        });
-                    }
+                    Map<String, Value> keyValues = KeyValueMapper.getKeyValuesMap((List)  input.get(KEY_VALUES));
 
                     @SuppressWarnings("unchecked")
                     List<String> stopPlaceIds = (List<String>) input.get(STOP_PLACE_IDS);
