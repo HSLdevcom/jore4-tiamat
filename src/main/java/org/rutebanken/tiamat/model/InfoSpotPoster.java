@@ -12,4 +12,8 @@ public class InfoSpotPoster extends InfoSpotPoster_VersionStructure implements S
 
     @Serial
     private static final long serialVersionUID = 504687562412240224L;
+
+    public PosterSizeEnumeration getPosterSize() {
+        return PosterSizeEnumeration.fromSize(getWidth(), getHeight());
+    }
 }
