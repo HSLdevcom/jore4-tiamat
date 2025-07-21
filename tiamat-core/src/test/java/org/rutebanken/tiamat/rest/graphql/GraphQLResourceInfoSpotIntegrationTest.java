@@ -25,6 +25,10 @@ public class GraphQLResourceInfoSpotIntegrationTest extends AbstractGraphQLResou
 
     private final GeometryFactory geometryFactory = new GeometryFactoryConfig().geometryFactory();
 
+    private static final Size SIZE_A3 = new Size(297, 420);
+    private static final Size SIZE_A4 = new Size(210, 297);
+    private static final Size SIZE_80_120 = new Size(800, 1200);
+
     static String INFO_SPOT_ID = "NSR:InfoSpot:1";
     static String INFO_SPOT2_ID = "NSR:InfoSpot:2";
 
@@ -84,6 +88,8 @@ public class GraphQLResourceInfoSpotIntegrationTest extends AbstractGraphQLResou
                     }
                     maintenance
                     posterPlaceSize
+                    width
+                    height
                     purpose
                     railInformation
                     zoneLabel
@@ -96,6 +102,8 @@ public class GraphQLResourceInfoSpotIntegrationTest extends AbstractGraphQLResou
                     poster {
                         label
                         posterSize
+                        width
+                        height
                         lines
                     }
                 }
@@ -113,7 +121,10 @@ public class GraphQLResourceInfoSpotIntegrationTest extends AbstractGraphQLResou
                 .body("floor", equalTo(updatedInfoSpot.getFloor()))
                 .body("description.value", equalTo(updatedInfoSpot.getDescription().getValue()))
                 .body("maintenance", equalTo(updatedInfoSpot.getMaintenance()))
+                // Deprecated field, test compatability
                 .body("posterPlaceSize", equalTo(updatedInfoSpot.getPosterPlaceSize().value()))
+                .body("width", equalTo(updatedInfoSpot.getWidth()))
+                .body("height", equalTo(updatedInfoSpot.getHeight()))
                 .body("purpose", equalTo(updatedInfoSpot.getPurpose()))
                 .body("railInformation", equalTo(updatedInfoSpot.getRailInformation()))
                 .body("zoneLabel", equalTo(updatedInfoSpot.getZoneLabel()))
@@ -123,7 +134,10 @@ public class GraphQLResourceInfoSpotIntegrationTest extends AbstractGraphQLResou
                 .body("geometry.coordinates[1]", equalTo((float)updatedInfoSpot.getCentroid().getY()))
                 .appendRootPath("poster[0]")
                 .body("label", equalTo(updatedPoster.getLabel()))
+                // Deprecated field, test compatability
                 .body("posterSize", equalTo(updatedPoster.getPosterSize().value()))
+                .body("width", equalTo(updatedPoster.getWidth()))
+                .body("height", equalTo(updatedPoster.getHeight()))
                 .body("lines", equalTo(updatedPoster.getLines()))
                 .rootPath("data.infoSpots[1]")
                 .body("id", equalTo(otherInfoSpot.getNetexId()))
@@ -134,7 +148,8 @@ public class GraphQLResourceInfoSpotIntegrationTest extends AbstractGraphQLResou
                 .body("floor", equalTo(otherInfoSpot.getFloor()))
                 .body("description.value", equalTo(otherInfoSpot.getDescription().getValue()))
                 .body("maintenance", equalTo(otherInfoSpot.getMaintenance()))
-                .body("posterPlaceSize", equalTo(otherInfoSpot.getPosterPlaceSize().value()))
+                .body("width", equalTo(otherInfoSpot.getWidth()))
+                .body("height", equalTo(otherInfoSpot.getHeight()))
                 .body("purpose", equalTo(otherInfoSpot.getPurpose()))
                 .body("railInformation", equalTo(otherInfoSpot.getRailInformation()))
                 .body("zoneLabel", equalTo(otherInfoSpot.getZoneLabel()))
@@ -144,7 +159,8 @@ public class GraphQLResourceInfoSpotIntegrationTest extends AbstractGraphQLResou
                 .body("geometry.coordinates[1]", equalTo((float)otherInfoSpot.getCentroid().getY()))
                 .appendRootPath("poster[0]")
                 .body("label", equalTo(otherPoster.getLabel()))
-                .body("posterSize", equalTo(otherPoster.getPosterSize().value()))
+                .body("width", equalTo(otherPoster.getWidth()))
+                .body("height", equalTo(otherPoster.getHeight()))
                 .body("lines", equalTo(otherPoster.getLines()));
     }
 
@@ -167,7 +183,8 @@ public class GraphQLResourceInfoSpotIntegrationTest extends AbstractGraphQLResou
                         lang
                     }
                     maintenance
-                    posterPlaceSize
+                    width
+                    height
                     purpose
                     railInformation
                     zoneLabel
@@ -179,7 +196,8 @@ public class GraphQLResourceInfoSpotIntegrationTest extends AbstractGraphQLResou
                     }
                     poster {
                         label
-                        posterSize
+                        width
+                        height
                         lines
                     }
                 }
@@ -197,7 +215,8 @@ public class GraphQLResourceInfoSpotIntegrationTest extends AbstractGraphQLResou
                 .body("floor", equalTo(updatedInfoSpot.getFloor()))
                 .body("description.value", equalTo(updatedInfoSpot.getDescription().getValue()))
                 .body("maintenance", equalTo(updatedInfoSpot.getMaintenance()))
-                .body("posterPlaceSize", equalTo(updatedInfoSpot.getPosterPlaceSize().value()))
+                .body("width", equalTo(updatedInfoSpot.getWidth()))
+                .body("height", equalTo(updatedInfoSpot.getHeight()))
                 .body("purpose", equalTo(updatedInfoSpot.getPurpose()))
                 .body("railInformation", equalTo(updatedInfoSpot.getRailInformation()))
                 .body("zoneLabel", equalTo(updatedInfoSpot.getZoneLabel()))
@@ -207,7 +226,8 @@ public class GraphQLResourceInfoSpotIntegrationTest extends AbstractGraphQLResou
                 .body("geometry.coordinates[1]", equalTo((float)updatedInfoSpot.getCentroid().getY()))
                 .appendRootPath("poster[0]")
                 .body("label", equalTo(updatedPoster.getLabel()))
-                .body("posterSize", equalTo(updatedPoster.getPosterSize().value()))
+                .body("width", equalTo(updatedPoster.getWidth()))
+                .body("height", equalTo(updatedPoster.getHeight()))
                 .body("lines", equalTo(updatedPoster.getLines()));
     }
 
@@ -219,7 +239,7 @@ public class GraphQLResourceInfoSpotIntegrationTest extends AbstractGraphQLResou
         String floor = "2";
         String description = "Description of info spot";
         String maintenance = "Maintainer";
-        PosterSizeEnumeration size = PosterSizeEnumeration.CM80x120;
+        Size size = SIZE_80_120;
         String purpose = "Purpose of info";
         String railInformation = "Rail 1";
         String zoneLabel = "A";
@@ -228,7 +248,7 @@ public class GraphQLResourceInfoSpotIntegrationTest extends AbstractGraphQLResou
         String location2 = "NSH:StopPlace:2";
 
         String posterLabel = "Info Poster";
-        PosterSizeEnumeration posterSize = PosterSizeEnumeration.A3;
+        Size posterSize = SIZE_A3;
         String posterLines = "1, 4, 5";
         Float lat = 60.0F;
         Float lon = 50.0F;
@@ -245,7 +265,8 @@ public class GraphQLResourceInfoSpotIntegrationTest extends AbstractGraphQLResou
                             value: "%s"
                         }
                         maintenance: "%s"
-                        posterPlaceSize: %s
+                        width: %s
+                        height: %s
                         purpose: "%s"
                         railInformation: "%s"
                         zoneLabel: "%s"
@@ -261,7 +282,8 @@ public class GraphQLResourceInfoSpotIntegrationTest extends AbstractGraphQLResou
                         poster: [
                             {
                                 label: "%s",
-                                posterSize: %s,
+                                width: %s,
+                                height: %s,
                                 lines: "%s"
                             }
                         ]
@@ -278,7 +300,8 @@ public class GraphQLResourceInfoSpotIntegrationTest extends AbstractGraphQLResou
                         lang
                     }
                     maintenance
-                    posterPlaceSize
+                    width
+                    height
                     purpose
                     railInformation
                     zoneLabel
@@ -290,7 +313,8 @@ public class GraphQLResourceInfoSpotIntegrationTest extends AbstractGraphQLResou
                     }
                     poster {
                         label
-                        posterSize
+                        width
+                        height
                         lines
                     }
                 }
@@ -302,7 +326,8 @@ public class GraphQLResourceInfoSpotIntegrationTest extends AbstractGraphQLResou
             floor,
             description,
             maintenance,
-            size.value(),
+            size.width(),
+            size.height(),
             purpose,
             railInformation,
             zoneLabel,
@@ -312,7 +337,8 @@ public class GraphQLResourceInfoSpotIntegrationTest extends AbstractGraphQLResou
             lat.toString(),
             lon.toString(),
             posterLabel,
-            posterSize.value(),
+            posterSize.width(),
+            posterSize.height(),
             posterLines
         );
 
@@ -325,7 +351,8 @@ public class GraphQLResourceInfoSpotIntegrationTest extends AbstractGraphQLResou
                 .body("floor", equalTo(floor))
                 .body("description.value", equalTo(description))
                 .body("maintenance", equalTo(maintenance))
-                .body("posterPlaceSize", equalTo(size.value()))
+                .body("width", equalTo(size.width()))
+                .body("height", equalTo(size.height()))
                 .body("purpose", equalTo(purpose))
                 .body("railInformation", equalTo(railInformation))
                 .body("zoneLabel", equalTo(zoneLabel))
@@ -335,7 +362,8 @@ public class GraphQLResourceInfoSpotIntegrationTest extends AbstractGraphQLResou
                 .body("geometry.coordinates[1]", equalTo(lon))
                 .appendRootPath("poster[0]")
                 .body("label", equalTo(posterLabel))
-                .body("posterSize", equalTo(posterSize.value()))
+                .body("width", equalTo(posterSize.width()))
+                .body("height", equalTo(posterSize.height()))
                 .body("lines", equalTo(posterLines));
     }
 
@@ -349,7 +377,7 @@ public class GraphQLResourceInfoSpotIntegrationTest extends AbstractGraphQLResou
         String floor = "2";
         String description = "Descriptive";
         String maintenance = "Maintainer";
-        PosterSizeEnumeration size = PosterSizeEnumeration.CM80x120;
+        Size size = SIZE_80_120;
         String purpose = "Purpose of info";
         String railInformation = "Rail 1";
         String zoneLabel = "A";
@@ -360,7 +388,7 @@ public class GraphQLResourceInfoSpotIntegrationTest extends AbstractGraphQLResou
         float lon = 52.0F;
 
         String posterLabel = ("Informative poster");
-        PosterSizeEnumeration posterSize = PosterSizeEnumeration.A4;
+        Size posterSize = SIZE_A4;
         String posterLines = "1, 2, 5";
 
 
@@ -374,7 +402,8 @@ public class GraphQLResourceInfoSpotIntegrationTest extends AbstractGraphQLResou
                             value: "%s"
                         }
                         maintenance: "%s"
-                        posterPlaceSize: %s
+                        width: %s
+                        height: %s
                         purpose: "%s"
                         railInformation: "%s"
                         zoneLabel: "%s"
@@ -390,7 +419,8 @@ public class GraphQLResourceInfoSpotIntegrationTest extends AbstractGraphQLResou
                         poster: [
                             {
                                 label: "%s",
-                                posterSize: %s,
+                                width: %s,
+                                height: %s,
                                 lines: "%s"
                             }
                         ]
@@ -407,7 +437,8 @@ public class GraphQLResourceInfoSpotIntegrationTest extends AbstractGraphQLResou
                         lang
                     }
                     maintenance
-                    posterPlaceSize
+                    width
+                    height
                     purpose
                     railInformation
                     zoneLabel
@@ -419,7 +450,8 @@ public class GraphQLResourceInfoSpotIntegrationTest extends AbstractGraphQLResou
                     }
                     poster {
                         label
-                        posterSize
+                        width
+                        height
                         lines
                     }
                 }
@@ -429,7 +461,8 @@ public class GraphQLResourceInfoSpotIntegrationTest extends AbstractGraphQLResou
             floor,
             description,
             maintenance,
-            size.value(),
+            size.width(),
+            size.height(),
             purpose,
             railInformation,
             zoneLabel,
@@ -439,7 +472,8 @@ public class GraphQLResourceInfoSpotIntegrationTest extends AbstractGraphQLResou
             lat,
             lon,
             posterLabel,
-            posterSize.value(),
+            posterSize.width(),
+            posterSize.height(),
             posterLines
         );
 
@@ -453,7 +487,8 @@ public class GraphQLResourceInfoSpotIntegrationTest extends AbstractGraphQLResou
                 .body("floor", equalTo(floor))
                 .body("description.value", equalTo(description))
                 .body("maintenance", equalTo(maintenance))
-                .body("posterPlaceSize", equalTo(size.value()))
+                .body("width", equalTo(size.width()))
+                .body("height", equalTo(size.height()))
                 .body("purpose", equalTo(purpose))
                 .body("railInformation", equalTo(railInformation))
                 .body("zoneLabel", equalTo(zoneLabel))
@@ -464,7 +499,8 @@ public class GraphQLResourceInfoSpotIntegrationTest extends AbstractGraphQLResou
                 .body("poster", hasSize(1))
                 .appendRootPath("poster[0]")
                 .body("label", equalTo(posterLabel))
-                .body("posterSize", equalTo(posterSize.value()))
+                .body("width", equalTo(posterSize.width()))
+                .body("height", equalTo(posterSize.height()))
                 .body("lines", equalTo(posterLines));
 
 
@@ -483,7 +519,8 @@ public class GraphQLResourceInfoSpotIntegrationTest extends AbstractGraphQLResou
                         lang
                     }
                     maintenance
-                    posterPlaceSize
+                    width
+                    height
                     purpose
                     railInformation
                     zoneLabel
@@ -495,7 +532,8 @@ public class GraphQLResourceInfoSpotIntegrationTest extends AbstractGraphQLResou
                     }
                     poster {
                         label
-                        posterSize
+                        width
+                        height
                         lines
                     }
                 }
@@ -512,7 +550,8 @@ public class GraphQLResourceInfoSpotIntegrationTest extends AbstractGraphQLResou
                 .body("floor", equalTo(floor))
                 .body("description.value", equalTo(description))
                 .body("maintenance", equalTo(maintenance))
-                .body("posterPlaceSize", equalTo(size.value()))
+                .body("width", equalTo(size.width()))
+                .body("height", equalTo(size.height()))
                 .body("purpose", equalTo(purpose))
                 .body("railInformation", equalTo(railInformation))
                 .body("zoneLabel", equalTo(zoneLabel))
@@ -523,8 +562,62 @@ public class GraphQLResourceInfoSpotIntegrationTest extends AbstractGraphQLResou
                 .body("poster", hasSize(1))
                 .appendRootPath("poster[0]")
                 .body("label", equalTo(posterLabel))
-                .body("posterSize", equalTo(posterSize.value()))
+                .body("width", equalTo(posterSize.width()))
+                .body("height", equalTo(posterSize.height()))
                 .body("lines", equalTo(posterLines));
+    }
+
+    @Test
+    public void updateInfoSpotByOldEnumApi() {
+        insertInfoSpots();
+
+        long version = otherInfoSpot.getVersion() + 1;
+        String netexId = INFO_SPOT2_ID;
+        String posterLabel = ("Informative poster");
+
+        String graphQlJsonMutation = """
+                mutation {
+                    infoSpot: mutateInfoSpots(
+                        infoSpot: {
+                            id: "%s"
+                            posterPlaceSize: %s
+                            poster: [
+                                {
+                                    label: "%s"
+                                    posterSize: %s
+                                }
+                            ]
+                        }
+                    ) {
+                        id
+                        posterPlaceSize
+                        width
+                        height
+                        poster {
+                            posterSize
+                            width
+                            height
+                        }
+                    }
+                }
+                """.formatted(
+                netexId,
+                PosterSizeEnumeration.A3.value(),
+                posterLabel,
+                PosterSizeEnumeration.A3.value()
+        );
+
+        executeGraphqQLQueryOnly(graphQlJsonMutation)
+                .rootPath("data.infoSpot[0]")
+                .body("id", equalTo(netexId))
+                .body("width", equalTo(PosterSizeEnumeration.A3.width()))
+                .body("height", equalTo(PosterSizeEnumeration.A3.height()))
+                .body("posterPlaceSize", equalTo(PosterSizeEnumeration.A3.value()))
+                .body("poster", hasSize(1))
+                .appendRootPath("poster[0]")
+                .body("width", equalTo(PosterSizeEnumeration.A3.width()))
+                .body("height", equalTo(PosterSizeEnumeration.A3.height()))
+                .body("posterSize", equalTo(PosterSizeEnumeration.A3.value()));
     }
 
     @Test
@@ -543,7 +636,8 @@ public class GraphQLResourceInfoSpotIntegrationTest extends AbstractGraphQLResou
         infoSpot.setFloor("2");
         infoSpot.setDescription(new EmbeddableMultilingualString("Descriptive"));
         infoSpot.setMaintenance("Maintainer");
-        infoSpot.setPosterPlaceSize(PosterSizeEnumeration.CM80x120);
+        infoSpot.setWidth(SIZE_80_120.width());
+        infoSpot.setHeight(SIZE_80_120.height());
         infoSpot.setPurpose("Purpose of info");
         infoSpot.setRailInformation("Rail 1");
         infoSpot.setZoneLabel("A");
@@ -598,7 +692,8 @@ public class GraphQLResourceInfoSpotIntegrationTest extends AbstractGraphQLResou
         infoSpot.setFloor("2");
         infoSpot.setDescription(new EmbeddableMultilingualString("Descriptive"));
         infoSpot.setMaintenance("Maintainer");
-        infoSpot.setPosterPlaceSize(PosterSizeEnumeration.CM80x120);
+        infoSpot.setWidth(SIZE_80_120.width());
+        infoSpot.setHeight(SIZE_80_120.height());
         infoSpot.setPurpose("Purpose of info");
         infoSpot.setRailInformation("Rail 1");
         infoSpot.setZoneLabel("A");
@@ -654,7 +749,8 @@ public class GraphQLResourceInfoSpotIntegrationTest extends AbstractGraphQLResou
                             poster: [
                                 {
                                     label: "%s",
-                                    posterSize: %s,
+                                    width: %s,
+                                    height: %s,
                                     lines: "%s"
                                 }
                             ]
@@ -664,7 +760,8 @@ public class GraphQLResourceInfoSpotIntegrationTest extends AbstractGraphQLResou
                         poster {
                             version
                             label
-                            posterSize
+                            width
+                            height
                             lines
                         }
                     }
@@ -672,7 +769,8 @@ public class GraphQLResourceInfoSpotIntegrationTest extends AbstractGraphQLResou
                 """.formatted(
                 updatedInfoSpot.getNetexId(),
                 updatedPoster.getLabel(),
-                updatedPoster.getPosterSize().value(),
+                updatedPoster.getWidth(),
+                updatedPoster.getHeight(),
                 newLines
         );
 
@@ -683,7 +781,8 @@ public class GraphQLResourceInfoSpotIntegrationTest extends AbstractGraphQLResou
                 .appendRootPath("poster[0]")
                 .body("version", equalTo(Long.toString(updatedPoster.getVersion() + 1)))
                 .body("label", equalTo(updatedPoster.getLabel()))
-                .body("posterSize", equalTo(updatedPoster.getPosterSize().value()))
+                .body("width", equalTo(updatedPoster.getWidth()))
+                .body("height", equalTo(updatedPoster.getHeight()))
                 .body("lines", equalTo(newLines));
     }
 
@@ -701,7 +800,8 @@ public class GraphQLResourceInfoSpotIntegrationTest extends AbstractGraphQLResou
         oldInfoSpot.setFloor("2");
         oldInfoSpot.setDescription(new EmbeddableMultilingualString("Descriptive"));
         oldInfoSpot.setMaintenance("Maintainer");
-        oldInfoSpot.setPosterPlaceSize(PosterSizeEnumeration.CM80x120);
+        oldInfoSpot.setWidth(SIZE_80_120.width());
+        oldInfoSpot.setHeight(SIZE_80_120.height());
         oldInfoSpot.setPurpose("Purpose of info");
         oldInfoSpot.setRailInformation("Rail 1");
         oldInfoSpot.setZoneLabel("A");
@@ -713,7 +813,8 @@ public class GraphQLResourceInfoSpotIntegrationTest extends AbstractGraphQLResou
         oldPoster.setNetexId("NSR:InfoSpotPoster:1");
         oldPoster.setVersion(1);
         oldPoster.setLabel("Informative poster");
-        oldPoster.setPosterSize(PosterSizeEnumeration.A4);
+        oldPoster.setWidth(SIZE_A4.width());
+        oldPoster.setHeight(SIZE_A4.height());
         oldPoster.setLines("1, 2, 5");
 
         infoSpotPosterRepository.save(oldPoster);
@@ -738,7 +839,8 @@ public class GraphQLResourceInfoSpotIntegrationTest extends AbstractGraphQLResou
         updatedInfoSpot.setFloor("3");
         updatedInfoSpot.setDescription(new EmbeddableMultilingualString("New Description"));
         updatedInfoSpot.setMaintenance("New Maintainer");
-        updatedInfoSpot.setPosterPlaceSize(PosterSizeEnumeration.A3);
+        updatedInfoSpot.setWidth(SIZE_A3.width());
+        updatedInfoSpot.setHeight(SIZE_A3.height());
         updatedInfoSpot.setPurpose("New purpose of info");
         updatedInfoSpot.setRailInformation("Rail 2");
         updatedInfoSpot.setZoneLabel("B");
@@ -750,7 +852,8 @@ public class GraphQLResourceInfoSpotIntegrationTest extends AbstractGraphQLResou
         updatedPoster.setNetexId("NSR:InfoSpotPoster:1");
         updatedPoster.setVersion(2);
         updatedPoster.setLabel("More informative poster");
-        updatedPoster.setPosterSize(PosterSizeEnumeration.A3);
+        updatedPoster.setWidth(SIZE_A3.width());
+        updatedPoster.setHeight(SIZE_A3.height());
         updatedPoster.setLines("3, 4");
 
         infoSpotPosterRepository.save(updatedPoster);
@@ -775,7 +878,8 @@ public class GraphQLResourceInfoSpotIntegrationTest extends AbstractGraphQLResou
         otherInfoSpot.setFloor("3");
         otherInfoSpot.setDescription(new EmbeddableMultilingualString("Other description"));
         otherInfoSpot.setMaintenance("Maintainer three");
-        otherInfoSpot.setPosterPlaceSize(PosterSizeEnumeration.A4);
+        otherInfoSpot.setWidth(SIZE_A4.width());
+        otherInfoSpot.setHeight(SIZE_A4.height());
         otherInfoSpot.setPurpose("Other purpose");
         otherInfoSpot.setRailInformation("Rail 3");
         otherInfoSpot.setZoneLabel("C");
@@ -787,7 +891,8 @@ public class GraphQLResourceInfoSpotIntegrationTest extends AbstractGraphQLResou
         otherPoster.setNetexId("NSR:InfoSpotPoster:2");
         otherPoster.setVersion(1);
         otherPoster.setLabel("Other poster");
-        otherPoster.setPosterSize(PosterSizeEnumeration.A4);
+        otherPoster.setWidth(SIZE_A4.width());
+        otherPoster.setHeight(SIZE_A4.height());
         otherPoster.setLines("7");
 
         infoSpotPosterRepository.save(otherPoster);
@@ -798,4 +903,6 @@ public class GraphQLResourceInfoSpotIntegrationTest extends AbstractGraphQLResou
 
         infoSpotRepository.save(otherInfoSpot);
     }
+
+    private record Size(Integer width, Integer height) {}
 }
