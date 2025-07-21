@@ -18,10 +18,13 @@ package org.rutebanken.tiamat.service.stopplace;
 import org.locationtech.jts.geom.Point;
 import org.rutebanken.tiamat.auth.AuthorizationService;
 import org.rutebanken.tiamat.lock.MutateLock;
+import org.rutebanken.tiamat.model.AlternativeName;
 import org.rutebanken.tiamat.model.EmbeddableMultilingualString;
 import org.rutebanken.tiamat.model.PostalAddress;
+import org.rutebanken.tiamat.model.PrivateCodeStructure;
 import org.rutebanken.tiamat.model.StopPlace;
 import org.rutebanken.tiamat.model.ValidBetween;
+import org.rutebanken.tiamat.model.Value;
 import org.rutebanken.tiamat.repository.StopPlaceRepository;
 import org.rutebanken.tiamat.versioning.VersionCreator;
 import org.rutebanken.tiamat.versioning.save.StopPlaceVersionedSaverService;
@@ -34,6 +37,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import static java.util.stream.Collectors.toList;
@@ -66,6 +70,14 @@ public class MultiModalStopPlaceEditor {
     }
 
     public StopPlace createMultiModalParentStopPlace(List<String> childStopPlaceIds, EmbeddableMultilingualString name, ValidBetween validBetween, String versionComment, Point geoJsonPoint, PostalAddress postalAddress, String url) {
+        return createMultiModalParentStopPlace(childStopPlaceIds, name, validBetween, versionComment, geoJsonPoint, postalAddress, url, null, null, null);
+    }
+
+    public StopPlace createMultiModalParentStopPlace(List<String> childStopPlaceIds, EmbeddableMultilingualString name,
+                                                     ValidBetween validBetween, String versionComment, Point geoJsonPoint,
+                                                     PostalAddress postalAddress, String url,
+                                                     PrivateCodeStructure privateCode, List<AlternativeName> alternativeNames,
+                                                     Map<String, Value> keyValues) {
 
         return mutateLock.executeInLock(() -> {
 
@@ -83,11 +95,20 @@ public class MultiModalStopPlaceEditor {
             logger.info("Creating first version of parent stop place {}", name);
             final StopPlace parentStopPlace = new StopPlace(name);
             parentStopPlace.setParentStopPlace(true);
+            parentStopPlace.setPrivateCode(privateCode);
             parentStopPlace.setValidBetween(validBetween);
             parentStopPlace.setVersionComment(versionComment);
             parentStopPlace.setCentroid(geoJsonPoint);
             parentStopPlace.setPostalAddress(postalAddress);
             parentStopPlace.setUrl(url);
+
+            if (alternativeNames != null) {
+                parentStopPlace.getAlternativeNames().addAll(alternativeNames);
+            }
+
+            if (keyValues != null) {
+                parentStopPlace.getKeyValues().putAll(keyValues);
+            }
 
             Set<StopPlace> childCopies = validateAndCopyPotentionalChildren(futureChildStopPlaces, parentStopPlace, fromDate);
             parentStopPlace.getChildren().addAll(childCopies);
