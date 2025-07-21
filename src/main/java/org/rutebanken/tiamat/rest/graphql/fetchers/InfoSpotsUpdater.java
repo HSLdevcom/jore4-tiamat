@@ -37,6 +37,7 @@ import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.DESCRIPTION;
 import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.DISPLAY_TYPE;
 import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.FLOOR;
 import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.GEOMETRY;
+import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.HEIGHT;
 import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.ID;
 import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.INFO_SPOT_LOCATIONS;
 import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.INFO_SPOT_TYPE;
@@ -50,6 +51,7 @@ import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.POSTER_SIZE;
 import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.PURPOSE;
 import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.RAIL_INFORMATION;
 import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.SPEECH_PROPERTY;
+import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.WIDTH;
 import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.ZONE_LABEL;
 import static org.rutebanken.tiamat.rest.graphql.mappers.EmbeddableMultilingualStringMapper.getEmbeddableString;
 
@@ -151,11 +153,14 @@ public class InfoSpotsUpdater implements DataFetcher {
             isUpdated |= !Objects.equals(description, target.getDescription());
             target.setDescription(getEmbeddableString(description));
         }
+
         if (input.containsKey(POSTER_PLACE_SIZE)) {
             var posterPlaceSize = (PosterSizeEnumeration) input.get(POSTER_PLACE_SIZE);
-            isUpdated |= !Objects.equals(posterPlaceSize, target.getPosterPlaceSize());
-            target.setPosterPlaceSize(posterPlaceSize);
+            isUpdated |= populateInfoSpotSize(PosterSizeEnumeration.toSizeMap(posterPlaceSize), target);
+        } else {
+            isUpdated |= populateInfoSpotSize(input, target);
         }
+
         if (input.containsKey(BACKLIGHT)) {
             var backlight = (Boolean) input.get(BACKLIGHT);
             isUpdated |= !Objects.equals(backlight, target.getBacklight());
@@ -228,6 +233,22 @@ public class InfoSpotsUpdater implements DataFetcher {
         return isUpdated;
     }
 
+    private boolean populateInfoSpotSize(Map input, InfoSpot target) {
+        boolean isUpdated = false;
+
+        if (input.containsKey(WIDTH) && !Objects.equals(target.getWidth(), input.get(WIDTH))) {
+            target.setWidth((Integer) input.get(WIDTH));
+            isUpdated = true;
+        }
+
+        if (input.containsKey(HEIGHT) && !Objects.equals(target.getHeight(), input.get(HEIGHT))) {
+            target.setHeight((Integer) input.get(HEIGHT));
+            isUpdated = true;
+        }
+
+        return isUpdated;
+    }
+
     private InfoSpotPoster createPoster(Map input, Set<InfoSpotPoster> existingPosters) {
         if (input.containsKey(LABEL)) {
             boolean isUpdated = false;
@@ -249,8 +270,20 @@ public class InfoSpotsUpdater implements DataFetcher {
                 isUpdated = true;
             }
 
-            if (input.containsKey(POSTER_SIZE) && !Objects.equals(poster.getPosterSize(), input.get(POSTER_SIZE))) {
-                poster.setPosterSize((PosterSizeEnumeration) input.get(POSTER_SIZE));
+            if (input.containsKey(POSTER_SIZE)) {
+                var posterSize = (PosterSizeEnumeration) input.get(POSTER_SIZE);
+                isUpdated |= populatePosterSize(PosterSizeEnumeration.toSizeMap(posterSize), poster);
+            } else {
+                isUpdated |= populatePosterSize(input, poster);
+            }
+
+            if (input.containsKey(WIDTH) && !Objects.equals(poster.getWidth(), input.get(WIDTH))) {
+                poster.setWidth((Integer) input.get(WIDTH));
+                isUpdated = true;
+            }
+
+            if (input.containsKey(HEIGHT) && !Objects.equals(poster.getHeight(), input.get(HEIGHT))) {
+                poster.setHeight((Integer) input.get(HEIGHT));
                 isUpdated = true;
             }
 
@@ -262,5 +295,21 @@ public class InfoSpotsUpdater implements DataFetcher {
         else {
             throw new IllegalArgumentException("Expected label for poster, none provided");
         }
+    }
+
+    private boolean populatePosterSize(Map input, InfoSpotPoster target) {
+        boolean isUpdated = false;
+
+        if (input.containsKey(WIDTH) && !Objects.equals(target.getWidth(), input.get(WIDTH))) {
+            target.setWidth((Integer) input.get(WIDTH));
+            isUpdated = true;
+        }
+
+        if (input.containsKey(HEIGHT) && !Objects.equals(target.getHeight(), input.get(HEIGHT))) {
+            target.setHeight((Integer) input.get(HEIGHT));
+            isUpdated = true;
+        }
+
+        return isUpdated;
     }
 }

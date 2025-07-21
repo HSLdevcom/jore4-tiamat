@@ -21,8 +21,8 @@ public class InfoSpot_VersionStructure extends Zone_VersionStructure {
     private InfoSpotTypeEnumeration infoSpotType;
     private String label;
     private String purpose;
-    @Enumerated(EnumType.STRING)
-    private PosterSizeEnumeration posterPlaceSize;
+    private Integer width;
+    private Integer height;
     private Boolean backlight;
     private String maintenance;
     private String zoneLabel;
@@ -69,12 +69,20 @@ public class InfoSpot_VersionStructure extends Zone_VersionStructure {
         this.purpose = purpose;
     }
 
-    public PosterSizeEnumeration getPosterPlaceSize() {
-        return posterPlaceSize;
+    public Integer getWidth() {
+        return width;
     }
 
-    public void setPosterPlaceSize(PosterSizeEnumeration posterPlaceSize) {
-        this.posterPlaceSize = posterPlaceSize;
+    public void setWidth(Integer width) {
+        this.width = width;
+    }
+
+    public Integer getHeight() {
+        return height;
+    }
+
+    public void setHeight(Integer height) {
+        this.height = height;
     }
 
     public Boolean getBacklight() {

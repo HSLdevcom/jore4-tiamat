@@ -575,6 +575,8 @@ public class GraphQLNames {
 
     public static final String INFO_SPOT_TYPE = "infoSpotType";
     public static final String PURPOSE = "purpose";
+    public static final String WIDTH = "width";
+    public static final String HEIGHT = "height";
     public static final String POSTER_PLACE_SIZE = "posterPlaceSize";
     public static final String BACKLIGHT = "backlight";
     public static final String MAINTENANCE = "maintenance";
