@@ -146,8 +146,10 @@ public class MultiModalStopPlaceEditorTest extends TiamatIntegrationTest {
 
         String parentStopPlaceName = "Super Duper StopPlace";
         String versionComment = "version comment";
-        StopPlace result = multiModalStopPlaceEditor.createMultiModalParentStopPlace(Arrays.asList(child.getNetexId()),
-                new EmbeddableMultilingualString(parentStopPlaceName), new ValidBetween(futureTime), versionComment, null);
+        StopPlace result = multiModalStopPlaceEditor.createMultiModalParentStopPlace(
+                Arrays.asList(child.getNetexId()),
+                new EmbeddableMultilingualString(parentStopPlaceName),
+                new ValidBetween(futureTime), versionComment, null, null, null, null);
 
         assertThat(result.getValidBetween().getFromDate()).isEqualTo(futureTime);
 

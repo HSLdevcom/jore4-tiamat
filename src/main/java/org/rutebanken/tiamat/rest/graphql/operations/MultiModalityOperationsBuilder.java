@@ -32,18 +32,26 @@ import static graphql.schema.GraphQLFieldDefinition.newFieldDefinition;
 import static graphql.schema.GraphQLInputObjectField.newInputObjectField;
 import static graphql.schema.GraphQLInputObjectType.newInputObject;
 import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.ADD_TO_MULTIMODAL_STOPPLACE;
+import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.ALTERNATIVE_NAMES;
 import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.CREATE_MULTI_MODAL_STOPPLACE;
 import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.DESCRIPTION;
 import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.GEOMETRY;
+import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.KEY_VALUES;
 import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.NAME;
 import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.PARENT_SITE_REF;
+import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.PRIVATE_CODE;
 import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.REMOVE_FROM_MULTIMODAL_STOPPLACE;
 import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.STOP_PLACE_ID;
 import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.STOP_PLACE_IDS;
 import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.VALID_BETWEEN;
 import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.VERSION_COMMENT;
+import static org.rutebanken.tiamat.rest.graphql.types.CustomGraphQLTypes.alternativeNameInputObjectType;
+import static org.rutebanken.tiamat.rest.graphql.types.CustomGraphQLTypes.alternativeNameObjectType;
 import static org.rutebanken.tiamat.rest.graphql.types.CustomGraphQLTypes.embeddableMultiLingualStringInputObjectType;
 import static org.rutebanken.tiamat.rest.graphql.types.CustomGraphQLTypes.geoJsonInputType;
+import static org.rutebanken.tiamat.rest.graphql.types.CustomGraphQLTypes.keyValuesObjectInputType;
+import static org.rutebanken.tiamat.rest.graphql.types.CustomGraphQLTypes.keyValuesObjectType;
+import static org.rutebanken.tiamat.rest.graphql.types.CustomGraphQLTypes.privateCodeInputType;
 
 @Component
 public class MultiModalityOperationsBuilder {
@@ -66,6 +74,9 @@ public class MultiModalityOperationsBuilder {
         createMultiModalStopPlaceFields.add(newInputObjectField().name(GEOMETRY).type(geoJsonInputType).build());
         createMultiModalStopPlaceFields.add(newInputObjectField().name(VALID_BETWEEN).type(validBetweenInputObjectType).build());
         createMultiModalStopPlaceFields.add(newInputObjectField().name(STOP_PLACE_IDS).type(new GraphQLNonNull(new GraphQLList(GraphQLString))).build());
+        createMultiModalStopPlaceFields.add(newInputObjectField().name(PRIVATE_CODE).type(privateCodeInputType).build());
+        createMultiModalStopPlaceFields.add(newInputObjectField().name(ALTERNATIVE_NAMES).type(new GraphQLList(alternativeNameInputObjectType)).build());
+        createMultiModalStopPlaceFields.add(newInputObjectField().name(KEY_VALUES).type(new GraphQLList(keyValuesObjectInputType)).build());
 
         operations.add(newFieldDefinition()
                 .type(parentStopPlaceObjectType)
