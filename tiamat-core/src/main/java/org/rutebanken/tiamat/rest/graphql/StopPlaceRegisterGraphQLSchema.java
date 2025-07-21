@@ -41,6 +41,7 @@ import org.rutebanken.tiamat.auth.AuthorizationService;
 import org.rutebanken.tiamat.model.AccessibilityAssessment;
 import org.rutebanken.tiamat.model.AccessibilityLimitation;
 import org.rutebanken.tiamat.model.AssistanceService;
+import org.rutebanken.tiamat.model.AlternativeName;
 import org.rutebanken.tiamat.model.CycleStorageEquipment;
 import org.rutebanken.tiamat.model.DataManagedObjectStructure;
 import org.rutebanken.tiamat.model.EmbeddableMultilingualString;
@@ -53,6 +54,7 @@ import org.rutebanken.tiamat.model.Link;
 import org.rutebanken.tiamat.model.Parking;
 import org.rutebanken.tiamat.model.ParkingEntranceForVehicles;
 import org.rutebanken.tiamat.model.PostalAddress;
+import org.rutebanken.tiamat.model.PrivateCodeStructure;
 import org.rutebanken.tiamat.model.PurposeOfGrouping;
 import org.rutebanken.tiamat.model.Quay;
 import org.rutebanken.tiamat.model.SanitaryEquipment;
@@ -63,6 +65,7 @@ import org.rutebanken.tiamat.model.TariffZone;
 import org.rutebanken.tiamat.model.TicketingEquipment;
 import org.rutebanken.tiamat.model.TopographicPlace;
 import org.rutebanken.tiamat.model.ValidBetween;
+import org.rutebanken.tiamat.model.Value;
 import org.rutebanken.tiamat.model.WaitingRoomEquipment;
 import org.rutebanken.tiamat.model.Zone_VersionStructure;
 import org.rutebanken.tiamat.model.identification.IdentifiedEntity;
@@ -82,6 +85,9 @@ import org.rutebanken.tiamat.rest.graphql.fetchers.UserPermissionsFetcher;
 import org.rutebanken.tiamat.rest.graphql.fetchers.PathLinkGeometryFetcher;
 import org.rutebanken.tiamat.rest.graphql.mappers.GeometryMapper;
 import org.rutebanken.tiamat.rest.graphql.mappers.PostalAddressMapper;
+import org.rutebanken.tiamat.rest.graphql.mappers.AlternativeNameMapper;
+import org.rutebanken.tiamat.rest.graphql.mappers.KeyValueMapper;
+import org.rutebanken.tiamat.rest.graphql.mappers.PrivateCodeMapper;
 import org.rutebanken.tiamat.rest.graphql.mappers.ValidBetweenMapper;
 import org.rutebanken.tiamat.netex.mapping.mapper.NetexIdMapper;
 import org.rutebanken.tiamat.rest.graphql.operations.MultiModalityOperationsBuilder;
@@ -374,6 +380,9 @@ public class StopPlaceRegisterGraphQLSchema {
 
     @Autowired
     private GeometryMapper geometryMapper;
+
+    @Autowired
+    private AlternativeNameMapper alternativeNameMapper;
 
     @Autowired
     private MultiModalStopPlaceEditor parentStopPlaceEditor;
@@ -1048,11 +1057,16 @@ public class StopPlaceRegisterGraphQLSchema {
                     EmbeddableMultilingualString name = getEmbeddableString((Map) input.get(NAME));
                     PostalAddress postalAddress = postalAddressMapper.map((Map) input.get(POSTAL_ADDRESS));
                     String url = (String) input.get(URL);
+                    PrivateCodeStructure privateCode = PrivateCodeMapper.getPrivateCodeStructure((Map) input.get(PRIVATE_CODE));
+                    Map<String, Value> keyValues = KeyValueMapper.getKeyValuesMap((List) input.get(KEY_VALUES));
+                    List<AlternativeName> alternativeNames = input.get(ALTERNATIVE_NAMES) != null
+                            ? alternativeNameMapper.mapAlternativeNames((List) input.get(ALTERNATIVE_NAMES))
+                            : null;
 
                     @SuppressWarnings("unchecked")
                     List<String> stopPlaceIds = (List<String>) input.get(STOP_PLACE_IDS);
 
-                    return parentStopPlaceEditor.createMultiModalParentStopPlace(stopPlaceIds, name, validBetween, versionComment, geoJsonPoint, postalAddress, url);
+                    return parentStopPlaceEditor.createMultiModalParentStopPlace(stopPlaceIds, name, validBetween, versionComment, geoJsonPoint, postalAddress, url, privateCode, alternativeNames, keyValues);
                 }
                     );
 
