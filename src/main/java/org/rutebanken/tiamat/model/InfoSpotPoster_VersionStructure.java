@@ -1,7 +1,5 @@
 package org.rutebanken.tiamat.model;
 
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.MappedSuperclass;
 
 @MappedSuperclass
@@ -9,8 +7,8 @@ public class InfoSpotPoster_VersionStructure extends DataManagedObjectStructure 
     private String label;
     private String lines;
 
-    @Enumerated(EnumType.STRING)
-    private PosterSizeEnumeration posterSize;
+    private Integer width;
+    private Integer height;
 
     public String getLabel() {
         return label;
@@ -28,11 +26,19 @@ public class InfoSpotPoster_VersionStructure extends DataManagedObjectStructure 
         this.lines = lines;
     }
 
-    public PosterSizeEnumeration getPosterSize() {
-        return posterSize;
+    public Integer getWidth() {
+        return width;
     }
 
-    public void setPosterSize(PosterSizeEnumeration posterSize) {
-        this.posterSize = posterSize;
+    public void setWidth(Integer width) {
+        this.width = width;
+    }
+
+    public Integer getHeight() {
+        return height;
+    }
+
+    public void setHeight(Integer height) {
+        this.height = height;
     }
 }

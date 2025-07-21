@@ -19,4 +19,8 @@ public class InfoSpot extends InfoSpot_VersionStructure implements Serializable 
 
     @Serial
     private static final long serialVersionUID = 2459437438760752116L;
+
+    public PosterSizeEnumeration getPosterPlaceSize() {
+        return PosterSizeEnumeration.fromSize(getWidth(), getHeight());
+    }
 }

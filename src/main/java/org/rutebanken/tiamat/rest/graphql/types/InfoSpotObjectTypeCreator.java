@@ -2,7 +2,6 @@ package org.rutebanken.tiamat.rest.graphql.types;
 
 import graphql.schema.GraphQLEnumType;
 import graphql.schema.GraphQLInputObjectType;
-import graphql.schema.GraphQLInterfaceType;
 import graphql.schema.GraphQLList;
 import graphql.schema.GraphQLObjectType;
 import org.rutebanken.tiamat.model.DisplayTypeEnumeration;
@@ -11,6 +10,7 @@ import org.rutebanken.tiamat.model.PosterSizeEnumeration;
 import org.springframework.stereotype.Component;
 
 import static graphql.Scalars.GraphQLBoolean;
+import static graphql.Scalars.GraphQLInt;
 import static graphql.Scalars.GraphQLString;
 import static graphql.schema.GraphQLFieldDefinition.newFieldDefinition;
 import static graphql.schema.GraphQLInputObjectField.newInputObjectField;
@@ -21,8 +21,8 @@ import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.DESCRIPTION;
 import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.DISPLAY_TYPE;
 import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.FLOOR;
 import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.GEOMETRY;
+import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.HEIGHT;
 import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.ID;
-import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.INFO_SPOTS;
 import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.INFO_SPOT_LOCATIONS;
 import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.INFO_SPOT_TYPE;
 import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.INPUT_TYPE_INFO_SPOT;
@@ -39,6 +39,7 @@ import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.RAIL_INFORMATION;
 import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.SPEECH_PROPERTY;
 import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.VALID_BETWEEN;
 import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.VERSION;
+import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.WIDTH;
 import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.ZONE_LABEL;
 import static org.rutebanken.tiamat.rest.graphql.types.CustomGraphQLTypes.createCustomEnumType;
 import static org.rutebanken.tiamat.rest.graphql.types.CustomGraphQLTypes.embeddableMultiLingualStringInputObjectType;
@@ -50,6 +51,8 @@ import static org.rutebanken.tiamat.rest.graphql.types.CustomGraphQLTypes.netexI
 
 @Component
 public class InfoSpotObjectTypeCreator {
+
+    public static String POSTER_SIZE_ENUM_DEPRECATION_REASON = "Poster size enum has been replaced with more flexible width and height fields.";
 
     public static GraphQLEnumType infoSpotTypeEnum = createCustomEnumType(INFO_SPOT_TYPE, InfoSpotTypeEnumeration.class);
     public static GraphQLEnumType posterSizeEnum = createCustomEnumType(POSTER_PLACE_SIZE, PosterSizeEnumeration.class);
@@ -67,7 +70,14 @@ public class InfoSpotObjectTypeCreator {
                             .type(GraphQLString))
                     .field(newFieldDefinition()
                             .name(POSTER_SIZE)
-                            .type(posterSizeEnum))
+                            .type(posterSizeEnum)
+                            .deprecate(POSTER_SIZE_ENUM_DEPRECATION_REASON))
+                    .field(newFieldDefinition()
+                            .name(WIDTH)
+                            .type(GraphQLInt))
+                    .field(newFieldDefinition()
+                            .name(HEIGHT)
+                            .type(GraphQLInt))
                     .field(newFieldDefinition()
                             .name(LINES)
                             .type(GraphQLString))
@@ -81,7 +91,14 @@ public class InfoSpotObjectTypeCreator {
                             .type(GraphQLString))
                     .field(newInputObjectField()
                             .name(POSTER_SIZE)
-                            .type(posterSizeEnum))
+                            .type(posterSizeEnum)
+                            .deprecate(POSTER_SIZE_ENUM_DEPRECATION_REASON))
+                    .field(newInputObjectField()
+                            .name(WIDTH)
+                            .type(GraphQLInt))
+                    .field(newInputObjectField()
+                            .name(HEIGHT)
+                            .type(GraphQLInt))
                     .field(newInputObjectField()
                             .name(LINES)
                             .type(GraphQLString))
@@ -109,7 +126,14 @@ public class InfoSpotObjectTypeCreator {
                         .type(GraphQLString))
                 .field(newFieldDefinition()
                         .name(POSTER_PLACE_SIZE)
-                        .type(posterSizeEnum))
+                        .type(posterSizeEnum)
+                        .deprecate(POSTER_SIZE_ENUM_DEPRECATION_REASON))
+                .field(newFieldDefinition()
+                        .name(WIDTH)
+                        .type(GraphQLInt))
+                .field(newFieldDefinition()
+                        .name(HEIGHT)
+                        .type(GraphQLInt))
                 .field(newFieldDefinition()
                         .name(DESCRIPTION)
                         .type(embeddableMultilingualStringObjectType))
@@ -163,7 +187,14 @@ public class InfoSpotObjectTypeCreator {
                         .type(GraphQLString))
                 .field(newInputObjectField()
                         .name(POSTER_PLACE_SIZE)
-                        .type(posterSizeEnum))
+                        .type(posterSizeEnum)
+                        .deprecate(POSTER_SIZE_ENUM_DEPRECATION_REASON))
+                .field(newInputObjectField()
+                        .name(WIDTH)
+                        .type(GraphQLInt))
+                .field(newInputObjectField()
+                        .name(HEIGHT)
+                        .type(GraphQLInt))
                 .field(newInputObjectField()
                         .name(DESCRIPTION)
                         .type(embeddableMultiLingualStringInputObjectType))
