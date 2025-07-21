@@ -93,8 +93,14 @@ public class MultiModalStopPlaceEditor {
             parentStopPlace.setValidBetween(validBetween);
             parentStopPlace.setVersionComment(versionComment);
             parentStopPlace.setCentroid(geoJsonPoint);
-            parentStopPlace.getAlternativeNames().addAll(alternativeNames);
-            parentStopPlace.getKeyValues().putAll(keyValues);
+
+            if (alternativeNames != null) {
+                parentStopPlace.getAlternativeNames().addAll(alternativeNames);
+            }
+
+            if (keyValues != null) {
+                parentStopPlace.getKeyValues().putAll(keyValues);
+            }
 
             Set<StopPlace> childCopies = validateAndCopyPotentionalChildren(futureChildStopPlaces, parentStopPlace, fromDate);
             parentStopPlace.getChildren().addAll(childCopies);

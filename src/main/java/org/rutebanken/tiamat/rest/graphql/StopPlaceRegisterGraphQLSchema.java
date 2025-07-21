@@ -1003,8 +1003,10 @@ public class StopPlaceRegisterGraphQLSchema {
                     Point geoJsonPoint = geometryMapper.createGeoJsonPoint((Map) input.get(GEOMETRY));
                     EmbeddableMultilingualString name = getEmbeddableString((Map) input.get(NAME));
                     PrivateCodeStructure privateCode = PrivateCodeMapper.getPrivateCodeStructure((Map) input.get(PRIVATE_CODE));
-                    List<AlternativeName> alternativeNames = alternativeNameMapper.mapAlternativeNames((List) input.get(ALTERNATIVE_NAMES));
-                    Map<String, Value> keyValues = KeyValueMapper.getKeyValuesMap((List)  input.get(KEY_VALUES));
+                    Map<String, Value> keyValues = KeyValueMapper.getKeyValuesMap((List) input.get(KEY_VALUES));
+                    List<AlternativeName> alternativeNames = input.get(ALTERNATIVE_NAMES) != null
+                            ? alternativeNameMapper.mapAlternativeNames((List) input.get(ALTERNATIVE_NAMES))
+                            : null;
 
                     @SuppressWarnings("unchecked")
                     List<String> stopPlaceIds = (List<String>) input.get(STOP_PLACE_IDS);
