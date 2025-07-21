@@ -37,6 +37,7 @@ import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.geom.Polygon;
 import org.rutebanken.tiamat.model.AccessibilityAssessment;
 import org.rutebanken.tiamat.model.AccessibilityLimitation;
+import org.rutebanken.tiamat.model.AlternativeName;
 import org.rutebanken.tiamat.model.CycleStorageEquipment;
 import org.rutebanken.tiamat.model.DataManagedObjectStructure;
 import org.rutebanken.tiamat.model.EmbeddableMultilingualString;
@@ -47,6 +48,7 @@ import org.rutebanken.tiamat.model.GroupOfTariffZones;
 import org.rutebanken.tiamat.model.InfoSpot;
 import org.rutebanken.tiamat.model.Link;
 import org.rutebanken.tiamat.model.Parking;
+import org.rutebanken.tiamat.model.PrivateCodeStructure;
 import org.rutebanken.tiamat.model.PurposeOfGrouping;
 import org.rutebanken.tiamat.model.Quay;
 import org.rutebanken.tiamat.model.SanitaryEquipment;
@@ -57,6 +59,7 @@ import org.rutebanken.tiamat.model.TariffZone;
 import org.rutebanken.tiamat.model.TicketingEquipment;
 import org.rutebanken.tiamat.model.TopographicPlace;
 import org.rutebanken.tiamat.model.ValidBetween;
+import org.rutebanken.tiamat.model.Value;
 import org.rutebanken.tiamat.model.WaitingRoomEquipment;
 import org.rutebanken.tiamat.model.Zone_VersionStructure;
 import org.rutebanken.tiamat.model.identification.IdentifiedEntity;
@@ -73,7 +76,10 @@ import org.rutebanken.tiamat.rest.graphql.fetchers.StopPlaceFareZoneFetcher;
 import org.rutebanken.tiamat.rest.graphql.fetchers.StopPlaceTariffZoneFetcher;
 import org.rutebanken.tiamat.rest.graphql.fetchers.TagFetcher;
 import org.rutebanken.tiamat.rest.graphql.fetchers.UserPermissionsFetcher;
+import org.rutebanken.tiamat.rest.graphql.mappers.AlternativeNameMapper;
 import org.rutebanken.tiamat.rest.graphql.mappers.GeometryMapper;
+import org.rutebanken.tiamat.rest.graphql.mappers.KeyValueMapper;
+import org.rutebanken.tiamat.rest.graphql.mappers.PrivateCodeMapper;
 import org.rutebanken.tiamat.rest.graphql.mappers.ValidBetweenMapper;
 import org.rutebanken.tiamat.rest.graphql.operations.MultiModalityOperationsBuilder;
 import org.rutebanken.tiamat.rest.graphql.operations.OrganisationOperationsBuilder;
@@ -355,6 +361,9 @@ public class StopPlaceRegisterGraphQLSchema {
 
     @Autowired
     private GeometryMapper geometryMapper;
+
+    @Autowired
+    private AlternativeNameMapper alternativeNameMapper;
 
     @Autowired
     private MultiModalStopPlaceEditor parentStopPlaceEditor;
@@ -993,11 +1002,16 @@ public class StopPlaceRegisterGraphQLSchema {
                     String versionComment = (String) input.get(VERSION_COMMENT);
                     Point geoJsonPoint = geometryMapper.createGeoJsonPoint((Map) input.get(GEOMETRY));
                     EmbeddableMultilingualString name = getEmbeddableString((Map) input.get(NAME));
+                    PrivateCodeStructure privateCode = PrivateCodeMapper.getPrivateCodeStructure((Map) input.get(PRIVATE_CODE));
+                    Map<String, Value> keyValues = KeyValueMapper.getKeyValuesMap((List) input.get(KEY_VALUES));
+                    List<AlternativeName> alternativeNames = input.get(ALTERNATIVE_NAMES) != null
+                            ? alternativeNameMapper.mapAlternativeNames((List) input.get(ALTERNATIVE_NAMES))
+                            : null;
 
                     @SuppressWarnings("unchecked")
                     List<String> stopPlaceIds = (List<String>) input.get(STOP_PLACE_IDS);
 
-                    return parentStopPlaceEditor.createMultiModalParentStopPlace(stopPlaceIds, name, validBetween, versionComment, geoJsonPoint);
+                    return parentStopPlaceEditor.createMultiModalParentStopPlace(stopPlaceIds, name, validBetween, versionComment, geoJsonPoint, privateCode, alternativeNames, keyValues);
                 }
                     );
 
