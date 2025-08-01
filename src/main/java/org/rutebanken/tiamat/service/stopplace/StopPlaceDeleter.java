@@ -68,9 +68,12 @@ public class StopPlaceDeleter {
             logger.warn("About to delete stop place by ID {}. User: {}", stopPlaceId, usernameForAuthenticatedUser);
 
             List<StopPlace> stopPlaces = getAllVersionsOfStopPlace(stopPlaceId);
+            StopPlace newestStopPlaceVersion = stopPlaces.stream().max(Comparator.comparingLong(StopPlace::getVersion))
+                    .orElse(null);
 
-            if (stopPlaces.stream().anyMatch(stopPlace -> stopPlace.isParentStopPlace() || stopPlace.getParentSiteRef() != null)) {
-                throw new IllegalArgumentException("Deleting parent stop place or childs of parent stop place is not allowed: " + stopPlaceId);
+            // We only care if the newest version is a parent with children or a child of a parent
+            if (isDeleteProhibited(newestStopPlaceVersion)) {
+                throw new IllegalArgumentException("Deleting parent stop place with children or child of parent stop place is not allowed: " + stopPlaceId);
             }
 
             authorizationService.verifyCanDeleteEntities(stopPlaces);
@@ -81,6 +84,21 @@ public class StopPlaceDeleter {
 
             return true;
         });
+    }
+
+    private Boolean isDeleteProhibited(StopPlace stopPlace) {
+        // Do not allow deletion of a child of parent stop place
+        if (stopPlace.getParentSiteRef() != null) {
+            return true;
+        }
+
+        // Make sure that the stop place does not have any children left
+        // and if it does, do not allow it to be deleted
+        if (stopPlace.isParentStopPlace() && !stopPlace.getChildren().isEmpty()) {
+            return true;
+        }
+
+        return false;
     }
 
     private List<StopPlace> getAllVersionsOfStopPlace(String stopPlaceId) {
