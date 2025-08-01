@@ -52,10 +52,15 @@ public class StopPlaceDeleterTest extends TiamatIntegrationTest {
     private StopPlaceDeleter stopPlaceDeleter = new StopPlaceDeleter(stopPlaceRepository, entityChangedListener, authorizationService, usernameFetcher, mutateLock);
 
     @Test(expected = IllegalArgumentException.class)
-    public void doNotDeleteParent() {
+    public void doNotDeleteParentWithChildren() {
         StopPlace parent = new StopPlace();
         parent.setParentStopPlace(true);
         parent.setNetexId("NSR:StopPlace:1");
+
+        StopPlace child = new StopPlace();
+        child.setNetexId("NSR:StopPlace:2");
+
+        parent.getChildren().add(child);
 
         when(stopPlaceRepository.findAll(anyList())).thenReturn(Collections.singletonList(parent));
 
