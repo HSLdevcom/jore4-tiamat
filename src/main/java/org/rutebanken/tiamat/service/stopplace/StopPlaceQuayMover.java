@@ -144,12 +144,11 @@ public class StopPlaceQuayMover {
 
         CopiedEntity<StopPlace> destination = stopPlaceCopyHelper.createCopies(destinationStopPlace);
         StopPlace stopPlaceToAddQuaysTo = destination.getCopiedEntity();
+        Value stopPlaceValidityEnd = stopPlaceToAddQuaysTo.getKeyValues().get("validityEnd");
 
         // Add correct validity dates to the given quays, so that they are valid starting from the move date
         for (Quay quay : quaysToAdd) {
             quay.getKeyValues().put("validityStart", new Value(moveDate.toString()));
-
-            Value stopPlaceValidityEnd = stopPlaceToAddQuaysTo.getKeyValues().get("validityEnd");
 
             // If the stop place has no validity end date, no changes are needed for the quay's validity end date
             if (stopPlaceValidityEnd == null) {
@@ -162,6 +161,19 @@ public class StopPlaceQuayMover {
             // set the quay's validity end to be the same as the stop place's.
             if (quayValidityEnd == null || isDateAfter(quayValidityEnd, stopPlaceValidityEnd)) {
                 quay.getKeyValues().put("validityEnd", stopPlaceValidityEnd);
+            }
+        }
+
+        // Add correct validity end dates for moved quays
+        if (stopPlaceValidityEnd != null) {
+            for (Quay quay : quaysToMove) {
+                Value quayValidityEnd = quay.getKeyValues().get("validityEnd");
+
+                // If the quay has no validity end or its validity end is after the stop place's validity end,
+                // set the quay's validity end to be the same as the stop place's.
+                if (quayValidityEnd == null || isDateAfter(quayValidityEnd, stopPlaceValidityEnd)) {
+                    quay.getKeyValues().put("validityEnd", stopPlaceValidityEnd);
+                }
             }
         }
 
