@@ -145,13 +145,16 @@ public class StopPlaceQuayMover {
         CopiedEntity<StopPlace> destination = stopPlaceCopyHelper.createCopies(destinationStopPlace);
         StopPlace stopPlaceToAddQuaysTo = destination.getCopiedEntity();
         Value stopPlaceValidityEnd = stopPlaceToAddQuaysTo.getKeyValues().get("validityEnd");
+        String stopPlaceValidityEndDate = stopPlaceValidityEnd != null && !stopPlaceValidityEnd.getItems().isEmpty()
+                ? stopPlaceValidityEnd.getItems().iterator().next()
+                : null;
 
         // Add correct validity dates to the given quays, so that they are valid starting from the move date
         for (Quay quay : quaysToAdd) {
             quay.getKeyValues().put("validityStart", new Value(moveDate.toString()));
 
             // If the stop place has no validity end date, no changes are needed for the quay's validity end date
-            if (stopPlaceValidityEnd == null) {
+            if (stopPlaceValidityEndDate == null) {
                 continue;
             }
 
@@ -160,19 +163,19 @@ public class StopPlaceQuayMover {
             // If the quay has no validity end or its validity end is after the stop place's validity end,
             // set the quay's validity end to be the same as the stop place's.
             if (quayValidityEnd == null || isDateAfter(quayValidityEnd, stopPlaceValidityEnd)) {
-                quay.getKeyValues().put("validityEnd", stopPlaceValidityEnd);
+                quay.getKeyValues().put("validityEnd", new Value(stopPlaceValidityEndDate));
             }
         }
 
         // Add correct validity end dates for moved quays
-        if (stopPlaceValidityEnd != null) {
+        if (stopPlaceValidityEndDate != null) {
             for (Quay quay : quaysToMove) {
                 Value quayValidityEnd = quay.getKeyValues().get("validityEnd");
 
                 // If the quay has no validity end or its validity end is after the stop place's validity end,
                 // set the quay's validity end to be the same as the stop place's.
                 if (quayValidityEnd == null || isDateAfter(quayValidityEnd, stopPlaceValidityEnd)) {
-                    quay.getKeyValues().put("validityEnd", stopPlaceValidityEnd);
+                    quay.getKeyValues().put("validityEnd", new Value(stopPlaceValidityEndDate));
                 }
             }
         }
