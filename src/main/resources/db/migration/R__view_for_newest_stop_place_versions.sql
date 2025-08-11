@@ -51,7 +51,14 @@ SELECT -- Stop Place's own fields
        -- HSL validity info
        priority.items AS priority,
        validityStart.items AS validity_start,
-       validityEnd.items AS validity_end
+       validityEnd.items AS validity_end,
+
+       -- Type booleans | Technically we just need a negated version of 'parent_stop_place'
+       -- to do a proper join to Timat from the view, as by default stopPlace(id: ...)
+       -- query returns the Parent Terminal instead of the normal child StopPlace, and
+       -- to get the child with ID one needs to add onlyMonomodalStopPlaces: true to the query.
+       (sp.parent_stop_place = TRUE) AS is_terminal,
+       (sp.parent_stop_place = FALSE) AS is_area
 
 FROM stop_place AS sp
 
