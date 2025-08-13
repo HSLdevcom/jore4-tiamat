@@ -17,9 +17,11 @@ package org.rutebanken.tiamat.service.stopplace;
 
 import org.rutebanken.tiamat.geo.StopPlaceCentroidComputer;
 import org.rutebanken.tiamat.lock.MutateLock;
+import org.rutebanken.tiamat.model.DataManagedObjectStructure;
 import org.rutebanken.tiamat.model.Quay;
 import org.rutebanken.tiamat.model.StopPlace;
 import org.rutebanken.tiamat.model.Value;
+import org.rutebanken.tiamat.netex.mapping.mapper.NetexIdMapper;
 import org.rutebanken.tiamat.repository.QuayRepository;
 import org.rutebanken.tiamat.repository.StopPlaceRepository;
 import org.rutebanken.tiamat.versioning.VersionCreator;
@@ -97,6 +99,7 @@ public class StopPlaceQuayMover {
     private SourceQuayModificationResult modifySourceQuays(StopPlace sourceStopPlace, String fromVersionComment, List<String> quayIds, LocalDate moveDate, Instant saveDateTime) {
         CopiedEntity<StopPlace> source = stopPlaceCopyHelper.createCopies(sourceStopPlace);
         StopPlace stopPlaceToModifyQuays = source.getCopiedEntity();
+        validateObjectIsValidOnDate(stopPlaceToModifyQuays, moveDate);
 
         Set<Quay> quaysToAdd = new HashSet<>();
         Set<Quay> quaysToMove = new HashSet<>();
@@ -104,7 +107,7 @@ public class StopPlaceQuayMover {
         // Modify the validity of the given quays to end on the given moveDate
         for (Quay quay : stopPlaceToModifyQuays.getQuays()) {
             if (quayIds.contains(quay.getNetexId())) {
-                validateQuayIsValidOnDate(quay, moveDate);
+                validateObjectIsValidOnDate(quay, moveDate);
 
                 // If quay's validityStart is not null and is on move date, move the quay instead of copying
                 if (quayIsMovable(quay, moveDate)) {
@@ -113,9 +116,14 @@ public class StopPlaceQuayMover {
                     // Quay is not movable, add validity end date and create a copy
                     Quay copiedQuay = versionCreator.createCopy(quay, Quay.class);
                     copiedQuay.resetNetexIds();
+
+                    // Change imported-id to prevent copied quay being detected as duplicate of the other
+                    resetImportedId(copiedQuay, moveDate);
+
                     quaysToAdd.add(copiedQuay);
 
-                    quay.getKeyValues().put("validityEnd", new Value(moveDate.toString()));
+                    LocalDate validityEndDate = moveDate.minusDays(1);
+                    quay.getKeyValues().put("validityEnd", new Value(validityEndDate.toString()));
                 }
             }
         }
@@ -144,6 +152,8 @@ public class StopPlaceQuayMover {
 
         CopiedEntity<StopPlace> destination = stopPlaceCopyHelper.createCopies(destinationStopPlace);
         StopPlace stopPlaceToAddQuaysTo = destination.getCopiedEntity();
+        validateObjectIsValidOnDate(stopPlaceToAddQuaysTo, moveDate);
+
         Value stopPlaceValidityEnd = stopPlaceToAddQuaysTo.getKeyValues().get("validityEnd");
         String stopPlaceValidityEndDate = stopPlaceValidityEnd != null && !stopPlaceValidityEnd.getItems().isEmpty()
                 ? stopPlaceValidityEnd.getItems().iterator().next()
@@ -189,18 +199,19 @@ public class StopPlaceQuayMover {
         return save(destination, saveDateTime);
     }
 
-    private void validateQuayIsValidOnDate(Quay quay, LocalDate date) throws IllegalArgumentException {
-        Optional<LocalDate> validityStartOpt = getQuayDate(quay, "validityStart");
-        Optional<LocalDate> validityEndOpt = getQuayDate(quay, "validityEnd");
+    private void validateObjectIsValidOnDate(DataManagedObjectStructure objectWithKeyValues, LocalDate date) throws IllegalArgumentException {
+        Optional<LocalDate> validityStartOpt = getKeyValueDate(objectWithKeyValues, "validityStart");
+        Optional<LocalDate> validityEndOpt = getKeyValueDate(objectWithKeyValues, "validityEnd");
+        String objectType = objectWithKeyValues instanceof Quay ? "Quay " : "StopPlace ";
 
-        // Check if the move date is before the quay's validity start date
+        // Check if the move date is before the quay's/stopPlace's validity start date
         if (validityStartOpt.isPresent() && date.isBefore(validityStartOpt.get())) {
-            throw new IllegalArgumentException("Quay " + quay.getNetexId() + " is not yet valid on the selected date.");
+            throw new IllegalArgumentException(objectType + objectWithKeyValues.getNetexId() + " is not yet valid on the selected date.");
         }
 
-        // Check if the move date is after the quay's validity end date
+        // Check if the move date is after the quay's/stopPlace's validity end date
         if (validityEndOpt.isPresent() && !date.isBefore(validityEndOpt.get())) {
-            throw new IllegalArgumentException("Quay " + quay.getNetexId() + " has already expired on the selected date.");
+            throw new IllegalArgumentException(objectType + objectWithKeyValues.getNetexId() + " has already expired on the selected date.");
         }
     }
 
@@ -208,14 +219,19 @@ public class StopPlaceQuayMover {
      * Quay is movable if move date is the same as validity start date
      */
     private Boolean quayIsMovable(Quay quay, LocalDate moveDate) {
-        Optional<LocalDate> validityStartOpt = getQuayDate(quay, "validityStart");
+        Optional<LocalDate> validityStartOpt = getKeyValueDate(quay, "validityStart");
         return validityStartOpt.isPresent() && validityStartOpt.get().equals(moveDate);
     }
 
-    private Optional<LocalDate> getQuayDate(Quay quay, String keyName) {
-        return Optional.ofNullable(quay.getKeyValues().get(keyName))
-                .flatMap(value -> value.getItems().stream().findFirst())
-                .map(LocalDate::parse);
+    private Optional<LocalDate> getKeyValueDate(DataManagedObjectStructure objectWithKeyValues, String keyName) {
+        try {
+            return Optional.ofNullable(objectWithKeyValues.getKeyValues().get(keyName))
+                    .flatMap(value -> value.getItems().stream().findFirst())
+                    .map(LocalDate::parse);
+        } catch (Exception e) {
+            logger.warn("Failed to parse date for key '{}' in quay/stopPlace '{}': {}", keyName, objectWithKeyValues.getNetexId(), e.getMessage());
+            throw new IllegalArgumentException("Invalid date format for key '" + keyName + "' in quay/stopPlace '" + objectWithKeyValues.getNetexId() + "'", e);
+        }
     }
 
     /**
@@ -238,6 +254,15 @@ public class StopPlaceQuayMover {
         LocalDate date2 = LocalDate.parse(dateStr2);
 
         return date1.isAfter(date2);
+    }
+
+    private void resetImportedId(Quay quay, LocalDate moveDate) {
+        Value priorityValue = quay.getKeyValues().get("priority");
+        String priority = priorityValue != null && priorityValue.getItems().iterator().hasNext()
+                ? priorityValue.getItems().iterator().next()
+                : "";
+        String importedId = String.format("%s-%s-%s", quay.getPublicCode(), moveDate.toString(), priority);
+        quay.getKeyValues().put(NetexIdMapper.ORIGINAL_ID_KEY, new Value(importedId));
     }
 
     /**
