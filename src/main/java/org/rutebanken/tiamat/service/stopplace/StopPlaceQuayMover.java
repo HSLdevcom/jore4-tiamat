@@ -20,6 +20,7 @@ import org.rutebanken.tiamat.lock.MutateLock;
 import org.rutebanken.tiamat.model.Quay;
 import org.rutebanken.tiamat.model.StopPlace;
 import org.rutebanken.tiamat.model.Value;
+import org.rutebanken.tiamat.netex.mapping.mapper.NetexIdMapper;
 import org.rutebanken.tiamat.repository.QuayRepository;
 import org.rutebanken.tiamat.repository.StopPlaceRepository;
 import org.rutebanken.tiamat.versioning.VersionCreator;
@@ -113,9 +114,14 @@ public class StopPlaceQuayMover {
                     // Quay is not movable, add validity end date and create a copy
                     Quay copiedQuay = versionCreator.createCopy(quay, Quay.class);
                     copiedQuay.resetNetexIds();
+
+                    // Change imported-id to prevent copied quay being detected as duplicate of the other
+                    resetImportedId(copiedQuay, moveDate);
+
                     quaysToAdd.add(copiedQuay);
 
-                    quay.getKeyValues().put("validityEnd", new Value(moveDate.toString()));
+                    LocalDate validityEndDate = moveDate.minusDays(1);
+                    quay.getKeyValues().put("validityEnd", new Value(validityEndDate.toString()));
                 }
             }
         }
@@ -238,6 +244,15 @@ public class StopPlaceQuayMover {
         LocalDate date2 = LocalDate.parse(dateStr2);
 
         return date1.isAfter(date2);
+    }
+
+    private void resetImportedId(Quay quay, LocalDate moveDate) {
+        Value priorityValue = quay.getKeyValues().get("priority");
+        String priority = priorityValue != null && priorityValue.getItems().iterator().hasNext()
+                ? priorityValue.getItems().iterator().next()
+                : "";
+        String importedId = String.format("%s-%s-%s", quay.getPublicCode(), moveDate.toString(), priority);
+        quay.getKeyValues().put(NetexIdMapper.ORIGINAL_ID_KEY, new Value(importedId));
     }
 
     /**

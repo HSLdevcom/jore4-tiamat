@@ -58,6 +58,7 @@ public class StopPlaceQuayMoverTest extends TiamatIntegrationTest {
 
         LocalDate tomorrow = getTomorrow();
         String tomorrowStr = tomorrow.toString();
+        String todayStr = LocalDate.now().toString();
 
         StopPlace result = stopPlaceQuayMover.moveQuays(Arrays.asList(quayToMove.getNetexId()), destinationStopPlace.getNetexId(), tomorrow,null, null);
 
@@ -79,7 +80,7 @@ public class StopPlaceQuayMoverTest extends TiamatIntegrationTest {
         assertThat(sourceQuay.getName()).isNotNull();
         assertThat(sourceQuay.getVersion()).isEqualTo(2L);
         assertThat(sourceQuay.getName().getValue()).isEqualTo(quayToMove.getName().getValue());
-        assertThat(sourceQuay.getKeyValues().get("validityEnd").getItems().stream().findFirst().get()).isEqualTo(tomorrowStr);
+        assertThat(sourceQuay.getKeyValues().get("validityEnd").getItems().stream().findFirst().get()).isEqualTo(todayStr);
 
         destinationStopPlace = stopPlaceRepository.findFirstByNetexIdOrderByVersionDesc(destinationStopPlace.getNetexId());
         assertThat(destinationStopPlace).isEqualTo(result);
@@ -114,6 +115,7 @@ public class StopPlaceQuayMoverTest extends TiamatIntegrationTest {
 
         LocalDate tomorrow = getTomorrow();
         String tomorrowStr = tomorrow.toString();
+        String todayStr = LocalDate.now().toString();
         String fromVersionComment = "from comment";
         String toVersionComment = "to comment";
 
@@ -132,7 +134,7 @@ public class StopPlaceQuayMoverTest extends TiamatIntegrationTest {
         Quay sourceQuay = sourceStopPlace.getQuays().iterator().next();
         assertThat(sourceQuay.getName()).isNotNull();
         assertThat(sourceQuay.getVersion()).isEqualTo(2L);
-        assertThat(sourceQuay.getKeyValues().get("validityEnd").getItems().stream().findFirst().get()).isEqualTo(tomorrowStr);
+        assertThat(sourceQuay.getKeyValues().get("validityEnd").getItems().stream().findFirst().get()).isEqualTo(todayStr);
 
         // Assert destination
         assertThat(actualParentDestinationStopPlace).isNotNull();
