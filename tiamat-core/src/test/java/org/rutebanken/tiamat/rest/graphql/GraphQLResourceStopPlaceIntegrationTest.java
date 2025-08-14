@@ -4307,43 +4307,6 @@ public class GraphQLResourceStopPlaceIntegrationTest extends AbstractGraphQLReso
     }
 
     @Test
-    public void forbidOverlappingValidityPeriodsWithSameName() {
-
-        String startDate = "1990-01-01";
-        String endDate = "1991-01-01";
-        String newStartDate = "1990-06-01";
-        String newEndDate = "1991-06-01";
-
-        String stopPlaceName = "SameName";
-        StopPlace stopPlace = new StopPlace(new EmbeddableMultilingualString(stopPlaceName));
-
-        stopPlace.getKeyValues().put("validityStart", new Value(startDate));
-        stopPlace.getKeyValues().put("validityEnd", new Value(endDate));
-        stopPlaceRepository.save(stopPlace);
-
-        String graphQlJsonQuery = """
-                mutation {
-                stopPlace: mutateStopPlace(StopPlace: {
-                          name: { value:"%s" }
-                          keyValues: [
-                            { key:"validityStart" values:"%s" },
-                            { key:"validityEnd" values:"%s" }
-                          ]
-                  }) {
-                        id
-                    }
-                }
-                """.formatted(
-                        stopPlaceName,
-                        newStartDate,
-                        newEndDate
-                );
-
-        executeGraphqQLQueryOnly(graphQlJsonQuery)
-                .body("errors[0].extensions.errorCode", equalTo(HSLErrorCodeEnumeration.STOP_PLACE_UNIQUE_NAME.name()));
-    }
-
-    @Test
     public void forbidOverlappingValidityPeriodsWithSamePrivateCode() {
 
         String startDate = "1990-01-01";
@@ -4394,8 +4357,10 @@ public class GraphQLResourceStopPlaceIntegrationTest extends AbstractGraphQLReso
         String newStartDate = "1990-06-01";
         String newEndDate = "1991-06-01";
 
-        String stopPlaceName = "SameName";
-        StopPlace stopPlace = new StopPlace(new EmbeddableMultilingualString(stopPlaceName));
+        String name = "Some name";
+        String privateCode = "privateCode";
+        StopPlace stopPlace = new StopPlace(new EmbeddableMultilingualString(name));
+        stopPlace.setPrivateCode(new PrivateCodeStructure(privateCode, "HSL/TEST"));
 
         stopPlace.getKeyValues().put("validityStart", new Value(startDate));
         stopPlaceRepository.save(stopPlace);
@@ -4404,6 +4369,7 @@ public class GraphQLResourceStopPlaceIntegrationTest extends AbstractGraphQLReso
                 mutation {
                 stopPlace: mutateStopPlace(StopPlace: {
                           name: { value:"%s" }
+                          privateCode: { value:"%s", type:"HSL/TEST" }
                           keyValues: [
                             { key:"validityStart" values:"%s" },
                             { key:"validityEnd" values:"%s" }
@@ -4413,13 +4379,14 @@ public class GraphQLResourceStopPlaceIntegrationTest extends AbstractGraphQLReso
                     }
                 }
                 """.formatted(
-                stopPlaceName,
+                name,
+                privateCode,
                 newStartDate,
                 newEndDate
         );
 
         executeGraphqQLQueryOnly(graphQlJsonQuery)
-                .body("errors[0].extensions.errorCode", equalTo(HSLErrorCodeEnumeration.STOP_PLACE_UNIQUE_NAME.name()));
+                .body("errors[0].extensions.errorCode", equalTo(HSLErrorCodeEnumeration.STOP_PLACE_UNIQUE_PRIVATE_CODE.name()));
     }
 
     @Test
