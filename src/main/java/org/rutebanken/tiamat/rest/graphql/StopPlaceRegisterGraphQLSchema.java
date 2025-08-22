@@ -857,7 +857,7 @@ public class StopPlaceRegisterGraphQLSchema {
         registerDataFetcher(codeRegistryBuilder, OUTPUT_TYPE_PARENT_STOPPLACE, STOP_PLACE_GROUPS, stopPlaceGroupsFetcher);
 
         registerDataFetcher(codeRegistryBuilder, OUTPUT_TYPE_STOPPLACE, INFO_SPOTS, stopPlaceInfoSpotsFetcher);
-
+        registerDataFetcher(codeRegistryBuilder, OUTPUT_TYPE_PARENT_STOPPLACE, INFO_SPOTS, stopPlaceInfoSpotsFetcher);
         registerDataFetcher(codeRegistryBuilder, OUTPUT_TYPE_QUAY, INFO_SPOTS, quayInfoSpotsFetcher);
 
         registerDataFetcher(codeRegistryBuilder, OUTPUT_TYPE_STOPPLACE, FARE_ZONES, stopPlaceFareZoneFetcher);

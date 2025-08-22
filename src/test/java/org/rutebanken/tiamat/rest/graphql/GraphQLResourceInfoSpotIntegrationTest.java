@@ -13,6 +13,7 @@ import org.rutebanken.tiamat.model.InfoSpotPosterRef;
 import org.rutebanken.tiamat.model.InfoSpotTypeEnumeration;
 import org.rutebanken.tiamat.model.PosterSizeEnumeration;
 import org.rutebanken.tiamat.model.Quay;
+import org.rutebanken.tiamat.model.SiteRefStructure;
 import org.rutebanken.tiamat.model.StopPlace;
 import org.rutebanken.tiamat.model.ValidBetween;
 
@@ -640,6 +641,49 @@ public class GraphQLResourceInfoSpotIntegrationTest extends AbstractGraphQLResou
                 .body("id", equalTo(infoSpot.getNetexId()))
                 .body("label", equalTo(infoSpot.getLabel()))
                 .body("floor", equalTo(infoSpot.getFloor()));
+    }
+
+    @Test
+    public void listInfoSpotsForParentStopPlaceTest() {
+        StopPlace parentStopPlace = new StopPlace();
+        parentStopPlace.setParentStopPlace(true);
+        parentStopPlace.setCentroid(geometryFactory.createPoint(new Coordinate(5, 60)));
+        parentStopPlace.setName(new EmbeddableMultilingualString("Parent"));
+        parentStopPlace.setValidBetween(new ValidBetween(Instant.now()));
+        parentStopPlace = stopPlaceRepository.save(parentStopPlace);
+
+        StopPlace stopPlace = new StopPlace();
+        stopPlace.setCentroid(geometryFactory.createPoint(new Coordinate(5, 60)));
+        stopPlace.setName(new EmbeddableMultilingualString("Child"));
+        stopPlace.setValidBetween(new ValidBetween(Instant.now()));
+        stopPlace.setParentSiteRef(new SiteRefStructure(parentStopPlace.getNetexId(), String.valueOf(parentStopPlace.getVersion())));
+        stopPlaceRepository.save(stopPlace);
+
+        var infoSpot = new InfoSpot();
+        infoSpot.setVersion(1);
+        infoSpot.setLabel("I1111");
+        infoSpot.setInfoSpotLocations(Set.of(parentStopPlace.getNetexId()));
+
+        infoSpot = infoSpotRepository.save(infoSpot);
+
+        String graphQlJsonQuery = """
+                  {
+                  stopPlace: stopPlace (id:"%s") {
+                    id
+                    infoSpots {
+                        id
+                        label
+                      }
+                    }
+                  }""".formatted(parentStopPlace.getNetexId());
+
+        executeGraphqQLQueryOnly(graphQlJsonQuery)
+                .body("data.stopPlace", hasSize(1))
+                .rootPath("data.stopPlace[0]")
+                .body("id", equalTo(parentStopPlace.getNetexId()))
+                .body("infoSpots", hasSize(1))
+                .appendRootPath("infoSpots[0]")
+                .body("id", equalTo(infoSpot.getNetexId()));
     }
 
     @Test
