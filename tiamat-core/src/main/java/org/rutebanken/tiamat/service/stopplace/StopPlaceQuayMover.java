@@ -196,7 +196,10 @@ public class StopPlaceQuayMover {
         stopPlaceToAddQuaysTo.setVersionComment(toVersionComment);
 
         logger.debug("Saved stop place with copied quays {} and moved quays {} {}", quaysToAdd, quaysToMove, destinationStopPlace);
-        return save(destination, saveDateTime);
+        save(destination, saveDateTime);
+
+        // After saving, get the latest version of the stop place (save only returns the parent if one exists)
+        return stopPlaceRepository.findFirstByNetexIdOrderByVersionDesc(destinationStopPlaceId);
     }
 
     private void validateObjectIsValidOnDate(DataManagedObjectStructure objectWithKeyValues, LocalDate date) throws IllegalArgumentException {
