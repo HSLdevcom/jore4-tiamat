@@ -121,7 +121,7 @@ public class StopPlaceQuayMoverTest extends TiamatIntegrationTest {
         String toVersionComment = "to comment";
 
         // Act
-        StopPlace actualParentDestinationStopPlace = stopPlaceQuayMover.moveQuays(Arrays.asList(quayToMove.getNetexId()), destinationStopPlace.getNetexId(), tomorrow, fromVersionComment, toVersionComment);
+        destinationStopPlace = stopPlaceQuayMover.moveQuays(Arrays.asList(quayToMove.getNetexId()), destinationStopPlace.getNetexId(), tomorrow, fromVersionComment, toVersionComment);
 
         // Assert source
         parentSourceStopPlace = stopPlaceRepository.findFirstByNetexIdOrderByVersionDesc(parentSourceStopPlace.getNetexId());
@@ -137,6 +137,8 @@ public class StopPlaceQuayMoverTest extends TiamatIntegrationTest {
         assertThat(sourceQuay.getKeyValues().get("validityEnd").getItems().stream().findFirst().get()).isEqualTo(todayStr);
 
         // Assert destination
+        StopPlace actualParentDestinationStopPlace = stopPlaceRepository.findFirstByNetexIdOrderByVersionDesc(destinationStopPlace.getParentSiteRef().getRef());
+        
         assertThat(actualParentDestinationStopPlace).isNotNull();
         assertThat(actualParentDestinationStopPlace.getNetexId()).isEqualTo(parentDestinationStopPlace.getNetexId());
         assertThat(actualParentDestinationStopPlace.getChildren()).hasSize(1);
