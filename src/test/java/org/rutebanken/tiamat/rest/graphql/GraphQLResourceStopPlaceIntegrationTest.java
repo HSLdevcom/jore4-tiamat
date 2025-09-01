@@ -3539,8 +3539,7 @@ public class GraphQLResourceStopPlaceIntegrationTest extends AbstractGraphQLReso
                 .body("shelterFasciaBoardTaping", equalTo(null));
     }
 
-    @Test
-    public void testMutateStopPlaceOrganisation() {
+    private void testMutateStopPlaceOrganisationImpl(boolean parentStopPlace) {
         Organisation organisation1 = new Organisation();
         organisation1.setCompanyNumber("112233");
         organisation1.setName("Test Organisation");
@@ -3560,6 +3559,7 @@ public class GraphQLResourceStopPlaceIntegrationTest extends AbstractGraphQLReso
         organisationRepository.save(organisation2);
 
         StopPlace stopPlace = new StopPlace();
+        stopPlace.setParentStopPlace(parentStopPlace);
         stopPlace.setName(new EmbeddableMultilingualString("Name"));
         // Set one existing organisation for the stop place.
         stopPlace.getOrganisations().add(new StopPlaceOrganisationRef(
@@ -3572,7 +3572,7 @@ public class GraphQLResourceStopPlaceIntegrationTest extends AbstractGraphQLReso
         // Change relationship type of an existing organisation, and add a new one.
         var graphqlQuery = """
             mutation {
-              stopPlace: mutateStopPlace(StopPlace: {
+              stopPlace: %s(%s: {
                 id: "%s"
                 organisations: [
                   {
@@ -3600,6 +3600,8 @@ public class GraphQLResourceStopPlaceIntegrationTest extends AbstractGraphQLReso
               }
             }
             """.formatted(
+                parentStopPlace ? "mutateParentStopPlace" : "mutateStopPlace",
+                parentStopPlace ? "ParentStopPlace" : "StopPlace",
                 stopPlace.getNetexId(),
                 organisation1.getNetexId(),
                 organisation2.getNetexId()
@@ -3620,8 +3622,7 @@ public class GraphQLResourceStopPlaceIntegrationTest extends AbstractGraphQLReso
                 .body("[1].organisation.privateContactDetails.email", equalTo(organisation2.getPrivateContactDetails().getEmail()));
     }
 
-    @Test
-    public void testMutateStopPlaceEmptyOrganisations() {
+    private void testMutateStopPlaceEmptyOrganisationsImpl(boolean parentStopPlace) {
         Organisation organisation1 = new Organisation();
         organisation1.setCompanyNumber("112233");
         organisation1.setName("Test Organisation");
@@ -3632,6 +3633,7 @@ public class GraphQLResourceStopPlaceIntegrationTest extends AbstractGraphQLReso
         organisationRepository.save(organisation1);
 
         StopPlace stopPlace = new StopPlace();
+        stopPlace.setParentStopPlace(parentStopPlace);
         stopPlace.setName(new EmbeddableMultilingualString("Name"));
         // Set one existing organisation for the stop place.
         stopPlace.getOrganisations().add(new StopPlaceOrganisationRef(
@@ -3644,7 +3646,7 @@ public class GraphQLResourceStopPlaceIntegrationTest extends AbstractGraphQLReso
         // Mutate without organisations -> should remove an existing organisation relationship.
         var graphqlQuery = """
             mutation {
-              stopPlace: mutateStopPlace(StopPlace: {
+              stopPlace: %s(%s: {
                 id: "%s"
                 organisations: []
               }) {
@@ -3662,13 +3664,36 @@ public class GraphQLResourceStopPlaceIntegrationTest extends AbstractGraphQLReso
                 }
               }
             }
-            """.formatted(stopPlace.getNetexId());
+            """.formatted(
+                parentStopPlace ? "mutateParentStopPlace" : "mutateStopPlace",
+                parentStopPlace ? "ParentStopPlace" : "StopPlace",
+                stopPlace.getNetexId());
 
         executeGraphqQLQueryOnly(graphqlQuery)
                 .body("data.stopPlace[0].id", equalTo(stopPlace.getNetexId()))
                 .rootPath("data.stopPlace[0].organisations")
                 .body(notNullValue())
                 .body("", hasSize(0));
+    }
+
+    @Test
+    public void testMutateStopPlaceOrganisation() {
+        testMutateStopPlaceOrganisationImpl(false);
+    }
+
+    @Test
+    public void testMutateStopPlaceEmptyOrganisations() {
+        testMutateStopPlaceEmptyOrganisationsImpl(false);
+    }
+
+    @Test
+    public void testMutateParentStopPlaceOrganisation() {
+        testMutateStopPlaceOrganisationImpl(true);
+    }
+
+    @Test
+    public void testMutateParentStopPlaceEmptyOrganisations() {
+        testMutateStopPlaceEmptyOrganisationsImpl(true);
     }
 
     @Test

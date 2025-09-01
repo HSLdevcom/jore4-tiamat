@@ -511,6 +511,9 @@ public class StopPlaceRegisterGraphQLSchema {
 
         GraphQLObjectType stopPlaceExternalLinkObjectType = externalLinkObjectTypeCreator.stopPlaceExternalLinkObjectType();
 
+        GraphQLObjectType organisationObjectType = createOrganisationObjectType(validBetweenObjectType);
+        GraphQLObjectType stopPlaceOrganisationRefObjectType = stopPlaceOrganisationRefObjectTypeCreator.create(organisationObjectType);
+
         List<GraphQLFieldDefinition> stopPlaceInterfaceFields = stopPlaceInterfaceCreator.createCommonInterfaceFields(
                 tariffZoneObjectType,
                 fareZoneObjectType,
@@ -518,19 +521,16 @@ public class StopPlaceRegisterGraphQLSchema {
                 validBetweenObjectType,
                 entityPermissionObjectType,
                 infoSpotObjectType,
-                stopPlaceExternalLinkObjectType);
+                stopPlaceExternalLinkObjectType,
+                stopPlaceOrganisationRefObjectType);
 
         GraphQLInterfaceType stopPlaceInterface = stopPlaceInterfaceCreator.createInterface(stopPlaceInterfaceFields, commonFieldsList);
-
-        GraphQLObjectType organisationObjectType = createOrganisationObjectType(validBetweenObjectType);
-        GraphQLObjectType stopPlaceOrganisationRefObjectType = stopPlaceOrganisationRefObjectTypeCreator.create(organisationObjectType);
 
         GraphQLObjectType stopPlaceObjectType = stopPlaceObjectTypeCreator.create(
                 stopPlaceInterface,
                 stopPlaceInterfaceFields,
                 commonFieldsList,
-                quayObjectType,
-                stopPlaceOrganisationRefObjectType);
+                quayObjectType);
 
         GraphQLObjectType parentStopPlaceObjectType = parentStopPlaceObjectTypeCreator.create(stopPlaceInterface, stopPlaceInterfaceFields, commonFieldsList, stopPlaceObjectType);
 
