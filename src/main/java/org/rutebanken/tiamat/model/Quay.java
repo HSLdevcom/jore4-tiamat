@@ -32,8 +32,10 @@ import org.rutebanken.tiamat.netex.mapping.mapper.NetexIdMapper;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @Entity
@@ -59,6 +61,12 @@ public class Quay extends StopPlaceSpace_VersionStructure {
     )
     @OrderColumn(name = "orderNum")
     protected List<QuayExternalLink> externalLinks = new ArrayList<>();
+
+    @ElementCollection(targetClass = StopPlaceOrganisationRef.class, fetch = FetchType.EAGER)
+    @CollectionTable(
+            name = "quay_organisations"
+    )
+    private Set<StopPlaceOrganisationRef> organisations = new HashSet<>();
 
     public Quay(EmbeddableMultilingualString name) {
         super(name);
@@ -93,6 +101,14 @@ public class Quay extends StopPlaceSpace_VersionStructure {
 
     public void setExternalLinks(Collection<QuayExternalLink> externalLinks) {
         this.externalLinks = List.copyOf(externalLinks);
+    }
+
+    public Set<StopPlaceOrganisationRef> getOrganisations() {
+        return organisations;
+    }
+
+    public void setOrganisations(Set<StopPlaceOrganisationRef> organisations) {
+        this.organisations = organisations;
     }
 
     public void resetNetexIds() {

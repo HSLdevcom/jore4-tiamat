@@ -3696,6 +3696,170 @@ public class GraphQLResourceStopPlaceIntegrationTest extends AbstractGraphQLReso
         testMutateStopPlaceEmptyOrganisationsImpl(true);
     }
 
+    private void testMutateQuayOrganisationImpl() {
+        Organisation organisation1 = new Organisation();
+        organisation1.setCompanyNumber("112234");
+        organisation1.setName("Test Quay Organisation");
+        organisation1.setOrganisationType(OrganisationTypeEnumeration.OTHER);
+        Contact privateContactDetails1 = new Contact();
+        privateContactDetails1.setEmail("quay@example.com");
+        organisation1.setPrivateContactDetails(privateContactDetails1);
+        organisationRepository.save(organisation1);
+
+        Organisation organisation2 = new Organisation();
+        organisation2.setCompanyNumber("16789");
+        organisation2.setName("Another Quay Organisation");
+        organisation2.setOrganisationType(OrganisationTypeEnumeration.OTHER);
+        Contact privateContactDetails2 = new Contact();
+        privateContactDetails2.setEmail("quay2@example.com");
+        organisation2.setPrivateContactDetails(privateContactDetails2);
+        organisationRepository.save(organisation2);
+
+        StopPlace stopPlace = new StopPlace();
+        stopPlace.setName(new EmbeddableMultilingualString("StopPlace with Quay"));
+
+        Quay quay = new Quay();
+        quay.setName(new EmbeddableMultilingualString("Quay"));
+        // Set one existing organisation for the quay.
+        quay.getOrganisations().add(new StopPlaceOrganisationRef(
+                organisation1,
+                StopPlaceOrganisationRelationshipEnumeration.MAINTENANCE
+        ));
+
+        stopPlace.getQuays().add(quay);
+        stopPlaceVersionedSaverService.saveNewVersion(stopPlace);
+
+        // Change relationship type of an existing organisation, and add a new one.
+        var graphqlQuery = """
+            mutation {
+              stopPlace: mutateStopPlace(StopPlace: {
+                id: "%s"
+                quays: [{
+                  id: "%s"
+                  organisations: [
+                    {
+                        organisationRef: "%s",
+                        relationshipType: infoUpkeep
+                    },
+                    {
+                        organisationRef: "%s",
+                        relationshipType: winterMaintenance
+                    }
+                  ]
+                }]
+              }) {
+                id
+                quays {
+                  id
+                  organisations {
+                    organisationRef
+                    relationshipType
+                    organisation {
+                      id
+                      name
+                      privateContactDetails {
+                        email
+                      }
+                    }
+                  }
+                }
+              }
+            }
+            """.formatted(
+                stopPlace.getNetexId(),
+                quay.getNetexId(),
+                organisation1.getNetexId(),
+                organisation2.getNetexId()
+        );
+
+        executeGraphqQLQueryOnly(graphqlQuery)
+                .body("data.stopPlace[0].id", equalTo(stopPlace.getNetexId()))
+                .rootPath("data.stopPlace[0].quays[0].organisations")
+                .body(notNullValue())
+                .body("", hasSize(2))
+                .body("[0].relationshipType", equalTo(StopPlaceOrganisationRelationshipEnumeration.INFO_UPKEEP.value()))
+                .body("[0].organisation.id", equalTo(organisation1.getNetexId()))
+                .body("[0].organisation.name", equalTo(organisation1.getName()))
+                .body("[0].organisation.privateContactDetails.email", equalTo(organisation1.getPrivateContactDetails().getEmail()))
+                .body("[1].relationshipType", equalTo(StopPlaceOrganisationRelationshipEnumeration.WINTER_MAINTENANCE.value()))
+                .body("[1].organisation.id", equalTo(organisation2.getNetexId()))
+                .body("[1].organisation.name", equalTo(organisation2.getName()))
+                .body("[1].organisation.privateContactDetails.email", equalTo(organisation2.getPrivateContactDetails().getEmail()));
+    }
+
+    private void testMutateQuayEmptyOrganisationsImpl() {
+        Organisation organisation1 = new Organisation();
+        organisation1.setCompanyNumber("112234");
+        organisation1.setName("Test Quay Organisation");
+        organisation1.setOrganisationType(OrganisationTypeEnumeration.OTHER);
+        Contact privateContactDetails1 = new Contact();
+        privateContactDetails1.setEmail("quay@example.com");
+        organisation1.setPrivateContactDetails(privateContactDetails1);
+        organisationRepository.save(organisation1);
+
+        StopPlace stopPlace = new StopPlace();
+        stopPlace.setName(new EmbeddableMultilingualString("StopPlace with Quay"));
+
+        Quay quay = new Quay();
+        quay.setName(new EmbeddableMultilingualString("Quay"));
+        // Set one existing organisation for the quay.
+        quay.getOrganisations().add(new StopPlaceOrganisationRef(
+                organisation1,
+                StopPlaceOrganisationRelationshipEnumeration.MAINTENANCE
+        ));
+
+        stopPlace.getQuays().add(quay);
+        stopPlaceVersionedSaverService.saveNewVersion(stopPlace);
+
+        // Mutate without organisations -> should remove existing organisation relationship.
+        var graphqlQuery = """
+            mutation {
+              stopPlace: mutateStopPlace(StopPlace: {
+                id: "%s"
+                quays: [{
+                  id: "%s"
+                  organisations: []
+                }]
+              }) {
+                id
+                quays {
+                  id
+                  organisations {
+                    organisationRef
+                    relationshipType
+                    organisation {
+                      id
+                      name
+                      privateContactDetails {
+                        email
+                      }
+                    }
+                  }
+                }
+              }
+            }
+            """.formatted(
+                stopPlace.getNetexId(),
+                quay.getNetexId()
+        );
+
+        executeGraphqQLQueryOnly(graphqlQuery)
+                .body("data.stopPlace[0].id", equalTo(stopPlace.getNetexId()))
+                .rootPath("data.stopPlace[0].quays[0].organisations")
+                .body(notNullValue())
+                .body("", hasSize(0));
+    }
+
+    @Test
+    public void testMutateQuayOrganisation() {
+        testMutateQuayOrganisationImpl();
+    }
+
+    @Test
+    public void testMutateQuayEmptyOrganisations() {
+        testMutateQuayEmptyOrganisationsImpl();
+    }
+
     @Test
     public void testMutateChildStopPlace() {
 
