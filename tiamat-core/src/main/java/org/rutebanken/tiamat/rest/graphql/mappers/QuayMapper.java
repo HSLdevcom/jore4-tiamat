@@ -23,6 +23,8 @@ import org.rutebanken.tiamat.model.Quay;
 import org.rutebanken.tiamat.model.SiteFacilitySet;
 import org.rutebanken.tiamat.model.QuayExternalLink;
 import org.rutebanken.tiamat.model.StopPlace;
+import org.rutebanken.tiamat.model.StopPlaceOrganisationRef;
+import org.rutebanken.tiamat.model.StopPlaceOrganisationRelationshipEnumeration;
 import org.rutebanken.tiamat.service.BoardingPositionUpdater;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,8 +48,11 @@ import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.EXTERNAL_LINK_LOCA
 import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.EXTERNAL_LINK_NAME;
 import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.ID;
 import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.LIGHTING;
+import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.ORGANISATIONS;
+import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.ORGANISATION_REF;
 import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.PRIVATE_CODE;
 import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.PUBLIC_CODE;
+import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.RELATIONSHIP_TYPE;
 import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.TYPE;
 import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.VALUE;
 
@@ -122,6 +127,21 @@ public class QuayMapper {
         if (quayInputMap.get(LIGHTING) != null) {
             LightingEnumeration lighting = (LightingEnumeration) quayInputMap.get(LIGHTING);
             quay.setLighting(lighting);
+        isQuayUpdated = true;
+    }
+
+        if (quayInputMap.get(ORGANISATIONS) != null) {
+            quay.getOrganisations().clear();
+            List organisations = (List) quayInputMap.get(ORGANISATIONS);
+            for(Object organisationObject : organisations) {
+                Map organisationMap = (Map) organisationObject;
+                StopPlaceOrganisationRef organisationRef = new StopPlaceOrganisationRef(
+                        (String) organisationMap.get(ORGANISATION_REF),
+                        (StopPlaceOrganisationRelationshipEnumeration) organisationMap.get(RELATIONSHIP_TYPE)
+                );
+                logger.trace("Adding organisation {} for quay {}", organisationRef, quay);
+                quay.getOrganisations().add(organisationRef);
+            }
             isQuayUpdated = true;
         }
 
