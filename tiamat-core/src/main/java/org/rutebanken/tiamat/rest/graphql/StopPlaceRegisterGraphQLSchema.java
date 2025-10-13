@@ -538,9 +538,6 @@ public class StopPlaceRegisterGraphQLSchema {
 
         GraphQLObjectType quayExternalLinkObjectType = externalLinkObjectTypeCreator.quayExternalLinkObjectType();
 
-        GraphQLObjectType quayObjectType = createQuayObjectType(commonFieldsList, infoSpotObjectType, quayExternalLinkObjectType, allVersionsArgument);
-
-
         GraphQLObjectType topographicPlaceObjectType = topographicPlaceObjectTypeCreator.create();
 
         GraphQLObjectType tariffZoneObjectType = tariffZoneObjectTypeCreator.create(zoneCommandFieldList);
@@ -552,6 +549,8 @@ public class StopPlaceRegisterGraphQLSchema {
 
         GraphQLObjectType organisationObjectType = createOrganisationObjectType(validBetweenObjectType);
         GraphQLObjectType stopPlaceOrganisationRefObjectType = stopPlaceOrganisationRefObjectTypeCreator.create(organisationObjectType);
+
+        GraphQLObjectType quayObjectType = createQuayObjectType(commonFieldsList, infoSpotObjectType, quayExternalLinkObjectType, stopPlaceOrganisationRefObjectType, allVersionsArgument);
 
         List<GraphQLFieldDefinition> stopPlaceInterfaceFields = stopPlaceInterfaceCreator.createCommonInterfaceFields(
                 tariffZoneObjectType,
@@ -1690,6 +1689,7 @@ public class StopPlaceRegisterGraphQLSchema {
             List<GraphQLFieldDefinition> commonFieldsList,
             GraphQLObjectType infoSpotObjectType,
             GraphQLObjectType externalLinkObjectType,
+            GraphQLObjectType stopPlaceOrganisationRefObjectType,
             GraphQLArgument allVersionsArgument) {
         return newObject()
                     .name(OUTPUT_TYPE_QUAY)
@@ -1721,6 +1721,10 @@ public class StopPlaceRegisterGraphQLSchema {
                             .name(EXTERNAL_LINKS)
                             .type(new GraphQLList(externalLinkObjectType))
                             .description("External links"))
+                    .field(newFieldDefinition()
+                            .name(ORGANISATIONS)
+                            .type(new GraphQLList(stopPlaceOrganisationRefObjectType))
+                            .description("Organisations associated with this quay"))
                     .build();
     }
 
@@ -1881,6 +1885,9 @@ public class StopPlaceRegisterGraphQLSchema {
                     .name(LIGHTING)
                     .type(lightingEnumType))
                 .field(newInputObjectField().name(VERSION_COMMENT).type(GraphQLString))
+                .field(newInputObjectField()
+                        .name(ORGANISATIONS)
+                        .type(new GraphQLList(stopPlaceOrganisationRefInputObjectType)))
                 .build();
     }
 
