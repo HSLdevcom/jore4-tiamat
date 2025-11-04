@@ -1,6 +1,18 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
-    "config:recommended"
+    "github>HSLdevcom/jore4-tools//renovatebot/jore4-default-preset.json5"
+  ],
+  "packageRules": [
+    {
+      "matchManagers": ["*"],
+      "enabled": false
+    },
+    {
+      "groupName": "docker dependencies",
+      "groupSlug": "docker",
+      "matchManagers": ["dockerfile", "docker-compose"],
+      "enabled": true
+    }
   ]
 }
