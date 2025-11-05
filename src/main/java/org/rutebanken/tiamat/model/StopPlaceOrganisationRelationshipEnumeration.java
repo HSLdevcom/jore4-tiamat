@@ -5,7 +5,8 @@ public enum StopPlaceOrganisationRelationshipEnumeration {
     MAINTENANCE("maintenance"),
     WINTER_MAINTENANCE("winterMaintenance"),
     INFO_UPKEEP("infoUpkeep"),
-    CLEANING("cleaning");
+    CLEANING("cleaning"),
+    SHELTER_MAINTENANCE("shelterMaintenance");
     private final String value;
 
     StopPlaceOrganisationRelationshipEnumeration(String v) {
