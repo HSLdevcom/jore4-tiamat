@@ -1,6 +1,7 @@
 package org.rutebanken.tiamat.rest.graphql;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.Set;
 import org.junit.Test;
 import org.locationtech.jts.geom.Coordinate;
@@ -836,7 +837,7 @@ public class GraphQLResourceInfoSpotIntegrationTest extends AbstractGraphQLResou
 
         InfoSpotPosterRef oldPosterRef = new InfoSpotPosterRef(oldPoster);
 
-        oldInfoSpot.setPosters(Set.of(oldPosterRef));
+        oldInfoSpot.setPosters(List.of(oldPosterRef));
 
         infoSpotRepository.save(oldInfoSpot);
 
@@ -875,7 +876,7 @@ public class GraphQLResourceInfoSpotIntegrationTest extends AbstractGraphQLResou
 
         InfoSpotPosterRef posterRef = new InfoSpotPosterRef(updatedPoster);
 
-        updatedInfoSpot.setPosters(Set.of(posterRef));
+        updatedInfoSpot.setPosters(List.of(posterRef));
 
         infoSpotRepository.save(updatedInfoSpot);
 
@@ -914,7 +915,7 @@ public class GraphQLResourceInfoSpotIntegrationTest extends AbstractGraphQLResou
 
         InfoSpotPosterRef otherPosterRef = new InfoSpotPosterRef(otherPoster);
 
-        otherInfoSpot.setPosters(Set.of(otherPosterRef));
+        otherInfoSpot.setPosters(List.of(otherPosterRef));
 
         infoSpotRepository.save(otherInfoSpot);
     }

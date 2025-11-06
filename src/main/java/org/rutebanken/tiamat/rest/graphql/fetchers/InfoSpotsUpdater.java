@@ -9,7 +9,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
 import java.util.stream.Collectors;
 import org.rutebanken.helper.organisation.ReflectionAuthorizationService;
 import org.rutebanken.tiamat.model.DisplayTypeEnumeration;
@@ -206,22 +205,22 @@ public class InfoSpotsUpdater implements DataFetcher {
         if (input.containsKey(OUTPUT_TYPE_POSTER)) {
             List<Map> posters = (List<Map>) input.get(OUTPUT_TYPE_POSTER);
             if (posters != null) {
-                Set<InfoSpotPosterRef> posterRefs = target.getPosters();
+                List<InfoSpotPosterRef> posterRefs = target.getPosters();
 
-                Set<InfoSpotPoster> existingPosters = posterRefs.stream()
+                List<InfoSpotPoster> existingPosters = posterRefs.stream()
                         .map(p -> infoSpotPosterRepository.findFirstByNetexIdOrderByVersionDesc(p.getRef()))
-                        .collect(Collectors.toSet());
+                        .collect(Collectors.toList());
 
-                Set<InfoSpotPosterRef> updatedPosters = posters.stream()
+                List<InfoSpotPosterRef> updatedPosters = posters.stream()
                         .map(p -> createPoster(p, existingPosters))
                         .map(InfoSpotPosterRef::new)
-                        .collect(Collectors.toSet());
+                        .collect(Collectors.toList());
 
                 target.setPosters(updatedPosters);
                 isUpdated = true;
             }
             else {
-                target.setPosters(Collections.emptySet());
+                target.setPosters(Collections.emptyList());
             }
         }
         if (input.containsKey(GEOMETRY)) {
@@ -249,7 +248,7 @@ public class InfoSpotsUpdater implements DataFetcher {
         return isUpdated;
     }
 
-    private InfoSpotPoster createPoster(Map input, Set<InfoSpotPoster> existingPosters) {
+    private InfoSpotPoster createPoster(Map input, List<InfoSpotPoster> existingPosters) {
         if (input.containsKey(LABEL)) {
             boolean isUpdated = false;
             String label = (String) input.get(LABEL);

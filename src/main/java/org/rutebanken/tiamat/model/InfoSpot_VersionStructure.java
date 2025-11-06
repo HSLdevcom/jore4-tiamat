@@ -8,8 +8,10 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.MappedSuperclass;
 import java.io.Serial;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @MappedSuperclass
@@ -43,7 +45,7 @@ public class InfoSpot_VersionStructure extends Zone_VersionStructure {
     @CollectionTable(
             name = "info_spot_poster_ref"
     )
-    private Set<InfoSpotPosterRef> posters = new HashSet<>();
+    private List<InfoSpotPosterRef> posters = new ArrayList<>();
 
     public InfoSpotTypeEnumeration getInfoSpotType() {
         return infoSpotType;
@@ -149,11 +151,11 @@ public class InfoSpot_VersionStructure extends Zone_VersionStructure {
         this.infoSpotLocations = Set.copyOf(infoSpotLocation);
     }
 
-    public Set<InfoSpotPosterRef> getPosters() {
+    public List<InfoSpotPosterRef> getPosters() {
         return posters;
     }
 
-    public void setPosters(Set<InfoSpotPosterRef> posters) {
+    public void setPosters(List<InfoSpotPosterRef> posters) {
         this.posters = posters;
     }
 }
