@@ -68,6 +68,7 @@ SELECT -- Quay's own fields
        postalCode.items     AS postal_code,
        functionalArea.items AS functional_area,
        stopState.items      AS stop_state,
+       stopOwner.items      AS stop_owner,
 
        -- Stop Place info
        spmv.id              AS stop_place_id,
@@ -122,4 +123,8 @@ FROM quay AS q
 
     LEFT JOIN quay_key_values AS qkvStopState ON
     q.id = qkvStopState.quay_id AND qkvStopState.key_values_key = 'stopState'
-    LEFT JOIN value_items AS stopState ON qkvStopState.key_values_id = stopState.value_id;
+    LEFT JOIN value_items AS stopState ON qkvStopState.key_values_id = stopState.value_id
+    
+    LEFT JOIN quay_key_values AS qkvStopOwner ON
+    q.id = qkvStopOwner.quay_id AND qkvStopOwner.key_values_key = 'stopOwner'
+    LEFT JOIN value_items AS stopOwner ON qkvStopOwner.key_values_id = stopOwner.value_id;
