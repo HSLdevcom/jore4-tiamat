@@ -17,6 +17,8 @@ package org.rutebanken.tiamat.auth;
 
 
 import org.rutebanken.helper.organisation.user.UserInfoExtractor;
+import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -28,16 +30,32 @@ import javax.annotation.Nullable;
 public class UsernameFetcher {
 
     private final UserInfoExtractor userInfoExtractor;
+    private final HttpServletRequest request;
 
     public UsernameFetcher(UserInfoExtractor userInfoExtractor) {
+        this(userInfoExtractor, null);
+    }
+
+    @Autowired
+    public UsernameFetcher(UserInfoExtractor userInfoExtractor, HttpServletRequest request) {
         this.userInfoExtractor = userInfoExtractor;
+        this.request = request;
     }
 
     /**
-     * Return the preferred username or null if the user is not authenticated.
+     * Return the request user ID, falling back to the authenticated preferred username.
      */
     @Nullable
     public String getUserNameForAuthenticatedUser() {
+        try {
+            String userId = request.getHeader("X-Hasura-User-Id");
+            if (userId != null && !userId.isEmpty()) {
+                return userId;
+            }
+        } catch (Exception e) {
+            // Ignore and fallback to Spring Security
+        }
+
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if(authentication == null
                 || authentication.getPrincipal() == null
