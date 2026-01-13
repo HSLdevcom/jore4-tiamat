@@ -16,6 +16,7 @@
 package org.rutebanken.tiamat.auth;
 
 
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -24,16 +25,31 @@ import org.springframework.stereotype.Service;
 @Service
 public class UsernameFetcher {
 
+    private final HttpServletRequest request;
+
+    public UsernameFetcher(HttpServletRequest request) {
+        this.request = request;
+    }
+
     /**
-     * Gets username from Spring Security
+     * Gets username from request header (X-Hasura-User-Id) or Spring Security
      * <p>
-     * Expects property keycloak.principal-attribute=preferred_username
+     * Fallback Spring Security JWT token with keycloak.principal-attribute=preferred_username
      */
     public String getUserNameForAuthenticatedUser() {
+        try {
+            String userId = request.getHeader("X-Hasura-User-Id");
+            if (userId != null && !userId.isEmpty()) {
+                return userId;
+            }
+        } catch (Exception e) {
+            // Ignore and fallback to Spring Security
+        }
+
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            if (authentication != null && authentication.getPrincipal() != null &&
-                    authentication.getPrincipal() instanceof Jwt) {
-                return ((Jwt) authentication.getPrincipal()).getClaimAsString("preferred_username");
+        if (authentication != null && authentication.getPrincipal() != null &&
+                authentication.getPrincipal() instanceof Jwt) {
+            return ((Jwt) authentication.getPrincipal()).getClaimAsString("preferred_username");
         }
         return null;
     }
