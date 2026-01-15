@@ -31,10 +31,13 @@ import org.rutebanken.tiamat.model.TopographicPlace;
 import org.rutebanken.tiamat.model.ValidBetween;
 import org.rutebanken.tiamat.model.WaitingRoomEquipment;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 import java.math.BigInteger;
 import java.security.Principal;
@@ -54,6 +57,50 @@ public class StopPlaceVersionedSaverServiceTest extends TiamatIntegrationTest {
 
     @Autowired
     private StopPlaceVersionedSaverService stopPlaceVersionedSaverService;
+
+    @Test
+    public void changedQuayUpdatesAuditWithoutChangingOtherQuayOrStopAudit() {
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.addHeader("X-Hasura-User-Id", "first-user");
+        RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(request));
+
+        try {
+            Quay modifiedQuay = new Quay();
+            modifiedQuay.setName(new EmbeddableMultilingualString("modified quay"));
+            Quay unchangedQuay = new Quay();
+            unchangedQuay.setName(new EmbeddableMultilingualString("unchanged quay"));
+            StopPlace stopPlace = new StopPlace(new EmbeddableMultilingualString("audit stop"));
+            stopPlace.getQuays().add(modifiedQuay);
+            stopPlace.getQuays().add(unchangedQuay);
+            stopPlace = stopPlaceVersionedSaverService.saveNewVersion(stopPlace);
+
+            assertThat(stopPlace.getChangedBy()).isEqualTo("first-user");
+            stopPlace.getQuays().forEach(quay -> assertThat(quay.getChangedBy()).isEqualTo("first-user"));
+
+            StopPlace newVersion = versionCreator.createCopy(stopPlace, StopPlace.class);
+            newVersion.getQuays().stream()
+                    .filter(quay -> quay.getNetexId().equals(modifiedQuay.getNetexId()))
+                    .findFirst().orElseThrow()
+                    .setName(new EmbeddableMultilingualString("edited quay"));
+
+            request.removeHeader("X-Hasura-User-Id");
+            request.addHeader("X-Hasura-User-Id", "second-user");
+            StopPlace savedVersion = stopPlaceVersionedSaverService.saveNewVersion(stopPlace, newVersion);
+
+            assertThat(savedVersion.getChangedBy()).isEqualTo("first-user");
+            assertThat(savedVersion.getChanged()).isEqualTo(stopPlace.getChanged());
+            savedVersion.getQuays().forEach(quay -> {
+                if (quay.getNetexId().equals(modifiedQuay.getNetexId())) {
+                    assertThat(quay.getChangedBy()).isEqualTo("second-user");
+                } else {
+                    assertThat(quay.getChangedBy()).isEqualTo("first-user");
+                    assertThat(quay.getChanged()).isEqualTo(unchangedQuay.getChanged());
+                }
+            });
+        } finally {
+            RequestContextHolder.resetRequestAttributes();
+        }
+    }
 
 
     @Test
