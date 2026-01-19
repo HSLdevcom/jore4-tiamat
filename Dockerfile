@@ -18,16 +18,16 @@ FROM eclipse-temurin:21.0.2_13-jre
 EXPOSE 1888
 
 # download script for reading Docker secrets
-RUN curl -o /tmp/read-secrets.sh "https://raw.githubusercontent.com/HSLdevcom/jore4-tools/main/docker/read-secrets.sh"
+ADD --chmod=755 https://raw.githubusercontent.com/HSLdevcom/jore4-tools/main/docker/read-secrets.sh /tmp/read-secrets.sh
 
 # copy over helper scripts
-COPY ./script/build-jdbc-urls.sh /tmp/
+COPY --chmod=755 ./script/build-jdbc-urls.sh /tmp/
 
 # copy compiled jar from builder stage
 COPY --from=builder /build/target/*.jar /usr/src/jore4-tiamat/jore4-tiamat.jar
 
 # read Docker secrets into environment variables and run application
-CMD /bin/bash -c "source /tmp/read-secrets.sh && source /tmp/build-jdbc-urls.sh && java --add-opens java.base/java.lang=ALL-UNNAMED -jar /usr/src/jore4-tiamat/jore4-tiamat.jar"
+CMD ["/bin/bash", "-c", "source /tmp/read-secrets.sh && source /tmp/build-jdbc-urls.sh && java --add-opens java.base/java.lang=ALL-UNNAMED -jar /usr/src/jore4-tiamat/jore4-tiamat.jar"]
 
 HEALTHCHECK --interval=1m --timeout=5s \
     CMD curl --fail http://localhost:1888/actuator/health
