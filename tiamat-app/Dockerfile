@@ -22,10 +22,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends curl && rm -rf 
 EXPOSE 1888
 
 # download script for reading Docker secrets
-RUN curl -fsSLo /tmp/read-secrets.sh "https://raw.githubusercontent.com/HSLdevcom/jore4-tools/main/docker/read-secrets.sh"
+ADD --chmod=755 https://raw.githubusercontent.com/HSLdevcom/jore4-tools/main/docker/read-secrets.sh /tmp/read-secrets.sh
 
 # copy over helper scripts
-COPY ./script/build-jdbc-urls.sh /tmp/
+COPY --chmod=755 ./script/build-jdbc-urls.sh /tmp/
 
 # copy compiled jar from builder stage
 COPY --from=builder /build/tiamat-app/target/jore4-tiamat.jar /usr/src/jore4-tiamat/jore4-tiamat.jar
