@@ -412,7 +412,17 @@ public class StopPlaceVersionedSaverService {
         }
 
         try {
-            return !genericObjectDiffer.compareObjects(existingStopPlace, newStopPlace, stopPlaceDiffConfig).isEmpty();
+            List<org.rutebanken.tiamat.diff.generic.Difference> differences = genericObjectDiffer.compareObjects(existingStopPlace, newStopPlace, stopPlaceDiffConfig);
+            boolean hasChanges = !differences.isEmpty();
+
+            // Manually check if keyValues changed
+            if (!hasChanges && existingStopPlace.getKeyValues() != null && newStopPlace.getKeyValues() != null) {
+                if (!existingStopPlace.getKeyValues().equals(newStopPlace.getKeyValues())) {
+                    hasChanges = true;
+                }
+            }
+
+            return hasChanges;
         } catch (IllegalAccessException e) {
             logger.warn("Could not compare stop place {}, marking as modified", newStopPlace.getNetexId(), e);
             return true;
