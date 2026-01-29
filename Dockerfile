@@ -12,7 +12,7 @@ COPY ./src /build/src
 # package
 RUN mvn clean package -DskipTests
 
-FROM eclipse-temurin:21.0.2_13-jre
+FROM eclipse-temurin:25.0.1_8-jre
 
 # Application Insights version
 ARG APPINSIGHTS_VERSION=3.7.7
