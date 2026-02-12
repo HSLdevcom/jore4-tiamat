@@ -69,6 +69,7 @@ SELECT -- Quay's own fields
        functionalArea.items AS functional_area,
        stopState.items      AS stop_state,
        stopOwner.items      AS stop_owner,
+       timingPlaceId.items  AS timing_place_id,
 
        -- Stop Place info
        spmv.id              AS stop_place_id,
@@ -127,4 +128,8 @@ FROM quay AS q
 
     LEFT JOIN quay_key_values AS qkvStopOwner ON
     q.id = qkvStopOwner.quay_id AND qkvStopOwner.key_values_key = 'stopOwner'
-    LEFT JOIN value_items AS stopOwner ON qkvStopOwner.key_values_id = stopOwner.value_id;
+    LEFT JOIN value_items AS stopOwner ON qkvStopOwner.key_values_id = stopOwner.value_id
+
+    LEFT JOIN quay_key_values AS qkvTimingPlaceId ON
+    q.id = qkvTimingPlaceId.quay_id AND qkvTimingPlaceId.key_values_key = 'timingPlaceId'
+    LEFT JOIN value_items AS timingPlaceId ON qkvTimingPlaceId.key_values_id = timingPlaceId.value_id;
