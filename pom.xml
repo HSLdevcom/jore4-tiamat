@@ -489,6 +489,10 @@
                 <configuration>
                     <argLine>@{argLine} -Xms500m -Xmx1000m -Xss256k --add-opens java.base/java.lang=ALL-UNNAMED -Dhazelcast.ignoreXxeProtectionFailures=true</argLine>
                     <runOrder>alphabetical</runOrder>
+                    <systemPropertyVariables>
+                        <!-- docker api version -->
+                        <api.version>1.44</api.version>
+                    </systemPropertyVariables>
                 </configuration>
             </plugin>
             <plugin>
