@@ -20,16 +20,19 @@ ARG APPINSIGHTS_VERSION=3.7.7
 # expose server port
 EXPOSE 1888
 
-# download script for reading Docker secrets
-ADD --chmod=755 https://raw.githubusercontent.com/HSLdevcom/jore4-tools/main/docker/read-secrets.sh /tmp/read-secrets.sh
+# Download a script for reading Docker secrets
+ADD --chmod=555 https://raw.githubusercontent.com/HSLdevcom/jore4-tools/main/docker/read-secrets.sh /tmp/read-secrets.sh
+
+# Downaload a Java applet to perform HEALTHCHECK with
+ADD --chmod=444 https://raw.githubusercontent.com/HSLdevcom/jore4-tools/main/docker/HealthCheck.jar /app/scripts/HealthCheck.jar
 
 # Connection string is provided as env in Kubernetes by secrets manager
 # it should not be provided for other environments (local etc)
-ADD --chmod=755 https://github.com/microsoft/ApplicationInsights-Java/releases/download/${APPINSIGHTS_VERSION}/applicationinsights-agent-${APPINSIGHTS_VERSION}.jar /usr/src/jore4-tiamat/applicationinsights-agent.jar
-COPY --chmod=755 ./applicationinsights.json /usr/src/jore4-tiamat/applicationinsights.json
+ADD --chmod=444 https://github.com/microsoft/ApplicationInsights-Java/releases/download/${APPINSIGHTS_VERSION}/applicationinsights-agent-${APPINSIGHTS_VERSION}.jar /usr/src/jore4-tiamat/applicationinsights-agent.jar
+COPY --chmod=444 ./applicationinsights.json /usr/src/jore4-tiamat/applicationinsights.json
 
 # copy over helper scripts
-COPY --chmod=755 ./script/build-jdbc-urls.sh /tmp/
+COPY --chmod=555 ./script/build-jdbc-urls.sh /tmp/
 
 # copy compiled jar from builder stage
 COPY --from=builder /build/target/*.jar /usr/src/jore4-tiamat/jore4-tiamat.jar
@@ -38,4 +41,4 @@ COPY --from=builder /build/target/*.jar /usr/src/jore4-tiamat/jore4-tiamat.jar
 CMD ["/bin/bash", "-c", "source /tmp/read-secrets.sh && source /tmp/build-jdbc-urls.sh && java --add-opens java.base/java.lang=ALL-UNNAMED -javaagent:/usr/src/jore4-tiamat/applicationinsights-agent.jar -jar /usr/src/jore4-tiamat/jore4-tiamat.jar"]
 
 HEALTHCHECK --interval=1m --timeout=5s \
-    CMD curl --fail http://localhost:1888/actuator/health
+  CMD ["java", "-jar", "/app/scripts/HealthCheck.jar", "1888"]
