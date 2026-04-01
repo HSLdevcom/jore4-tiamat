@@ -1,5 +1,7 @@
 package org.rutebanken.tiamat.model;
 
+import jakarta.persistence.AttributeOverride;
+import jakarta.persistence.AttributeOverrides;
 import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;
@@ -13,6 +15,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @MappedSuperclass
 public class InfoSpot_VersionStructure extends Zone_VersionStructure {
@@ -34,12 +37,16 @@ public class InfoSpot_VersionStructure extends Zone_VersionStructure {
     @Enumerated(EnumType.STRING)
     private DisplayTypeEnumeration displayType;
 
-    @ElementCollection
+    // Version-aware location references
+    @ElementCollection(targetClass = InfoSpotLocationRef.class, fetch = FetchType.EAGER)
     @CollectionTable(
             name = "info_spot_location"
     )
-    @Column(name="location_netex_id")
-    private Set<String> infoSpotLocations = new HashSet<>();
+    @AttributeOverrides({
+        @AttributeOverride(name = "ref", column = @Column(name = "location_netex_id")),
+        @AttributeOverride(name = "version", column = @Column(name = "version"))
+    })
+    private Set<InfoSpotLocationRef> locationRefs = new HashSet<>();
 
     @ElementCollection(targetClass = InfoSpotPosterRef.class, fetch = FetchType.EAGER)
     @CollectionTable(
@@ -143,12 +150,36 @@ public class InfoSpot_VersionStructure extends Zone_VersionStructure {
         this.displayType = displayType;
     }
 
+    /**
+     * Returns location references as simple NetEx ID strings.
+     * For version-aware access, use {@link #getLocationRefs()}.
+     */
     public Set<String> getInfoSpotLocations() {
-        return infoSpotLocations;
+        return locationRefs.stream()
+                .map(VersionOfObjectRefStructure::getRef)
+                .collect(Collectors.toSet());
     }
 
+    /**
+     * Sets location references from plain NetEx ID strings.
+     * For version-aware access, use {@link #setLocationRefs(Set)}.
+     */
     public void setInfoSpotLocations(Collection<String> infoSpotLocation) {
-        this.infoSpotLocations = Set.copyOf(infoSpotLocation);
+        if (infoSpotLocation == null || infoSpotLocation.isEmpty()) {
+            this.locationRefs = new HashSet<>();
+        } else {
+            this.locationRefs = infoSpotLocation.stream()
+                    .map(InfoSpotLocationRef::new)
+                    .collect(Collectors.toSet());
+        }
+    }
+
+    public Set<InfoSpotLocationRef> getLocationRefs() {
+        return locationRefs;
+    }
+
+    public void setLocationRefs(Set<InfoSpotLocationRef> locationRefs) {
+        this.locationRefs = locationRefs;
     }
 
     public List<InfoSpotPosterRef> getPosters() {
