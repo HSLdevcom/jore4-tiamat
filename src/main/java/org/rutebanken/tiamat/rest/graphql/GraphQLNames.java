@@ -360,6 +360,7 @@ public class GraphQLNames {
     public static final String KEY_ARG_DESCRIPTION = "Must be used together with parameter 'values', other search-parameters are ignored. Defines key to search for.";
     public static final String VALUES = "values";
     public static final String VALUES_ARG_DESCRIPTION = "Must be used together with parameter 'key', other search-parameters are ignored. Defines value to search for.";
+    public static final String REF = "ref";
     public static final String VERSION = "version";
     public static final String VERSION_COMMENT = "versionComment";
     public static final String MODIFICATION_ENUMERATION = "modificationEnumeration";
@@ -586,6 +587,8 @@ public class GraphQLNames {
     public static final String SPEECH_PROPERTY = "speechProperty";
     public static final String DISPLAY_TYPE = "displayType";
     public static final String INFO_SPOT_LOCATIONS = "infoSpotLocations";
+    public static final String LOCATION_REFS = "locationRefs";
+    public static final String LOCATION_REF = "locationRef";
 
     public static final String EXTERNAL_LINKS = "externalLinks";
     public static final String OUTPUT_TYPE_EXTERNAL_LINK = "externalLink";
