@@ -9,16 +9,21 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 import org.rutebanken.helper.organisation.ReflectionAuthorizationService;
 import org.rutebanken.tiamat.model.DisplayTypeEnumeration;
 import org.rutebanken.tiamat.model.InfoSpot;
 import org.rutebanken.tiamat.model.InfoSpotPoster;
 import org.rutebanken.tiamat.model.InfoSpotPosterRef;
+import org.rutebanken.tiamat.model.InfoSpotLocationRef;
 import org.rutebanken.tiamat.model.InfoSpotTypeEnumeration;
 import org.rutebanken.tiamat.model.PosterSizeEnumeration;
 import org.rutebanken.tiamat.repository.InfoSpotPosterRepository;
 import org.rutebanken.tiamat.repository.InfoSpotRepository;
+import org.rutebanken.tiamat.repository.QuayRepository;
+import org.rutebanken.tiamat.repository.ShelterEquipmentRepository;
+import org.rutebanken.tiamat.repository.StopPlaceRepository;
 import org.rutebanken.tiamat.rest.graphql.mappers.GeometryMapper;
 import org.rutebanken.tiamat.versioning.VersionCreator;
 import org.rutebanken.tiamat.versioning.VersionIncrementor;
@@ -65,6 +70,15 @@ public class InfoSpotsUpdater implements DataFetcher {
 
     @Autowired
     private InfoSpotPosterRepository infoSpotPosterRepository;
+
+    @Autowired
+    private QuayRepository quayRepository;
+
+    @Autowired
+    private StopPlaceRepository stopPlaceRepository;
+
+    @Autowired
+    private ShelterEquipmentRepository shelterEquipmentRepository;
 
     @Autowired
     private ReflectionAuthorizationService authorizationService;
@@ -195,11 +209,15 @@ public class InfoSpotsUpdater implements DataFetcher {
             isUpdated |= !Objects.equals(displayType, target.getDisplayType());
             target.setDisplayType(displayType);
         }
+
+        // Handle location references - auto-resolve to current version
         if (input.containsKey(INFO_SPOT_LOCATIONS)) {
-            var locations = (List<String>) input.get((INFO_SPOT_LOCATIONS));
-            isUpdated |= target.getInfoSpotLocations() == null ||
-                         !(new HashSet<>(locations).containsAll(target.getInfoSpotLocations()) && target.getInfoSpotLocations().containsAll(locations));
-            target.setInfoSpotLocations(locations);
+            Set<InfoSpotLocationRef> newLocationRefs = ((List<String>) input.get(INFO_SPOT_LOCATIONS)).stream()
+                    .map(this::convertLocationStringToRef)
+                    .collect(Collectors.toSet());
+
+            isUpdated |= !Objects.equals(target.getLocationRefs(), newLocationRefs);
+            target.setLocationRefs(newLocationRefs);
         }
 
         if (input.containsKey(OUTPUT_TYPE_POSTER)) {
@@ -246,6 +264,32 @@ public class InfoSpotsUpdater implements DataFetcher {
         }
 
         return isUpdated;
+    }
+
+    /**
+     * Convert old format location string to versioned ref by resolving current version
+     */
+    private InfoSpotLocationRef convertLocationStringToRef(String netexId) {
+        String version = null;
+
+        if (netexId.contains(":Quay:")) {
+            var quay = quayRepository.findFirstByNetexIdOrderByVersionDesc(netexId);
+            if (quay != null) {
+                version = String.valueOf(quay.getVersion());
+            }
+        } else if (netexId.contains(":StopPlace:")) {
+            var stopPlace = stopPlaceRepository.findFirstByNetexIdOrderByVersionDesc(netexId);
+            if (stopPlace != null) {
+                version = String.valueOf(stopPlace.getVersion());
+            }
+        } else if (netexId.contains(":ShelterEquipment:")) {
+            var equipment = shelterEquipmentRepository.findFirstByNetexIdOrderByVersionDesc(netexId);
+            if (equipment != null) {
+                version = String.valueOf(equipment.getVersion());
+            }
+        }
+
+        return new InfoSpotLocationRef(netexId, version);
     }
 
     private InfoSpotPoster createPoster(Map input, List<InfoSpotPoster> existingPosters) {
