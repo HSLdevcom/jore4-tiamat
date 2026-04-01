@@ -29,6 +29,7 @@ import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.INPUT_TYPE_INFO_SP
 import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.INPUT_TYPE_POSTER;
 import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.LABEL;
 import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.LINES;
+import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.LOCATION_REFS;
 import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.MAINTENANCE;
 import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.OUTPUT_TYPE_INFO_SPOT;
 import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.OUTPUT_TYPE_POSTER;
@@ -36,6 +37,7 @@ import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.POSTER_PLACE_SIZE;
 import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.POSTER_SIZE;
 import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.PURPOSE;
 import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.RAIL_INFORMATION;
+import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.REF;
 import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.SPEECH_PROPERTY;
 import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.VALID_BETWEEN;
 import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.VERSION;
@@ -99,6 +101,21 @@ public class InfoSpotObjectTypeCreator {
                             .type(GraphQLString))
                     .build();
 
+    // LocationRef output type for versioned location references
+    public static GraphQLObjectType locationRefObjectType =
+            newObject()
+                    .name("LocationRef")
+                    .description("Version-aware reference to a location (read-only)")
+                    .field(newFieldDefinition()
+                            .name(REF)
+                            .type(GraphQLString)
+                            .description("NetEx ID of the referenced location"))
+                    .field(newFieldDefinition()
+                            .name(VERSION)
+                            .type(GraphQLString)
+                            .description("Version of the referenced location"))
+                    .build();
+
     public GraphQLObjectType createObjectType(GraphQLObjectType validBetweenObjectType) {
         return newObject()
                 .name(OUTPUT_TYPE_INFO_SPOT)
@@ -154,7 +171,12 @@ public class InfoSpotObjectTypeCreator {
                         .type(displayTypeEnum))
                 .field(newFieldDefinition()
                         .name(INFO_SPOT_LOCATIONS)
+                        .description("List of location NetEx IDs (simple string format)")
                         .type(new GraphQLList(GraphQLString)))
+                .field(newFieldDefinition()
+                        .name(LOCATION_REFS)
+                        .description("Version-aware references to locations showing which version was referenced")
+                        .type(new GraphQLList(locationRefObjectType)))
                 .field(newFieldDefinition()
                         .name(GEOMETRY)
                         .type(geoJsonObjectType))
@@ -214,6 +236,7 @@ public class InfoSpotObjectTypeCreator {
                         .type(displayTypeEnum))
                 .field(newInputObjectField()
                         .name(INFO_SPOT_LOCATIONS)
+                        .description("List of location NetEx IDs - backend auto-resolves to current version")
                         .type(new GraphQLList(GraphQLString)))
                 .field(newInputObjectField()
                         .name(GEOMETRY)
