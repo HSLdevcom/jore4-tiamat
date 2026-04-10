@@ -3,15 +3,16 @@ package org.rutebanken.tiamat.rest.graphql.fetchers;
 import com.google.api.client.util.Preconditions;
 import graphql.schema.DataFetcher;
 import graphql.schema.DataFetchingEnvironment;
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.rutebanken.helper.organisation.ReflectionAuthorizationService;
+import org.rutebanken.tiamat.auth.UsernameFetcher;
 import org.rutebanken.tiamat.model.DisplayTypeEnumeration;
 import org.rutebanken.tiamat.model.InfoSpot;
 import org.rutebanken.tiamat.model.InfoSpotPoster;
@@ -19,6 +20,8 @@ import org.rutebanken.tiamat.model.InfoSpotPosterRef;
 import org.rutebanken.tiamat.model.InfoSpotLocationRef;
 import org.rutebanken.tiamat.model.InfoSpotTypeEnumeration;
 import org.rutebanken.tiamat.model.PosterSizeEnumeration;
+import org.rutebanken.tiamat.model.Quay;
+import org.rutebanken.tiamat.model.StopPlace;
 import org.rutebanken.tiamat.repository.InfoSpotPosterRepository;
 import org.rutebanken.tiamat.repository.InfoSpotRepository;
 import org.rutebanken.tiamat.repository.QuayRepository;
@@ -29,6 +32,7 @@ import org.rutebanken.tiamat.versioning.VersionCreator;
 import org.rutebanken.tiamat.versioning.VersionIncrementor;
 import org.rutebanken.tiamat.versioning.save.InfoSpotPosterVersionedSaverService;
 import org.rutebanken.tiamat.versioning.save.InfoSpotVersionedSaverService;
+import org.rutebanken.tiamat.versioning.save.StopPlaceVersionedSaverService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -98,6 +102,12 @@ public class InfoSpotsUpdater implements DataFetcher {
     @Autowired
     private GeometryMapper geometryMapper;
 
+    @Autowired
+    private StopPlaceVersionedSaverService stopPlaceVersionedSaverService;
+
+    @Autowired
+    private UsernameFetcher usernameFetcher;
+
     @Override
     public Object get(DataFetchingEnvironment environment) throws Exception {
         List<Map> input = environment.getArgument(OUTPUT_TYPE_INFO_SPOT);
@@ -133,6 +143,8 @@ public class InfoSpotsUpdater implements DataFetcher {
 
             logger.info("Saving new version of InfoSpot {}", updatedInfoSpot);
             updatedInfoSpot = infoSpotVersionedSaverService.saveNewVersion(updatedInfoSpot);
+
+            incrementVersionForLinkedEntities(updatedInfoSpot);
 
             return updatedInfoSpot;
         } else {
@@ -354,5 +366,149 @@ public class InfoSpotsUpdater implements DataFetcher {
         }
 
         return isUpdated;
+    }
+
+    /**
+     * Increment version for linked entities when InfoSpot is updated.
+     */
+    private void incrementVersionForLinkedEntities(InfoSpot savedInfoSpot) {
+        if (savedInfoSpot.getLocationRefs() == null || savedInfoSpot.getLocationRefs().isEmpty()) {
+            return;
+        }
+
+        logger.info("Incrementing versions for locations linked to InfoSpot {}", savedInfoSpot.getNetexId());
+
+        try {
+            savedInfoSpot.getLocationRefs().stream()
+                .map(InfoSpotLocationRef::getRef)
+                .filter(netexId -> netexId.contains(":Quay:") || netexId.contains(":StopPlace:"))
+                .findFirst()
+                .ifPresent(this::versionLinkedLocation);
+        } catch (Exception e) {
+            logger.error("Failed to version linked entities for InfoSpot {}: {}",
+                savedInfoSpot.getNetexId(), e.getMessage(), e);
+        }
+    }
+
+    /**
+     * Version the linked StopPlace for a given location reference.
+     */
+    private void versionLinkedLocation(String netexId) {
+        if (netexId.contains(":Quay:")) {
+            versionStopPlaceFromQuayReference(netexId);
+        } else {
+            StopPlace stopPlace = stopPlaceRepository.findFirstByNetexIdOrderByVersionDesc(netexId);
+            if (stopPlace == null) {
+                throw new IllegalStateException("Could not find StopPlace " + netexId);
+            }
+            versionStopPlace(stopPlace, null);
+        }
+    }
+
+    /**
+     * Version the parent StopPlace for a Quay reference.
+     * @throws IllegalStateException if the Quay or its parent StopPlace cannot be found
+     */
+    private void versionStopPlaceFromQuayReference(String quayNetexId) {
+        Quay quay = quayRepository.findFirstByNetexIdOrderByVersionDesc(quayNetexId);
+        if (quay == null) {
+            throw new IllegalStateException("Could not find Quay " + quayNetexId);
+        }
+
+        StopPlace parent = stopPlaceRepository.findByQuay(quay);
+        if (parent == null) {
+            throw new IllegalStateException("Could not find parent StopPlace for Quay " + quayNetexId);
+        }
+
+        StopPlace topLevel = getTopLevelStopPlace(parent);
+        versionStopPlace(topLevel, quayNetexId);
+    }
+
+    /**
+     * Create and save a new version of the StopPlace.
+     */
+    private void versionStopPlace(StopPlace stopPlace, String modifiedQuayNetexId) {
+        logger.info("Incrementing version for StopPlace {}", stopPlace.getNetexId());
+
+        StopPlace newVersion = versionCreator.createCopy(stopPlace, StopPlace.class);
+
+        if (modifiedQuayNetexId != null) {
+            markQuayAsModified(newVersion, modifiedQuayNetexId);
+        }
+
+        stopPlaceVersionedSaverService.saveNewVersion(stopPlace, newVersion);
+    }
+
+    /**
+     * Mark a quay as modified in the given StopPlace or its children.
+     */
+    private void markQuayAsModified(StopPlace stopPlace, String quayNetexId) {
+        Instant now = Instant.now();
+        String changedBy = usernameFetcher.getUserNameForAuthenticatedUser();
+
+        // Try direct quays first
+        Quay foundQuay = findQuayInStopPlace(stopPlace, quayNetexId);
+
+        // If not found, try children's quays (for terminal/parent stop places)
+        if (foundQuay == null && stopPlace.getChildren() != null) {
+            for (StopPlace child : stopPlace.getChildren()) {
+                foundQuay = findQuayInStopPlace(child, quayNetexId);
+                if (foundQuay != null) {
+                    break;
+                }
+            }
+        }
+
+        if (foundQuay != null) {
+            foundQuay.setChanged(now);
+            foundQuay.setChangedBy(changedBy);
+        }
+    }
+
+    /**
+     * Find a quay by netexId in the given StopPlace's direct quays.
+     */
+    private Quay findQuayInStopPlace(StopPlace stopPlace, String quayNetexId) {
+        if (stopPlace.getQuays() == null) {
+            return null;
+        }
+
+        return stopPlace.getQuays().stream()
+            .filter(q -> quayNetexId.equals(q.getNetexId()))
+            .findFirst()
+            .orElse(null);
+    }
+
+    /**
+     * Get the top-level StopPlace. If the given StopPlace is a child of a parent/terminal,
+     * returns the parent. Otherwise returns the StopPlace itself.
+     * @throws IllegalStateException if parent reference is invalid or parent is not found
+     */
+    private StopPlace getTopLevelStopPlace(StopPlace stopPlace) {
+        if (stopPlace.getParentSiteRef() == null) {
+            return stopPlace;
+        }
+
+        String parentRef = stopPlace.getParentSiteRef().getRef();
+        String parentVersion = stopPlace.getParentSiteRef().getVersion();
+
+        if (parentVersion == null) {
+            throw new IllegalStateException("StopPlace " + stopPlace.getNetexId() +
+                " has parent reference with null version");
+        }
+
+        StopPlace parent = stopPlaceRepository.findFirstByNetexIdAndVersion(
+            parentRef,
+            Long.parseLong(parentVersion)
+        );
+
+        if (parent != null) {
+            logger.debug("StopPlace {} is a child of parent {}, will version parent instead", 
+                stopPlace.getNetexId(), parent.getNetexId());
+            return parent;
+        }
+
+        throw new IllegalStateException("StopPlace " + stopPlace.getNetexId() +
+            " has parent reference but parent not found: " + parentRef);
     }
 }
