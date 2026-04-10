@@ -18,6 +18,7 @@ import org.rutebanken.tiamat.model.SiteRefStructure;
 import org.rutebanken.tiamat.model.StopPlace;
 import org.rutebanken.tiamat.model.ValidBetween;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.hasSize;
@@ -800,6 +801,167 @@ public class GraphQLResourceInfoSpotIntegrationTest extends AbstractGraphQLResou
                 .body("width", equalTo(updatedPoster.getWidth()))
                 .body("height", equalTo(updatedPoster.getHeight()))
                 .body("lines", equalTo(newLines));
+    }
+
+    @Test
+    public void updateInfoSpotInTerminal_versionsTerminalOnly() {
+        StopPlace terminal = new StopPlace();
+        terminal.setParentStopPlace(true);
+        terminal.setCentroid(geometryFactory.createPoint(new Coordinate(10, 60)));
+        terminal.setName(new EmbeddableMultilingualString("Terminal"));
+        terminal = stopPlaceRepository.save(terminal);
+
+        StopPlace childStop = new StopPlace();
+        childStop.setCentroid(geometryFactory.createPoint(new Coordinate(10, 60)));
+        childStop.setName(new EmbeddableMultilingualString("Child Stop"));
+        childStop.setParentSiteRef(new SiteRefStructure(terminal.getNetexId(), String.valueOf(terminal.getVersion())));
+
+        Quay quay = new Quay();
+        quay.setName(new EmbeddableMultilingualString("Quay 1"));
+        childStop.setQuays(Set.of(quay));
+        childStop = stopPlaceRepository.save(childStop);
+
+        InfoSpot infoSpot = new InfoSpot();
+        infoSpot.setLabel("TerminalInfo");
+        infoSpot.setInfoSpotLocations(Set.of(terminal.getNetexId()));
+        infoSpot = infoSpotRepository.save(infoSpot);
+
+        long initialTerminalVersion = terminal.getVersion();
+
+        String mutation = """
+            mutation {
+                infoSpot: mutateInfoSpots(
+                    infoSpot: {
+                        id: "%s"
+                        label: "UpdatedTerminalInfo"
+                    }
+                ) {
+                    id
+                    label
+                }
+            }
+            """.formatted(infoSpot.getNetexId());
+
+        executeGraphqQLQueryOnly(mutation)
+            .body("data.infoSpot[0].label", equalTo("UpdatedTerminalInfo"));
+
+        // Verify terminal version incremented
+        StopPlace updatedTerminal = stopPlaceRepository.findFirstByNetexIdOrderByVersionDesc(terminal.getNetexId());
+        assertThat(updatedTerminal.getVersion(), equalTo(initialTerminalVersion + 1));
+    }
+
+    @Test
+    public void updateInfoSpotInQuay_versionsStopPlaceAndQuay() {
+        StopPlace stopPlace = new StopPlace();
+        stopPlace.setCentroid(geometryFactory.createPoint(new Coordinate(10, 60)));
+        stopPlace.setName(new EmbeddableMultilingualString("Stop Place"));
+
+        Quay quay = new Quay();
+        quay.setName(new EmbeddableMultilingualString("Quay 1"));
+        stopPlace.setQuays(Set.of(quay));
+        stopPlace = stopPlaceRepository.save(stopPlace);
+
+        Quay savedQuay = stopPlace.getQuays().iterator().next();
+        String quayNetexId = savedQuay.getNetexId();
+
+        InfoSpot infoSpot = new InfoSpot();
+        infoSpot.setLabel("QuayInfo");
+        infoSpot.setInfoSpotLocations(Set.of(quayNetexId));
+        infoSpot = infoSpotRepository.save(infoSpot);
+
+        long initialStopPlaceVersion = stopPlace.getVersion();
+        long initialQuayVersion = savedQuay.getVersion();
+
+        // Update info spot
+        String mutation = """
+            mutation {
+                infoSpot: mutateInfoSpots(
+                    infoSpot: {
+                        id: "%s"
+                        label: "UpdatedQuayInfo"
+                    }
+                ) {
+                    id
+                    label
+                }
+            }
+            """.formatted(infoSpot.getNetexId());
+
+        executeGraphqQLQueryOnly(mutation)
+            .body("data.infoSpot[0].label", equalTo("UpdatedQuayInfo"));
+
+        // Verify stop place version incremented
+        StopPlace updatedStopPlace = stopPlaceRepository.findFirstByNetexIdOrderByVersionDesc(stopPlace.getNetexId());
+        assertThat(updatedStopPlace.getVersion(), equalTo(initialStopPlaceVersion + 1));
+
+        // Verify quay version incremented
+        Quay updatedQuay = quayRepository.findFirstByNetexIdOrderByVersionDesc(quayNetexId);
+        assertThat(updatedQuay.getVersion(), equalTo(initialQuayVersion + 1));
+    }
+
+    @Test
+    public void updateInfoSpotInQuay_versionsParentTerminal() {
+        StopPlace childStop = new StopPlace();
+        childStop.setCentroid(geometryFactory.createPoint(new Coordinate(10, 60)));
+        childStop.setName(new EmbeddableMultilingualString("Child Stop"));
+        childStop.setValidBetween(new ValidBetween(Instant.now()));
+
+        Quay quay = new Quay();
+        quay.setName(new EmbeddableMultilingualString("Quay 1"));
+        childStop.setQuays(Set.of(quay));
+
+        StopPlace terminal = new StopPlace();
+        terminal.setParentStopPlace(true);
+        terminal.setCentroid(geometryFactory.createPoint(new Coordinate(10, 60)));
+        terminal.setName(new EmbeddableMultilingualString("Terminal"));
+        terminal.setValidBetween(new ValidBetween(Instant.now()));
+        terminal.setChildren(Set.of(childStop));
+        stopPlaceVersionedSaverService.saveNewVersion(terminal);
+
+        String terminalNetexId = terminal.getNetexId();
+        long initialTerminalVersion = terminal.getVersion();
+
+        String childStopNetexId = childStop.getNetexId();
+        long initialChildVersion = childStop.getVersion();
+
+        String quayNetexId = quay.getNetexId();
+        long initialQuayVersion = quay.getVersion();
+
+        // Create info spot linked to quay
+        InfoSpot infoSpot = new InfoSpot();
+        infoSpot.setLabel("QuayInfo");
+        infoSpot.setInfoSpotLocations(Set.of(quayNetexId));
+        infoSpot = infoSpotRepository.save(infoSpot);
+
+        // Update info spot
+        String mutation = """
+            mutation {
+                infoSpot: mutateInfoSpots(
+                    infoSpot: {
+                        id: "%s"
+                        label: "UpdatedQuayInfo"
+                    }
+                ) {
+                    id
+                    label
+                }
+            }
+            """.formatted(infoSpot.getNetexId());
+
+        executeGraphqQLQueryOnly(mutation)
+            .body("data.infoSpot[0].label", equalTo("UpdatedQuayInfo"));
+
+        // Verify terminal version incremented 
+        StopPlace updatedTerminal = stopPlaceRepository.findFirstByNetexIdOrderByVersionDesc(terminalNetexId);
+        assertThat(updatedTerminal.getVersion(), equalTo(initialTerminalVersion + 1));
+
+        // Verify child stop place version incremented
+        StopPlace updatedChild = stopPlaceRepository.findFirstByNetexIdOrderByVersionDesc(childStopNetexId);
+        assertThat(updatedChild.getVersion(), equalTo(initialChildVersion + 1));
+
+        // Verify quay version incremented
+        Quay updatedQuay = quayRepository.findFirstByNetexIdOrderByVersionDesc(quayNetexId);
+        assertThat(updatedQuay.getVersion(), equalTo(initialQuayVersion + 1));
     }
 
     private void insertInfoSpots() {
