@@ -39,4 +39,39 @@ public class InfoSpotRepositoryImpl implements InfoSpotRepositoryCustom {
                 .setParameter("netexId", netexId)
                 .getResultList();
     }
+
+    @Override
+    public List<InfoSpot> findForAssociationWithVersion(String netexId, Long version) {
+        // Use version-based deletion tracking. When an InfoSpot is deleted, a new version
+        // is created with empty locationRefs and deletion tracking fields set.
+        // We find the latest version WITH refs, then check if a newer version exists
+        // that marks it as deleted for this entity at this version or earlier.
+        String sql = """
+            SELECT DISTINCT infoSpot.* 
+            FROM info_spot infoSpot
+            INNER JOIN info_spot_location isl ON isl.info_spot_id = infoSpot.id
+            WHERE isl.location_netex_id = :netexId
+              AND (isl.version IS NULL OR CAST(isl.version AS INTEGER) <= :version)
+              AND infoSpot.version = (
+                  SELECT MAX(spotv.version)
+                  FROM info_spot spotv
+                  INNER JOIN info_spot_location islv ON islv.info_spot_id = spotv.id
+                  WHERE spotv.netex_id = infoSpot.netex_id
+                    AND islv.location_netex_id = :netexId
+                    AND (islv.version IS NULL OR CAST(islv.version AS INTEGER) <= :version)
+              )
+              AND NOT EXISTS (
+                  SELECT 1 FROM info_spot deleted
+                  WHERE deleted.netex_id = infoSpot.netex_id
+                    AND deleted.version > infoSpot.version
+                    AND deleted.deleted_at_entity_ref = :netexId
+                    AND deleted.deleted_at_entity_version <= :version
+              )
+        """;
+
+        return entityManager.createNativeQuery(sql, InfoSpot.class)
+                .setParameter("netexId", netexId)
+                .setParameter("version", version)
+                .getResultList();
+    }
 }

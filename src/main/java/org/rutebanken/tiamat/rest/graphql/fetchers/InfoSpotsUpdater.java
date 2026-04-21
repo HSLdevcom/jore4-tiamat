@@ -139,14 +139,44 @@ public class InfoSpotsUpdater implements DataFetcher {
         if (isUpdated) {
             authorizationService.assertAuthorized(ROLE_EDIT_STOPS, Arrays.asList(existingVersion, updatedInfoSpot));
 
-            versionIncrementor.initiateOrIncrementInfoSpot(updatedInfoSpot);
+            // Check if this is a deletion
+            boolean isDeletion = (updatedInfoSpot.getLocationRefs() == null || updatedInfoSpot.getLocationRefs().isEmpty()) 
+                && existingVersion != null 
+                && existingVersion.getLocationRefs() != null 
+                && !existingVersion.getLocationRefs().isEmpty();
 
-            logger.info("Saving new version of InfoSpot {}", updatedInfoSpot);
-            updatedInfoSpot = infoSpotVersionedSaverService.saveNewVersion(updatedInfoSpot);
+            if (isDeletion) {
+                // For deletion: Version the linked entity first to get the new version number,
+                // then mark the InfoSpot as deleted at that entity version.
+                logger.info("InfoSpot {} is being deleted - versioning linked entity first", netexId);
 
-            incrementVersionForLinkedEntities(updatedInfoSpot);
+                InfoSpotLocationRef entityRef = existingVersion.getLocationRefs().stream()
+                    .filter(ref -> ref.getRef().contains(":Quay:") || ref.getRef().contains(":StopPlace:"))
+                    .findFirst()
+                    .orElse(null);
 
-            return updatedInfoSpot;
+                if (entityRef != null) {
+                    String newVersionNumber = versionLinkedLocation(entityRef.getRef());
+
+                    updatedInfoSpot.setDeletedAtEntityRef(entityRef.getRef());
+                    updatedInfoSpot.setDeletedAtEntityVersion(Long.parseLong(newVersionNumber));
+                    logger.info("Marked InfoSpot {} as deleted at {} version {}", netexId, entityRef.getRef(), newVersionNumber);
+                }
+
+                versionIncrementor.initiateOrIncrementInfoSpot(updatedInfoSpot);
+                updatedInfoSpot = infoSpotVersionedSaverService.saveNewVersion(updatedInfoSpot);
+
+                return updatedInfoSpot;
+            } else {
+                // For create/update: Version linked entities and update refs to new versions
+                versionLinkedEntitiesAndUpdateRefs(updatedInfoSpot);
+                versionIncrementor.initiateOrIncrementInfoSpot(updatedInfoSpot);
+
+                logger.info("Saving new version of InfoSpot {}", updatedInfoSpot);
+                updatedInfoSpot = infoSpotVersionedSaverService.saveNewVersion(updatedInfoSpot);
+
+                return updatedInfoSpot;
+            }
         } else {
             logger.info("No changes - InfoSpot {} NOT updated", netexId);
         }
@@ -155,7 +185,6 @@ public class InfoSpotsUpdater implements DataFetcher {
     }
 
     private boolean populateInfoSpot(Map input, InfoSpot target) {
-
         boolean isUpdated = false;
 
         if (input.containsKey(LABEL)) {
@@ -175,8 +204,17 @@ public class InfoSpotsUpdater implements DataFetcher {
         }
         if (input.containsKey(DESCRIPTION)) {
             var description = (Map) input.get(DESCRIPTION);
-            isUpdated |= !Objects.equals(description, target.getDescription());
-            target.setDescription(getEmbeddableString(description));
+            var newDescription = getEmbeddableString(description);
+            var oldDescription = target.getDescription();
+
+            // Compare the actual text values, not object references to avoid unnecessary versioning
+            String oldValue = oldDescription != null ? oldDescription.getValue() : null;
+            String newValue = newDescription != null ? newDescription.getValue() : null;
+            String oldLang = oldDescription != null ? oldDescription.getLang() : null;
+            String newLang = newDescription != null ? newDescription.getLang() : null;
+
+            isUpdated |= !Objects.equals(oldValue, newValue) || !Objects.equals(oldLang, newLang);
+            target.setDescription(newDescription);
         }
 
         if (input.containsKey(POSTER_PLACE_SIZE)) {
@@ -222,22 +260,37 @@ public class InfoSpotsUpdater implements DataFetcher {
             target.setDisplayType(displayType);
         }
 
-        // Handle location references - auto-resolve to current version
+        // Handle location references
         if (input.containsKey(INFO_SPOT_LOCATIONS)) {
             Set<InfoSpotLocationRef> newLocationRefs = ((List<String>) input.get(INFO_SPOT_LOCATIONS)).stream()
                     .map(this::convertLocationStringToRef)
                     .collect(Collectors.toSet());
 
-            isUpdated |= !Objects.equals(target.getLocationRefs(), newLocationRefs);
+            // Only mark as updated if the entity IDs changed, not just version numbers
+            // (version numbers change when entities are versioned in the same batch)
+            if (target.getLocationRefs() != null && !target.getLocationRefs().isEmpty()) {
+                Set<String> oldEntityIds = target.getLocationRefs().stream()
+                        .map(InfoSpotLocationRef::getRef)
+                        .collect(Collectors.toSet());
+                Set<String> newEntityIds = newLocationRefs.stream()
+                        .map(InfoSpotLocationRef::getRef)
+                        .collect(Collectors.toSet());
+                isUpdated |= !oldEntityIds.equals(newEntityIds);
+            } else {
+                // New InfoSpot or no existing refs - this is an update
+                isUpdated |= !newLocationRefs.isEmpty();
+            }
+
+            // Always update to have current version numbers
             target.setLocationRefs(newLocationRefs);
         }
 
         if (input.containsKey(OUTPUT_TYPE_POSTER)) {
             List<Map> posters = (List<Map>) input.get(OUTPUT_TYPE_POSTER);
-            if (posters != null) {
-                List<InfoSpotPosterRef> posterRefs = target.getPosters();
+            List<InfoSpotPosterRef> oldPosters = target.getPosters();
 
-                List<InfoSpotPoster> existingPosters = posterRefs.stream()
+            if (posters != null) {
+                List<InfoSpotPoster> existingPosters = oldPosters.stream()
                         .map(p -> infoSpotPosterRepository.findFirstByNetexIdOrderByVersionDesc(p.getRef()))
                         .collect(Collectors.toList());
 
@@ -247,17 +300,26 @@ public class InfoSpotsUpdater implements DataFetcher {
                         .collect(Collectors.toList());
 
                 target.setPosters(updatedPosters);
-                isUpdated = true;
-            }
-            else {
+
+                // Check if poster refs OR versions changed
+                // (poster content changes result in new version numbers even if NetEx ID stays the same)
+                Set<String> oldPosterKeys = oldPosters.stream()
+                        .map(p -> p.getRef() + "@" + p.getVersion())
+                        .collect(Collectors.toSet());
+                Set<String> newPosterKeys = updatedPosters.stream()
+                        .map(p -> p.getRef() + "@" + p.getVersion())
+                        .collect(Collectors.toSet());
+                isUpdated |= !oldPosterKeys.equals(newPosterKeys);
+            } else {
+                isUpdated |= !oldPosters.isEmpty();
                 target.setPosters(Collections.emptyList());
             }
         }
         if (input.containsKey(GEOMETRY)) {
-            target.setCentroid(geometryMapper.createGeoJsonPoint((Map) input.get(GEOMETRY)));
-            isUpdated = true;
+            org.locationtech.jts.geom.Point newGeometry = geometryMapper.createGeoJsonPoint((Map) input.get(GEOMETRY));
+            isUpdated |= !Objects.equals(target.getCentroid(), newGeometry);
+            target.setCentroid(newGeometry);
         }
-
 
         return isUpdated;
     }
@@ -369,47 +431,71 @@ public class InfoSpotsUpdater implements DataFetcher {
     }
 
     /**
-     * Increment version for linked entities when InfoSpot is updated.
+     * Version linked entities before saving InfoSpot, and update locationRefs to point to new versions.
      */
-    private void incrementVersionForLinkedEntities(InfoSpot savedInfoSpot) {
-        if (savedInfoSpot.getLocationRefs() == null || savedInfoSpot.getLocationRefs().isEmpty()) {
+    private void versionLinkedEntitiesAndUpdateRefs(InfoSpot infoSpot) {
+        if (infoSpot.getLocationRefs() == null || infoSpot.getLocationRefs().isEmpty()) {
             return;
         }
 
-        logger.info("Incrementing versions for locations linked to InfoSpot {}", savedInfoSpot.getNetexId());
+        logger.info("Versioning linked entities for InfoSpot before saving");
 
         try {
-            savedInfoSpot.getLocationRefs().stream()
-                .map(InfoSpotLocationRef::getRef)
-                .filter(netexId -> netexId.contains(":Quay:") || netexId.contains(":StopPlace:"))
+            InfoSpotLocationRef refToVersion = infoSpot.getLocationRefs().stream()
+                .filter(ref -> ref.getRef().contains(":Quay:") || ref.getRef().contains(":StopPlace:"))
                 .findFirst()
-                .ifPresent(this::versionLinkedLocation);
+                .orElse(null);
+
+            if (refToVersion == null) {
+                return;
+            }
+
+            String newVersionNumber = versionLinkedLocation(refToVersion.getRef());
+
+            Set<InfoSpotLocationRef> updatedRefs = infoSpot.getLocationRefs().stream()
+                .map(ref -> updateLocationRefToNewVersion(ref, newVersionNumber))
+                .collect(Collectors.toSet());
+
+            infoSpot.setLocationRefs(updatedRefs);
+
         } catch (Exception e) {
-            logger.error("Failed to version linked entities for InfoSpot {}: {}",
-                savedInfoSpot.getNetexId(), e.getMessage(), e);
+            logger.warn("Could not version linked entities for InfoSpot, continuing without versioning: {}", e.getMessage());
         }
     }
 
     /**
-     * Version the linked StopPlace for a given location reference.
+     * Update a locationRef to point to the new version of the entity.
      */
-    private void versionLinkedLocation(String netexId) {
+    private InfoSpotLocationRef updateLocationRefToNewVersion(InfoSpotLocationRef ref, String newVersion) {
+        if (ref.getRef().contains(":Quay:") || ref.getRef().contains(":StopPlace:")) {
+            return new InfoSpotLocationRef(ref.getRef(), newVersion);
+        }
+        // Keep other refs (like ShelterEquipment) unchanged
+        return ref;
+    }
+
+    /**
+     * Version the linked StopPlace for a given location reference.
+     * Returns the new version number as a String.
+     */
+    private String versionLinkedLocation(String netexId) {
         if (netexId.contains(":Quay:")) {
-            versionStopPlaceFromQuayReference(netexId);
+            return versionStopPlaceFromQuayReference(netexId);
         } else {
             StopPlace stopPlace = stopPlaceRepository.findFirstByNetexIdOrderByVersionDesc(netexId);
             if (stopPlace == null) {
                 throw new IllegalStateException("Could not find StopPlace " + netexId);
             }
-            versionStopPlace(stopPlace, null);
+            return versionStopPlace(stopPlace, null);
         }
     }
 
     /**
      * Version the parent StopPlace for a Quay reference.
+     * Returns the new version number of the Quay as a String.
      * @throws IllegalStateException if the Quay or its parent StopPlace cannot be found
      */
-    private void versionStopPlaceFromQuayReference(String quayNetexId) {
+    private String versionStopPlaceFromQuayReference(String quayNetexId) {
         Quay quay = quayRepository.findFirstByNetexIdOrderByVersionDesc(quayNetexId);
         if (quay == null) {
             throw new IllegalStateException("Could not find Quay " + quayNetexId);
@@ -422,12 +508,17 @@ public class InfoSpotsUpdater implements DataFetcher {
 
         StopPlace topLevel = getTopLevelStopPlace(parent);
         versionStopPlace(topLevel, quayNetexId);
+
+        // Fetch the new version of the quay after versioning
+        Quay newQuayVersion = quayRepository.findFirstByNetexIdOrderByVersionDesc(quayNetexId);
+        return String.valueOf(newQuayVersion.getVersion());
     }
 
     /**
      * Create and save a new version of the StopPlace.
+     * Returns the new version number as a String.
      */
-    private void versionStopPlace(StopPlace stopPlace, String modifiedQuayNetexId) {
+    private String versionStopPlace(StopPlace stopPlace, String modifiedQuayNetexId) {
         logger.info("Incrementing version for StopPlace {}", stopPlace.getNetexId());
 
         StopPlace newVersion = versionCreator.createCopy(stopPlace, StopPlace.class);
@@ -436,7 +527,8 @@ public class InfoSpotsUpdater implements DataFetcher {
             markQuayAsModified(newVersion, modifiedQuayNetexId);
         }
 
-        stopPlaceVersionedSaverService.saveNewVersion(stopPlace, newVersion);
+        StopPlace savedVersion = stopPlaceVersionedSaverService.saveNewVersion(stopPlace, newVersion);
+        return String.valueOf(savedVersion.getVersion());
     }
 
     /**

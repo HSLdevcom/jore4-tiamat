@@ -37,6 +37,15 @@ public class InfoSpot_VersionStructure extends Zone_VersionStructure {
     @Enumerated(EnumType.STRING)
     private DisplayTypeEnumeration displayType;
 
+    /**
+     * Tracks which entity this InfoSpot was deleted from and at which version.
+     * When an InfoSpot is deleted, these fields record the entity reference (e.g., "HSL:Quay:5463")
+     * and the version number of that entity when deletion occurred (e.g., 6).
+     * This allows version-aware queries to hide the InfoSpot from versions >= deletedAtEntityVersion.
+     */
+    private String deletedAtEntityRef;
+    private Long deletedAtEntityVersion;
+
     // Version-aware location references
     @ElementCollection(targetClass = InfoSpotLocationRef.class, fetch = FetchType.EAGER)
     @CollectionTable(
@@ -148,6 +157,22 @@ public class InfoSpot_VersionStructure extends Zone_VersionStructure {
 
     public void setDisplayType(DisplayTypeEnumeration displayType) {
         this.displayType = displayType;
+    }
+
+    public String getDeletedAtEntityRef() {
+        return deletedAtEntityRef;
+    }
+
+    public void setDeletedAtEntityRef(String deletedAtEntityRef) {
+        this.deletedAtEntityRef = deletedAtEntityRef;
+    }
+
+    public Long getDeletedAtEntityVersion() {
+        return deletedAtEntityVersion;
+    }
+
+    public void setDeletedAtEntityVersion(Long deletedAtEntityVersion) {
+        this.deletedAtEntityVersion = deletedAtEntityVersion;
     }
 
     /**
