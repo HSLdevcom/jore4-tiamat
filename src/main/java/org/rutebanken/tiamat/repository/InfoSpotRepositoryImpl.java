@@ -39,4 +39,21 @@ public class InfoSpotRepositoryImpl implements InfoSpotRepositoryCustom {
                 .setParameter("netexId", netexId)
                 .getResultList();
     }
+
+    @Override
+    public List<InfoSpot> findForAssociationWithVersion(String netexId, Long version) {
+        String sql = """
+            SELECT DISTINCT ip.*
+            FROM info_spot ip
+            INNER JOIN info_spot_location isl ON
+                ip.id = isl.info_spot_id AND
+                isl.location_netex_id = :netexId AND
+                (isl.version = CAST(:version AS VARCHAR) OR isl.version IS NULL)
+        """;
+
+        return entityManager.createNativeQuery(sql, InfoSpot.class)
+                .setParameter("netexId", netexId)
+                .setParameter("version", version)
+                .getResultList();
+    }
 }
