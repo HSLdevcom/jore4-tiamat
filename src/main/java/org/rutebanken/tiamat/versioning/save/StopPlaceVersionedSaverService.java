@@ -29,6 +29,7 @@ import org.rutebanken.tiamat.model.StopPlace;
 import org.rutebanken.tiamat.model.TariffZoneRef;
 import org.rutebanken.tiamat.repository.StopPlaceRepository;
 import org.rutebanken.tiamat.repository.reference.ReferenceResolver;
+import org.rutebanken.tiamat.service.InfoSpotLinkageMaintainer;
 import org.rutebanken.tiamat.service.TariffZonesLookupService;
 import org.rutebanken.tiamat.service.TopographicPlaceLookupService;
 import org.rutebanken.tiamat.service.metrics.PrometheusMetricsService;
@@ -134,6 +135,9 @@ public class StopPlaceVersionedSaverService {
     @Autowired
     private PrometheusMetricsService prometheusMetricsService;
 
+    @Autowired
+    private InfoSpotLinkageMaintainer infoSpotLinkageMaintainer;
+
     public StopPlaceVersionedSaverService() {
         this.quayDiffConfig = org.rutebanken.tiamat.diff.generic.GenericDiffConfig.builder()
             .identifiers(Sets.newHashSet("netexId", "ref"))
@@ -163,7 +167,19 @@ public class StopPlaceVersionedSaverService {
         return saveNewVersion(null, newVersion);
     }
     
+    /**
+     * Save a new version of a StopPlace, optionally excluding a specific InfoSpot from being copied.
+     * This is used when updating/deleting an InfoSpot - the old version should not be copied to the new entity version.
+     */
+    public StopPlace saveNewVersion(StopPlace existingVersion, StopPlace newVersion, String excludeInfoSpotNetexId) {
+        return saveNewVersion(existingVersion, newVersion, Instant.now(), new HashSet<>(), excludeInfoSpotNetexId);
+    }
+
     public StopPlace saveNewVersion(StopPlace existingVersion, StopPlace newVersion, Instant defaultValidFrom, Set<String> childStopsUpdated) {
+        return saveNewVersion(existingVersion, newVersion, defaultValidFrom, childStopsUpdated, null);
+    }
+
+    public StopPlace saveNewVersion(StopPlace existingVersion, StopPlace newVersion, Instant defaultValidFrom, Set<String> childStopsUpdated, String excludeInfoSpotNetexId) {
 
         versionValidator.validate(existingVersion, newVersion);
 
@@ -276,6 +292,26 @@ public class StopPlaceVersionedSaverService {
         }
         newVersion = stopPlaceRepository.save(newVersion);
         logger.debug("Saved stop place with id: {} and childs {}", newVersion.getId(), newVersion.getChildren().stream().map(ch -> ch.getId()).collect(toList()));
+
+        // Copy InfoSpot linkages from old version to new version (with optional exclusion)
+        if (existingVersion != null) {
+            infoSpotLinkageMaintainer.maintainInfoSpotLinkagesExcluding(existingVersion, newVersion, excludeInfoSpotNetexId);
+        }
+
+        if (newVersion.getChildren() != null) {
+            newVersion.getChildren().forEach(child -> {
+                StopPlace previousChildVersion = stopPlaceRepository.findFirstByNetexIdAndVersion(
+                    child.getNetexId(),
+                    child.getVersion() - 1
+                );
+                if (previousChildVersion != null) {
+                    logger.debug("Maintaining InfoSpot linkages for child {} from version {} to version {}",
+                        child.getNetexId(), previousChildVersion.getVersion(), child.getVersion());
+                    infoSpotLinkageMaintainer.maintainInfoSpotLinkagesExcluding(
+                        previousChildVersion, child, excludeInfoSpotNetexId);
+                }
+            });
+        }
 
         updateParentSiteRefsForChildren(newVersion);
 
