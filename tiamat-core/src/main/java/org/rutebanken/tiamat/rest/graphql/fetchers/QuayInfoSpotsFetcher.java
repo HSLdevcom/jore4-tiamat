@@ -23,8 +23,9 @@ public class QuayInfoSpotsFetcher implements DataFetcher<List<InfoSpot>> {
 
         Quay quay = environment.getSource();
 
-        logger.info("Fetching info spots for quay {}", quay.getNetexId());
+        logger.info("Fetching info spots for quay {} version {}", quay.getNetexId(), quay.getVersion());
 
-        return infoSpotRepository.findForAssociation(quay.getNetexId());
+        // Use version-aware filtering to only return InfoSpots linked to this specific version
+        return infoSpotRepository.findForAssociationWithVersion(quay.getNetexId(), quay.getVersion());
     }
 }

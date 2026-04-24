@@ -24,8 +24,9 @@ public class StopPlaceInfoSpotsFetcher implements DataFetcher<List<InfoSpot>> {
 
         StopPlace stopPlace = environment.getSource();
 
-        logger.info("Fetching info spots for stop place {}", stopPlace.getNetexId());
+        logger.info("Fetching info spots for stop place {} version {}", stopPlace.getNetexId(), stopPlace.getVersion());
 
-        return infoSpotRepository.findForAssociation(stopPlace.getNetexId());
+        // Use version-aware filtering to only return InfoSpots linked to this specific version
+        return infoSpotRepository.findForAssociationWithVersion(stopPlace.getNetexId(), stopPlace.getVersion());
     }
 }
