@@ -916,8 +916,15 @@ public class GraphQLResourceInfoSpotIntegrationTest extends AbstractGraphQLResou
             }
             """.formatted(infoSpot.getNetexId());
 
-        executeGraphqQLQueryOnly(mutation)
-            .body("data.infoSpot[0].label", equalTo("UpdatedQuayInfo"));
+        var previousRequestSpecification = io.restassured.RestAssured.requestSpecification;
+        io.restassured.RestAssured.requestSpecification = io.restassured.RestAssured.given()
+                .header("X-Hasura-User-Id", "info-spot-editor");
+        try {
+            executeGraphqQLQueryOnly(mutation)
+                .body("data.infoSpot[0].label", equalTo("UpdatedQuayInfo"));
+        } finally {
+            io.restassured.RestAssured.requestSpecification = previousRequestSpecification;
+        }
 
         // Verify stop place version incremented
         StopPlace updatedStopPlace = stopPlaceRepository.findFirstByNetexIdOrderByVersionDesc(stopPlace.getNetexId());
@@ -926,6 +933,7 @@ public class GraphQLResourceInfoSpotIntegrationTest extends AbstractGraphQLResou
         // Verify quay version incremented
         Quay updatedQuay = quayRepository.findFirstByNetexIdOrderByVersionDesc(quayNetexId);
         assertThat(updatedQuay.getVersion(), equalTo(initialQuayVersion + 1));
+        assertThat(updatedQuay.getChangedBy(), equalTo("info-spot-editor"));
     }
 
     @Test
