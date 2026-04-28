@@ -142,9 +142,9 @@ public class InfoSpotsUpdater implements DataFetcher {
             authorizationService.assertAuthorized(ROLE_EDIT_STOPS, Arrays.asList(existingVersion, updatedInfoSpot));
 
             // Check if this is a deletion
-            boolean isDeletion = (updatedInfoSpot.getLocationRefs() == null || updatedInfoSpot.getLocationRefs().isEmpty()) 
-                && existingVersion != null 
-                && existingVersion.getLocationRefs() != null 
+            boolean isDeletion = (updatedInfoSpot.getLocationRefs() == null || updatedInfoSpot.getLocationRefs().isEmpty())
+                && existingVersion != null
+                && existingVersion.getLocationRefs() != null
                 && !existingVersion.getLocationRefs().isEmpty();
 
             if (isDeletion) {
@@ -212,17 +212,10 @@ public class InfoSpotsUpdater implements DataFetcher {
             target.setPurpose(purpose);
         }
         if (input.containsKey(DESCRIPTION)) {
-            var description = (Map) input.get(DESCRIPTION);
-            var newDescription = getEmbeddableString(description);
+            var newDescription = getEmbeddableString((Map) input.get(DESCRIPTION));
             var oldDescription = target.getDescription();
 
-            // Compare the actual text values, not object references to avoid unnecessary versioning
-            String oldValue = oldDescription != null ? oldDescription.getValue() : null;
-            String newValue = newDescription != null ? newDescription.getValue() : null;
-            String oldLang = oldDescription != null ? oldDescription.getLang() : null;
-            String newLang = newDescription != null ? newDescription.getLang() : null;
-
-            isUpdated |= !Objects.equals(oldValue, newValue) || !Objects.equals(oldLang, newLang);
+            isUpdated |= !Objects.equals(oldDescription, newDescription);
             target.setDescription(newDescription);
         }
 
@@ -625,7 +618,7 @@ public class InfoSpotsUpdater implements DataFetcher {
         );
 
         if (parent != null) {
-            logger.debug("StopPlace {} is a child of parent {}, will version parent instead", 
+            logger.debug("StopPlace {} is a child of parent {}, will version parent instead",
                 stopPlace.getNetexId(), parent.getNetexId());
             return parent;
         }
