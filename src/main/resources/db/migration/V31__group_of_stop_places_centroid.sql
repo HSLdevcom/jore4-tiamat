@@ -1,2 +1,2 @@
 
-ALTER TABLE group_of_stop_places ADD COLUMN centroid geometry;
+ALTER TABLE group_of_stop_places ADD COLUMN centroid public.geometry;
