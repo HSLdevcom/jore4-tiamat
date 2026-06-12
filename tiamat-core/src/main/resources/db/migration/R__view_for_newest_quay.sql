@@ -1,15 +1,7 @@
 DROP VIEW IF EXISTS quay_newest_version;
 DROP VIEW IF EXISTS quay_alt_name_by_type;
+--- Was needed previously, now handled by jore_quay_extensions.
 DROP VIEW IF EXISTS quay_max_version;
-
-
---- Separate max version selection to its own helper view
---- to keep the main view as a simple SELECT+JOIN view.
-CREATE VIEW quay_max_version AS
-SELECT DISTINCT ON (netex_id) netex_id, version, id
-FROM quay
-ORDER BY netex_id, version DESC;
-
 
 --- Spread the join and the actual data table on single row →
 --- Allows us to join a singular alt name on the main view,
@@ -56,20 +48,25 @@ SELECT -- Quay's own fields
 
        -- Extra location bits
        qanbt.name_value     AS location_swe,
-       streetAddress.items  AS street_address,
+       jqe.street_address,
 
        -- HSL validity info
-       priority.items       AS priority,
-       validityStart.items  AS validity_start,
-       validityEnd.items    AS validity_end,
+       jqe.priority,
+       jqe.validity_start,
+       jqe.validity_end,
 
        -- Extra used keyvalues
-       ELYCode.items        AS ely_code,
-       postalCode.items     AS postal_code,
-       functionalArea.items AS functional_area,
-       stopState.items      AS stop_state,
-       stopOwner.items      AS stop_owner,
-       timingPlaceId.items  AS timing_place_id,
+       jqe.ely_number       AS ely_code,
+       jqe.postal_code,
+       jqe.functional_area,
+       jqe.stop_state,
+       jqe.stop_owner,
+       jqe.timing_place_id,
+
+       jqe.transport_modes,
+       jqe.active_transport_modes,
+       jqe.trunk_line_stop,
+       jqe.speed_tram_stop,
 
        -- Stop Place info
        spmv.id              AS stop_place_id,
@@ -78,7 +75,7 @@ SELECT -- Quay's own fields
 
 FROM quay AS q
 
-    INNER JOIN quay_max_version AS maxVersion ON q.id = maxVersion.id
+    INNER JOIN jore_quay_extensions AS jqe ON jqe.id = q.id
 
     INNER JOIN stop_place_quays AS spq ON spq.quays_id = q.id
 
@@ -92,44 +89,4 @@ FROM quay AS q
     --- But in practice these should never contain duplicates on our use cases.
     --- Thus in name of performance assume they have a max one value.
     LEFT JOIN quay_alt_name_by_type AS qanbt ON
-        q.id = qanbt.quay_id AND qanbt.name_type = 'OTHER' AND qanbt.name_lang = 'swe'
-
-    LEFT JOIN quay_key_values AS qkvAddress ON
-        q.id = qkvAddress.quay_id AND qkvAddress.key_values_key = 'streetAddress'
-    LEFT JOIN value_items AS streetAddress ON qkvAddress.key_values_id = streetAddress.value_id
-
-    LEFT JOIN quay_key_values AS qkvPriority ON
-        q.id = qkvPriority.quay_id AND qkvPriority.key_values_key = 'priority'
-    LEFT JOIN value_items AS priority ON qkvPriority.key_values_id = priority.value_id
-
-    LEFT JOIN quay_key_values AS qkvValidityStart ON
-        q.id = qkvValidityStart.quay_id AND qkvValidityStart.key_values_key = 'validityStart'
-    LEFT JOIN value_items AS validityStart ON qkvValidityStart.key_values_id = validityStart.value_id
-
-    LEFT JOIN quay_key_values AS qkvValidityEnd ON
-        q.id = qkvValidityEnd.quay_id AND qkvValidityEnd.key_values_key = 'validityEnd'
-    LEFT JOIN value_items AS validityEnd ON qkvValidityEnd.key_values_id = validityEnd.value_id
-
-    LEFT JOIN quay_key_values AS qkvELYCode ON
-        q.id = qkvELYCode.quay_id AND qkvELYCode.key_values_key = 'elyNumber'
-    LEFT JOIN value_items AS ELYCode ON qkvELYCode.key_values_id = ELYCode.value_id
-
-    LEFT JOIN quay_key_values AS qkvPostalCode ON
-        q.id = qkvPostalCode.quay_id AND qkvPostalCode.key_values_key = 'postalCode'
-    LEFT JOIN value_items AS postalCode ON qkvPostalCode.key_values_id = postalCode.value_id
-
-    LEFT JOIN quay_key_values AS qkvFunctionalArea ON
-        q.id = qkvFunctionalArea.quay_id AND qkvFunctionalArea.key_values_key = 'functionalArea'
-    LEFT JOIN value_items AS functionalArea ON qkvFunctionalArea.key_values_id = functionalArea.value_id
-
-    LEFT JOIN quay_key_values AS qkvStopState ON
-    q.id = qkvStopState.quay_id AND qkvStopState.key_values_key = 'stopState'
-    LEFT JOIN value_items AS stopState ON qkvStopState.key_values_id = stopState.value_id
-
-    LEFT JOIN quay_key_values AS qkvStopOwner ON
-    q.id = qkvStopOwner.quay_id AND qkvStopOwner.key_values_key = 'stopOwner'
-    LEFT JOIN value_items AS stopOwner ON qkvStopOwner.key_values_id = stopOwner.value_id
-
-    LEFT JOIN quay_key_values AS qkvTimingPlaceId ON
-    q.id = qkvTimingPlaceId.quay_id AND qkvTimingPlaceId.key_values_key = 'timingPlaceId'
-    LEFT JOIN value_items AS timingPlaceId ON qkvTimingPlaceId.key_values_id = timingPlaceId.value_id;
+        q.id = qanbt.quay_id AND qanbt.name_type = 'OTHER' AND qanbt.name_lang = 'swe';

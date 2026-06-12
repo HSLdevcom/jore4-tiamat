@@ -36,9 +36,8 @@ public class QuayViewTests extends TiamatIntegrationTest {
 
     @Before
     public void setup() {
-        this.dataBuilder = new DataBuilder(quayRepository, stopPlaceRepository);
+        this.dataBuilder = new DataBuilder(quayRepository, stopPlaceRepository, entityManager);
     }
-
 
     @Test
     public void viewShowsData_withQuaySaved() throws Exception {
@@ -165,8 +164,17 @@ public class QuayViewTests extends TiamatIntegrationTest {
         verifyTestData(testData);
 
         List<Map<String, Object>> quayNewestVersions = queryAll();
-        String functionalArea = quayNewestVersions.getFirst().get("functional_area").toString();
-        assertThat(functionalArea, equalTo(testData.functionalArea.getItems().stream().findFirst().orElse("Failed")));
+        Object functionalArea = quayNewestVersions.getFirst().get("functional_area");
+        assertThat(functionalArea, instanceOf(Double.class));
+
+        final var expectedValue = testData
+                .functionalArea
+                .getItems()
+                .stream()
+                .findFirst()
+                .map(Double::valueOf)
+                .orElseThrow();
+        assertThat(functionalArea, equalTo(expectedValue));
     }
 
 
@@ -191,15 +199,15 @@ public class QuayViewTests extends TiamatIntegrationTest {
 
 
     private void verifyTestData(DataBuilder.TestData testData) {
-        List<Quay> quay = quayRepository.findByNetexId(testData.quay.getNetexId());
-        assertThat(count(), Matchers.is(1L));
         assertThat(countQuay(), Matchers.is(1L));
         assertThat(countStopPlace(), Matchers.is(1L));
+        assertThat(count(), Matchers.is(1L));
+        List<Quay> quay = quayRepository.findByNetexId(testData.quay.getNetexId());
         assertThat(quay.getFirst().getNetexId(), equalTo(testData.quay.getNetexId()));
     }
 
     private Long count() {
-        return (Long) entityManager.createNativeQuery("SELECT count(*) FROM quay_newest_version")
+        return (Long) entityManager.createNativeQuery("SELECT count(*) FROM jore_quay_extensions")
                 .getResultList().getFirst();
     }
 
@@ -255,20 +263,23 @@ public class QuayViewTests extends TiamatIntegrationTest {
 
         private final StopPlaceRepository stopPlaceRepository;
         private final QuayRepository quayRepository;
+        private final EntityManager entityManager;
 
         private final TestData testData;
 
-        DataBuilder(QuayRepository quayRepository, StopPlaceRepository stopPlaceRepository) {
-            this.testData = new TestData();
+        DataBuilder(QuayRepository quayRepository, StopPlaceRepository stopPlaceRepository, EntityManager entityManager) {
             this.quayRepository = quayRepository;
             this.stopPlaceRepository = stopPlaceRepository;
+            this.entityManager = entityManager;
+
+            this.testData = new TestData();
         }
 
 
         public DataBuilder withDefaultQuay() {
             Quay quay = new Quay();
             quay.setVersion(1L);
-            quay.setNetexId("test:quay-netex-id:" + getNetexId());
+            quay.setNetexId("HSL:Quay:" + getNetexId());
             quay.setCreated(Instant.parse("2010-04-17T09:30:47Z"));
             quay.setDataSourceRef("test:dataSourceRef");
             quay.setResponsibilitySetRef("test:responsibilityRef");
@@ -279,6 +290,12 @@ public class QuayViewTests extends TiamatIntegrationTest {
 
             quay.setCovered(CoveredEnumeration.COVERED);
             quay.setLabel(new EmbeddableMultilingualString("Test label", "en"));
+            quay.getKeyValues().putAll(Map.of(
+                    "stopState", new Value("InOperation"),
+                    "validityStart", new Value("1990-01-01"),
+                    "priority", new Value("10")
+            ));
+
             this.testData.quay = quay;
 
             withDefaultStopPlace();
@@ -289,7 +306,9 @@ public class QuayViewTests extends TiamatIntegrationTest {
         private DataBuilder withDefaultStopPlace() {
             StopPlace stopPlace = new StopPlace();
             stopPlace.setNetexId(this.testData.quay.getNetexId());
+            stopPlace.setVersion(1);
             stopPlace.setPublicCode("Test public code");
+            stopPlace.setTransportMode(VehicleModeEnumeration.BUS);
             this.testData.stopPlace = stopPlace;
             return this;
         }
@@ -336,56 +355,41 @@ public class QuayViewTests extends TiamatIntegrationTest {
 
 
         public DataBuilder withDefaultStreetAddress() {
-            Value streetAddress = new Value();
-            streetAddress.getItems().add("Test street 1");
-            testData.streetAddress = streetAddress;
+            testData.streetAddress = new Value("Test street 1");
             return this;
         }
 
         public DataBuilder withDefaultPriority() {
-            Value priority = new Value();
-            priority.getItems().add("Testpriority 1");
-            testData.priority = priority;
+            testData.priority = new Value("20");
             return this;
         }
 
         public DataBuilder withDefaultValidityStart() {
-            Value validityStart = new Value();
-            validityStart.getItems().add("Teststart 1");
-            testData.validityStart = validityStart;
+            testData.validityStart = new Value("2000-01-01");
             return this;
         }
 
         public DataBuilder withDefaultValidityEnd() {
-            Value validityEnd = new Value();
-            validityEnd.getItems().add("Testend 1");
-            testData.validityEnd = validityEnd;
+            testData.validityEnd = new Value("2000-12-30");
             return this;
         }
 
         public DataBuilder withDefaultELYCode() {
-            Value ELYcode = new Value();
-            ELYcode.getItems().add("Test ELY 1");
-            testData.ELYCode = ELYcode;
+            testData.ELYCode = new Value("Test ELY 1");
             return this;
         }
 
         public DataBuilder withDefaultPostalCode() {
-            Value postalCode = new Value();
-            postalCode.getItems().add("Test postal code 1");
-            testData.postalCode = postalCode;
+            testData.postalCode = new Value("Test postal code 1");
             return this;
         }
 
         public DataBuilder withDefaultFunctionalArea() {
-            Value functionalArea = new Value();
-            functionalArea.getItems().add("Test functional area 1");
-            testData.functionalArea = functionalArea;
+            testData.functionalArea = new Value("123.0");
             return this;
         }
 
-
-        public TestData asPersisted() {
+        private void compileFinalData() {
             if (testData.alternativeName != null) {
                 testData.quay.getAlternativeNames().add(testData.alternativeName);
             }
@@ -423,10 +427,26 @@ public class QuayViewTests extends TiamatIntegrationTest {
             if (testData.functionalArea != null) {
                 testData.quay.getKeyValues().put("functionalArea", testData.functionalArea);
             }
+        }
+
+        public TestData asPersisted() {
+            this.compileFinalData();
 
             Quay quay = quayRepository.save(testData.quay);
             testData.stopPlace.getQuays().add(quay);
             stopPlaceRepository.save(testData.stopPlace);
+
+            // Normally when saving a Quay in Jore, the jore_quay_extensins
+            // table gets updated at the end of the saving transactions.
+            // But here in the test's we continue with the transaction and
+            // run the fetch-saved-data queries in the same transaction.
+            // Thus, when we do the data-fetch, the extensions table has not yet
+            // been updated and the tests fail.
+            // So, now the data has been saved by previous command,
+            // and we need flush and trigger the constraint manually.
+            entityManager
+                    .createNativeQuery("SET CONSTRAINTS update_jore_extensions_on_quay_save IMMEDIATE;")
+                    .executeUpdate();
 
             return testData;
         }
