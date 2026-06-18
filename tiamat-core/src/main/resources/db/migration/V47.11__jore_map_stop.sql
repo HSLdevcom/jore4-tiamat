@@ -214,7 +214,7 @@ DECLARE
 BEGIN
   --- Only apply to Jore quays (mainly to allow old Tiamat Junit tests to work.
   SELECT netex_id INTO quayNetexId FROM quay WHERE id = NEW.quay_id;
-  IF quayNetexId IS NULL AND NOT (quayNetexId LIKE 'HSL:Quay:%' OR quayNetexId LIKE 'FSR:Quay:%') THEN
+  IF quayNetexId IS NULL OR NOT (quayNetexId LIKE 'HSL:Quay:%' OR quayNetexId LIKE 'FSR:Quay:%') THEN
     RETURN NULL;
   END IF;
 
