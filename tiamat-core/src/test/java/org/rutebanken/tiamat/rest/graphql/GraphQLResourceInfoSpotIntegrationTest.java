@@ -9,6 +9,7 @@ import org.locationtech.jts.geom.GeometryFactory;
 import org.rutebanken.tiamat.config.GeometryFactoryConfig;
 import org.rutebanken.tiamat.model.EmbeddableMultilingualString;
 import org.rutebanken.tiamat.model.InfoSpot;
+import org.rutebanken.tiamat.model.InfoSpotIntendedUserEnumeration;
 import org.rutebanken.tiamat.model.InfoSpotPoster;
 import org.rutebanken.tiamat.model.InfoSpotPosterRef;
 import org.rutebanken.tiamat.model.InfoSpotTypeEnumeration;
@@ -93,7 +94,7 @@ public class GraphQLResourceInfoSpotIntegrationTest extends AbstractGraphQLResou
                     posterPlaceSize
                     width
                     height
-                    purpose
+                    intendedUser
                     railInformation
                     zoneLabel
                     speechProperty
@@ -128,7 +129,7 @@ public class GraphQLResourceInfoSpotIntegrationTest extends AbstractGraphQLResou
                 .body("posterPlaceSize", equalTo(updatedInfoSpot.getPosterPlaceSize().value()))
                 .body("width", equalTo(updatedInfoSpot.getWidth()))
                 .body("height", equalTo(updatedInfoSpot.getHeight()))
-                .body("purpose", equalTo(updatedInfoSpot.getPurpose()))
+                .body("intendedUser", equalTo(updatedInfoSpot.getIntendedUser().value()))
                 .body("railInformation", equalTo(updatedInfoSpot.getRailInformation()))
                 .body("zoneLabel", equalTo(updatedInfoSpot.getZoneLabel()))
                 .body("speechProperty", equalTo(updatedInfoSpot.getSpeechProperty()))
@@ -153,7 +154,7 @@ public class GraphQLResourceInfoSpotIntegrationTest extends AbstractGraphQLResou
                 .body("maintenance", equalTo(otherInfoSpot.getMaintenance()))
                 .body("width", equalTo(otherInfoSpot.getWidth()))
                 .body("height", equalTo(otherInfoSpot.getHeight()))
-                .body("purpose", equalTo(otherInfoSpot.getPurpose()))
+                .body("intendedUser", equalTo(otherInfoSpot.getIntendedUser().value()))
                 .body("railInformation", equalTo(otherInfoSpot.getRailInformation()))
                 .body("zoneLabel", equalTo(otherInfoSpot.getZoneLabel()))
                 .body("speechProperty", equalTo(otherInfoSpot.getSpeechProperty()))
@@ -188,7 +189,7 @@ public class GraphQLResourceInfoSpotIntegrationTest extends AbstractGraphQLResou
                     maintenance
                     width
                     height
-                    purpose
+                    intendedUser
                     railInformation
                     zoneLabel
                     speechProperty
@@ -220,7 +221,7 @@ public class GraphQLResourceInfoSpotIntegrationTest extends AbstractGraphQLResou
                 .body("maintenance", equalTo(updatedInfoSpot.getMaintenance()))
                 .body("width", equalTo(updatedInfoSpot.getWidth()))
                 .body("height", equalTo(updatedInfoSpot.getHeight()))
-                .body("purpose", equalTo(updatedInfoSpot.getPurpose()))
+                .body("intendedUser", equalTo(updatedInfoSpot.getIntendedUser().value()))
                 .body("railInformation", equalTo(updatedInfoSpot.getRailInformation()))
                 .body("zoneLabel", equalTo(updatedInfoSpot.getZoneLabel()))
                 .body("speechProperty", equalTo(updatedInfoSpot.getSpeechProperty()))
@@ -243,7 +244,7 @@ public class GraphQLResourceInfoSpotIntegrationTest extends AbstractGraphQLResou
         String description = "Description of info spot";
         String maintenance = "Maintainer";
         Size size = SIZE_80_120;
-        String purpose = "Purpose of info";
+        String intendedUser = "MATKATIETO";
         String railInformation = "Rail 1";
         String zoneLabel = "A";
         Boolean speechProperty = true;
@@ -270,7 +271,7 @@ public class GraphQLResourceInfoSpotIntegrationTest extends AbstractGraphQLResou
                         maintenance: "%s"
                         width: %s
                         height: %s
-                        purpose: "%s"
+                        intendedUser: %s
                         railInformation: "%s"
                         zoneLabel: "%s"
                         speechProperty: %s
@@ -305,7 +306,7 @@ public class GraphQLResourceInfoSpotIntegrationTest extends AbstractGraphQLResou
                     maintenance
                     width
                     height
-                    purpose
+                    intendedUser
                     railInformation
                     zoneLabel
                     speechProperty
@@ -331,7 +332,7 @@ public class GraphQLResourceInfoSpotIntegrationTest extends AbstractGraphQLResou
             maintenance,
             size.width(),
             size.height(),
-            purpose,
+            intendedUser,
             railInformation,
             zoneLabel,
             speechProperty,
@@ -356,7 +357,7 @@ public class GraphQLResourceInfoSpotIntegrationTest extends AbstractGraphQLResou
                 .body("maintenance", equalTo(maintenance))
                 .body("width", equalTo(size.width()))
                 .body("height", equalTo(size.height()))
-                .body("purpose", equalTo(purpose))
+                .body("intendedUser", equalTo(intendedUser))
                 .body("railInformation", equalTo(railInformation))
                 .body("zoneLabel", equalTo(zoneLabel))
                 .body("speechProperty", equalTo(speechProperty))
@@ -381,7 +382,7 @@ public class GraphQLResourceInfoSpotIntegrationTest extends AbstractGraphQLResou
         String description = "Descriptive";
         String maintenance = "Maintainer";
         Size size = SIZE_80_120;
-        String purpose = "Purpose of info";
+        String intendedUser = "VR";
         String railInformation = "Rail 1";
         String zoneLabel = "A";
         Boolean speechProperty = true;
@@ -407,7 +408,7 @@ public class GraphQLResourceInfoSpotIntegrationTest extends AbstractGraphQLResou
                         maintenance: "%s"
                         width: %s
                         height: %s
-                        purpose: "%s"
+                        intendedUser: %s
                         railInformation: "%s"
                         zoneLabel: "%s"
                         speechProperty: %s
@@ -442,7 +443,7 @@ public class GraphQLResourceInfoSpotIntegrationTest extends AbstractGraphQLResou
                     maintenance
                     width
                     height
-                    purpose
+                    intendedUser
                     railInformation
                     zoneLabel
                     speechProperty
@@ -466,7 +467,7 @@ public class GraphQLResourceInfoSpotIntegrationTest extends AbstractGraphQLResou
             maintenance,
             size.width(),
             size.height(),
-            purpose,
+            intendedUser,
             railInformation,
             zoneLabel,
             speechProperty,
@@ -492,7 +493,7 @@ public class GraphQLResourceInfoSpotIntegrationTest extends AbstractGraphQLResou
                 .body("maintenance", equalTo(maintenance))
                 .body("width", equalTo(size.width()))
                 .body("height", equalTo(size.height()))
-                .body("purpose", equalTo(purpose))
+                .body("intendedUser", equalTo(intendedUser))
                 .body("railInformation", equalTo(railInformation))
                 .body("zoneLabel", equalTo(zoneLabel))
                 .body("speechProperty", equalTo(speechProperty))
@@ -524,7 +525,7 @@ public class GraphQLResourceInfoSpotIntegrationTest extends AbstractGraphQLResou
                     maintenance
                     width
                     height
-                    purpose
+                    intendedUser
                     railInformation
                     zoneLabel
                     speechProperty
@@ -555,7 +556,7 @@ public class GraphQLResourceInfoSpotIntegrationTest extends AbstractGraphQLResou
                 .body("maintenance", equalTo(maintenance))
                 .body("width", equalTo(size.width()))
                 .body("height", equalTo(size.height()))
-                .body("purpose", equalTo(purpose))
+                .body("intendedUser", equalTo(intendedUser))
                 .body("railInformation", equalTo(railInformation))
                 .body("zoneLabel", equalTo(zoneLabel))
                 .body("speechProperty", equalTo(speechProperty))
@@ -641,7 +642,7 @@ public class GraphQLResourceInfoSpotIntegrationTest extends AbstractGraphQLResou
         infoSpot.setMaintenance("Maintainer");
         infoSpot.setWidth(SIZE_80_120.width());
         infoSpot.setHeight(SIZE_80_120.height());
-        infoSpot.setPurpose("Purpose of info");
+        infoSpot.setIntendedUser(InfoSpotIntendedUserEnumeration.MATKATIETO);
         infoSpot.setRailInformation("Rail 1");
         infoSpot.setZoneLabel("A");
         infoSpot.setInfoSpotLocations(Set.of(stopPlace.getNetexId()));
@@ -740,7 +741,7 @@ public class GraphQLResourceInfoSpotIntegrationTest extends AbstractGraphQLResou
         infoSpot.setMaintenance("Maintainer");
         infoSpot.setWidth(SIZE_80_120.width());
         infoSpot.setHeight(SIZE_80_120.height());
-        infoSpot.setPurpose("Purpose of info");
+        infoSpot.setIntendedUser(InfoSpotIntendedUserEnumeration.MATKATIETO);
         infoSpot.setRailInformation("Rail 1");
         infoSpot.setZoneLabel("A");
         infoSpot.setInfoSpotLocations(Set.of(quay.getNetexId()));
@@ -1017,7 +1018,7 @@ public class GraphQLResourceInfoSpotIntegrationTest extends AbstractGraphQLResou
         oldInfoSpot.setMaintenance("Maintainer");
         oldInfoSpot.setWidth(SIZE_80_120.width());
         oldInfoSpot.setHeight(SIZE_80_120.height());
-        oldInfoSpot.setPurpose("Purpose of info");
+        oldInfoSpot.setIntendedUser(InfoSpotIntendedUserEnumeration.MATKATIETO);
         oldInfoSpot.setRailInformation("Rail 1");
         oldInfoSpot.setZoneLabel("A");
         oldInfoSpot.setSpeechProperty(true);
@@ -1056,7 +1057,7 @@ public class GraphQLResourceInfoSpotIntegrationTest extends AbstractGraphQLResou
         updatedInfoSpot.setMaintenance("New Maintainer");
         updatedInfoSpot.setWidth(SIZE_A3.width());
         updatedInfoSpot.setHeight(SIZE_A3.height());
-        updatedInfoSpot.setPurpose("New purpose of info");
+        updatedInfoSpot.setIntendedUser(InfoSpotIntendedUserEnumeration.MARKKINOINTI);
         updatedInfoSpot.setRailInformation("Rail 2");
         updatedInfoSpot.setZoneLabel("B");
         updatedInfoSpot.setSpeechProperty(false);
@@ -1095,7 +1096,7 @@ public class GraphQLResourceInfoSpotIntegrationTest extends AbstractGraphQLResou
         otherInfoSpot.setMaintenance("Maintainer three");
         otherInfoSpot.setWidth(SIZE_A4.width());
         otherInfoSpot.setHeight(SIZE_A4.height());
-        otherInfoSpot.setPurpose("Other purpose");
+        otherInfoSpot.setIntendedUser(InfoSpotIntendedUserEnumeration.VR);
         otherInfoSpot.setRailInformation("Rail 3");
         otherInfoSpot.setZoneLabel("C");
         otherInfoSpot.setSpeechProperty(false);

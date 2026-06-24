@@ -7,6 +7,7 @@ import graphql.schema.GraphQLObjectType;
 import org.rutebanken.tiamat.model.DisplayTypeEnumeration;
 import org.rutebanken.tiamat.model.InfoSpotTypeEnumeration;
 import org.rutebanken.tiamat.model.PosterSizeEnumeration;
+import org.rutebanken.tiamat.model.InfoSpotIntendedUserEnumeration;
 import org.springframework.stereotype.Component;
 
 import static graphql.Scalars.GraphQLBoolean;
@@ -36,6 +37,7 @@ import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.OUTPUT_TYPE_POSTER
 import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.POSTER_PLACE_SIZE;
 import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.POSTER_SIZE;
 import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.PURPOSE;
+import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.INTENDED_USER;
 import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.RAIL_INFORMATION;
 import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.REF;
 import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.SPEECH_PROPERTY;
@@ -56,6 +58,7 @@ public class InfoSpotObjectTypeCreator {
     public static GraphQLEnumType infoSpotTypeEnum = createCustomEnumType(INFO_SPOT_TYPE, InfoSpotTypeEnumeration.class);
     public static GraphQLEnumType posterSizeEnum = createCustomEnumType(POSTER_PLACE_SIZE, PosterSizeEnumeration.class);
     public static GraphQLEnumType displayTypeEnum = createCustomEnumType(DISPLAY_TYPE, DisplayTypeEnumeration.class);
+    public static GraphQLEnumType intendedUserEnum = createCustomEnumType(INTENDED_USER, InfoSpotIntendedUserEnumeration.class);
 
     public static GraphQLObjectType posterObjectType =
             newObject()
@@ -137,6 +140,9 @@ public class InfoSpotObjectTypeCreator {
                         .name(PURPOSE)
                         .type(GraphQLString))
                 .field(newFieldDefinition()
+                        .name(INTENDED_USER)
+                        .type(intendedUserEnum))
+                .field(newFieldDefinition()
                         .name(POSTER_PLACE_SIZE)
                         .type(posterSizeEnum))
                 .field(newFieldDefinition()
@@ -201,6 +207,9 @@ public class InfoSpotObjectTypeCreator {
                 .field(newInputObjectField()
                         .name(PURPOSE)
                         .type(GraphQLString))
+                .field(newInputObjectField()
+                        .name(INTENDED_USER)
+                        .type(intendedUserEnum))
                 .field(newInputObjectField()
                         .name(POSTER_PLACE_SIZE)
                         .type(posterSizeEnum))
