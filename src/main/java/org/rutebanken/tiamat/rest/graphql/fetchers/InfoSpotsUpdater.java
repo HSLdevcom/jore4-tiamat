@@ -17,6 +17,7 @@ import org.rutebanken.helper.organisation.ReflectionAuthorizationService;
 import org.rutebanken.tiamat.auth.UsernameFetcher;
 import org.rutebanken.tiamat.model.DisplayTypeEnumeration;
 import org.rutebanken.tiamat.model.InfoSpot;
+import org.rutebanken.tiamat.model.InfoSpotIntendedUserEnumeration;
 import org.rutebanken.tiamat.model.InfoSpotPoster;
 import org.rutebanken.tiamat.model.InfoSpotPosterRef;
 import org.rutebanken.tiamat.model.InfoSpotLocationRef;
@@ -51,6 +52,7 @@ import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.HEIGHT;
 import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.ID;
 import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.INFO_SPOT_LOCATIONS;
 import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.INFO_SPOT_TYPE;
+import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.INTENDED_USER;
 import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.LABEL;
 import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.LINES;
 import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.MAINTENANCE;
@@ -210,6 +212,11 @@ public class InfoSpotsUpdater implements DataFetcher {
             var purpose = (String) input.get(PURPOSE);
             isUpdated |= !Objects.equals(purpose, target.getPurpose());
             target.setPurpose(purpose);
+        }
+        if (input.containsKey(INTENDED_USER)) {
+            var intendedUser = (InfoSpotIntendedUserEnumeration) input.get(INTENDED_USER);
+            isUpdated |= !Objects.equals(intendedUser, target.getIntendedUser());
+            target.setIntendedUser(intendedUser);
         }
         if (input.containsKey(DESCRIPTION)) {
             var description = (Map) input.get(DESCRIPTION);

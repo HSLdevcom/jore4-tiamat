@@ -26,6 +26,8 @@ public class InfoSpot_VersionStructure extends Zone_VersionStructure {
     private InfoSpotTypeEnumeration infoSpotType;
     private String label;
     private String purpose;
+    @Enumerated(EnumType.STRING)
+    private InfoSpotIntendedUserEnumeration intendedUser;
     private Integer width;
     private Integer height;
     private Boolean backlight;
@@ -76,6 +78,14 @@ public class InfoSpot_VersionStructure extends Zone_VersionStructure {
 
     public void setPurpose(String purpose) {
         this.purpose = purpose;
+    }
+
+    public InfoSpotIntendedUserEnumeration getIntendedUser() {
+        return intendedUser;
+    }
+
+    public void setIntendedUser(InfoSpotIntendedUserEnumeration intendedUser) {
+        this.intendedUser = intendedUser;
     }
 
     public Integer getWidth() {
