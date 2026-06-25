@@ -384,51 +384,52 @@ public class InfoSpotsUpdater implements DataFetcher {
     }
 
     private InfoSpotPoster createPoster(Map input, List<InfoSpotPoster> existingPosters) {
-        if (input.containsKey(LABEL)) {
-            boolean isUpdated = false;
-            String label = (String) input.get(LABEL);
-            var poster = existingPosters.stream()
-                    .filter(p -> p.getLabel().equals(label))
+        boolean isUpdated = false;
+        String inputId = (String) input.get(ID);
+        
+        InfoSpotPoster poster;
+        if (inputId != null) {
+            poster = existingPosters.stream()
+                    .filter(p -> Objects.equals(p.getNetexId(), inputId))
                     .findFirst()
-                    .map(isp ->
-                        versionCreator.createCopy(isp, InfoSpotPoster.class)
-                    )
-                    .orElseGet(() -> {
-                        var isp = new InfoSpotPoster();
-                        isp.setLabel(label);
-                        return isp;
-                    });
-
-            if (input.containsKey(LINES) && !Objects.equals(poster.getLines(), input.get(LINES))) {
-                poster.setLines((String) input.get(LINES));
-                isUpdated = true;
-            }
-
-            if (input.containsKey(POSTER_SIZE)) {
-                var posterSize = (PosterSizeEnumeration) input.get(POSTER_SIZE);
-                isUpdated |= populatePosterSize(PosterSizeEnumeration.toSizeMap(posterSize), poster);
-            } else {
-                isUpdated |= populatePosterSize(input, poster);
-            }
-
-            if (input.containsKey(WIDTH) && !Objects.equals(poster.getWidth(), input.get(WIDTH))) {
-                poster.setWidth((Integer) input.get(WIDTH));
-                isUpdated = true;
-            }
-
-            if (input.containsKey(HEIGHT) && !Objects.equals(poster.getHeight(), input.get(HEIGHT))) {
-                poster.setHeight((Integer) input.get(HEIGHT));
-                isUpdated = true;
-            }
-
-            if (isUpdated) {
-                return infoSpotPosterVersionedSaverService.saveNewVersion(poster);
-            }
-            return poster;
+                    .map(isp -> versionCreator.createCopy(isp, InfoSpotPoster.class))
+                    .orElseThrow(() -> new IllegalArgumentException("Poster with id " + inputId + " not found"));
+        } else {
+            poster = new InfoSpotPoster();
+            isUpdated = true;
         }
-        else {
-            throw new IllegalArgumentException("Expected label for poster, none provided");
+
+        if (input.containsKey(LABEL) && !Objects.equals(poster.getLabel(), input.get(LABEL))) {
+            poster.setLabel((String) input.get(LABEL));
+            isUpdated = true;
         }
+
+        if (input.containsKey(LINES) && !Objects.equals(poster.getLines(), input.get(LINES))) {
+            poster.setLines((String) input.get(LINES));
+            isUpdated = true;
+        }
+
+        if (input.containsKey(POSTER_SIZE)) {
+            var posterSize = (PosterSizeEnumeration) input.get(POSTER_SIZE);
+            isUpdated |= populatePosterSize(PosterSizeEnumeration.toSizeMap(posterSize), poster);
+        } else {
+            isUpdated |= populatePosterSize(input, poster);
+        }
+
+        if (input.containsKey(WIDTH) && !Objects.equals(poster.getWidth(), input.get(WIDTH))) {
+            poster.setWidth((Integer) input.get(WIDTH));
+            isUpdated = true;
+        }
+
+        if (input.containsKey(HEIGHT) && !Objects.equals(poster.getHeight(), input.get(HEIGHT))) {
+            poster.setHeight((Integer) input.get(HEIGHT));
+            isUpdated = true;
+        }
+
+        if (isUpdated) {
+            return infoSpotPosterVersionedSaverService.saveNewVersion(poster);
+        }
+        return poster;
     }
 
     private boolean populatePosterSize(Map input, InfoSpotPoster target) {

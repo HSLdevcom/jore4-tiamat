@@ -766,6 +766,7 @@ public class GraphQLResourceInfoSpotIntegrationTest extends AbstractGraphQLResou
                             id: "%s"
                             poster: [
                                 {
+                                    id: "%s",
                                     label: "%s",
                                     width: %s,
                                     height: %s,
@@ -786,6 +787,7 @@ public class GraphQLResourceInfoSpotIntegrationTest extends AbstractGraphQLResou
                 }
                 """.formatted(
                 updatedInfoSpot.getNetexId(),
+                updatedPoster.getNetexId(),
                 updatedPoster.getLabel(),
                 updatedPoster.getWidth(),
                 updatedPoster.getHeight(),
