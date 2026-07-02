@@ -38,6 +38,7 @@ public class InfoSpot_VersionStructure extends Zone_VersionStructure {
     private Boolean speechProperty;
     @Enumerated(EnumType.STRING)
     private DisplayTypeEnumeration displayType;
+    private Integer sortOrder;
 
     // Version-aware location references
     @ElementCollection(targetClass = InfoSpotLocationRef.class, fetch = FetchType.EAGER)
@@ -158,6 +159,14 @@ public class InfoSpot_VersionStructure extends Zone_VersionStructure {
 
     public void setDisplayType(DisplayTypeEnumeration displayType) {
         this.displayType = displayType;
+    }
+
+    public Integer getSortOrder() {
+        return sortOrder;
+    }
+
+    public void setSortOrder(Integer sortOrder) {
+        this.sortOrder = sortOrder;
     }
 
     /**

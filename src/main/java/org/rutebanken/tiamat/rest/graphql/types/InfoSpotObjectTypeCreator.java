@@ -32,6 +32,7 @@ import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.LABEL;
 import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.LINES;
 import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.LOCATION_REFS;
 import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.MAINTENANCE;
+import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.SORT_ORDER;
 import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.OUTPUT_TYPE_INFO_SPOT;
 import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.OUTPUT_TYPE_POSTER;
 import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.POSTER_PLACE_SIZE;
@@ -179,6 +180,9 @@ public class InfoSpotObjectTypeCreator {
                         .name(DISPLAY_TYPE)
                         .type(displayTypeEnum))
                 .field(newFieldDefinition()
+                        .name(SORT_ORDER)
+                        .type(GraphQLInt))
+                .field(newFieldDefinition()
                         .name(INFO_SPOT_LOCATIONS)
                         .description("List of location NetEx IDs (simple string format)")
                         .type(new GraphQLList(GraphQLString)))
@@ -246,6 +250,9 @@ public class InfoSpotObjectTypeCreator {
                 .field(newInputObjectField()
                         .name(DISPLAY_TYPE)
                         .type(displayTypeEnum))
+                .field(newInputObjectField()
+                        .name(SORT_ORDER)
+                        .type(GraphQLInt))
                 .field(newInputObjectField()
                         .name(INFO_SPOT_LOCATIONS)
                         .description("List of location NetEx IDs - backend auto-resolves to current version")

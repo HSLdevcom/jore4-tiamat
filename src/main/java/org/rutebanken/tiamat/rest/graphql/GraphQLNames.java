@@ -590,6 +590,7 @@ public class GraphQLNames {
     public static final String INFO_SPOT_LOCATIONS = "infoSpotLocations";
     public static final String LOCATION_REFS = "locationRefs";
     public static final String LOCATION_REF = "locationRef";
+    public static final String SORT_ORDER = "sortOrder";
 
     public static final String EXTERNAL_LINKS = "externalLinks";
     public static final String OUTPUT_TYPE_EXTERNAL_LINK = "externalLink";

@@ -56,6 +56,7 @@ import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.INTENDED_USER;
 import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.LABEL;
 import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.LINES;
 import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.MAINTENANCE;
+import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.SORT_ORDER;
 import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.OUTPUT_TYPE_INFO_SPOT;
 import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.OUTPUT_TYPE_POSTER;
 import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.POSTER_PLACE_SIZE;
@@ -268,6 +269,11 @@ public class InfoSpotsUpdater implements DataFetcher {
             var displayType = (DisplayTypeEnumeration) input.get(DISPLAY_TYPE);
             isUpdated |= !Objects.equals(displayType, target.getDisplayType());
             target.setDisplayType(displayType);
+        }
+        if (input.containsKey(SORT_ORDER)) {
+            var sortOrder = (Integer) input.get(SORT_ORDER);
+            isUpdated |= !Objects.equals(sortOrder, target.getSortOrder());
+            target.setSortOrder(sortOrder);
         }
 
         // Handle location references
