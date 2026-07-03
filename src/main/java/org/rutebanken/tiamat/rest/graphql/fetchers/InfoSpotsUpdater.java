@@ -25,12 +25,14 @@ import org.rutebanken.tiamat.model.InfoSpotTypeEnumeration;
 import org.rutebanken.tiamat.model.PosterSizeEnumeration;
 import org.rutebanken.tiamat.model.Quay;
 import org.rutebanken.tiamat.model.StopPlace;
+import org.rutebanken.tiamat.model.Value;
 import org.rutebanken.tiamat.repository.InfoSpotPosterRepository;
 import org.rutebanken.tiamat.repository.InfoSpotRepository;
 import org.rutebanken.tiamat.repository.QuayRepository;
 import org.rutebanken.tiamat.repository.ShelterEquipmentRepository;
 import org.rutebanken.tiamat.repository.StopPlaceRepository;
 import org.rutebanken.tiamat.rest.graphql.mappers.GeometryMapper;
+import org.rutebanken.tiamat.rest.graphql.mappers.KeyValueMapper;
 import org.rutebanken.tiamat.versioning.VersionCreator;
 import org.rutebanken.tiamat.versioning.VersionIncrementor;
 import org.rutebanken.tiamat.versioning.save.InfoSpotPosterVersionedSaverService;
@@ -53,6 +55,7 @@ import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.ID;
 import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.INFO_SPOT_LOCATIONS;
 import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.INFO_SPOT_TYPE;
 import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.INTENDED_USER;
+import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.KEY_VALUES;
 import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.LABEL;
 import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.LINES;
 import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.MAINTENANCE;
@@ -338,6 +341,15 @@ public class InfoSpotsUpdater implements DataFetcher {
             target.setCentroid(newGeometry);
         }
 
+        if (input.containsKey(KEY_VALUES)) {
+            Map<String, Value> keyValues = KeyValueMapper.getKeyValuesMap((List) input.get(KEY_VALUES));
+            if (keyValues != null) {
+                target.getKeyValues().clear();
+                target.getKeyValues().putAll(keyValues);
+                isUpdated = true;
+            }
+        }
+
         return isUpdated;
     }
 
@@ -424,6 +436,15 @@ public class InfoSpotsUpdater implements DataFetcher {
         if (input.containsKey(HEIGHT) && !Objects.equals(poster.getHeight(), input.get(HEIGHT))) {
             poster.setHeight((Integer) input.get(HEIGHT));
             isUpdated = true;
+        }
+
+        if (input.containsKey(KEY_VALUES)) {
+            Map<String, Value> keyValues = KeyValueMapper.getKeyValuesMap((List) input.get(KEY_VALUES));
+            if (keyValues != null) {
+                poster.getKeyValues().clear();
+                poster.getKeyValues().putAll(keyValues);
+                isUpdated = true;
+            }
         }
 
         if (isUpdated) {
