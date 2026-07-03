@@ -28,6 +28,7 @@ import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.INFO_SPOT_LOCATION
 import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.INFO_SPOT_TYPE;
 import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.INPUT_TYPE_INFO_SPOT;
 import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.INPUT_TYPE_POSTER;
+import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.KEY_VALUES;
 import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.LABEL;
 import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.LINES;
 import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.LOCATION_REFS;
@@ -51,6 +52,8 @@ import static org.rutebanken.tiamat.rest.graphql.types.CustomGraphQLTypes.embedd
 import static org.rutebanken.tiamat.rest.graphql.types.CustomGraphQLTypes.geoJsonInputType;
 import static org.rutebanken.tiamat.rest.graphql.types.CustomGraphQLTypes.geoJsonObjectType;
 import static org.rutebanken.tiamat.rest.graphql.types.CustomGraphQLTypes.geometryFieldDefinition;
+import static org.rutebanken.tiamat.rest.graphql.types.CustomGraphQLTypes.keyValuesObjectInputType;
+import static org.rutebanken.tiamat.rest.graphql.types.CustomGraphQLTypes.keyValuesObjectType;
 import static org.rutebanken.tiamat.rest.graphql.types.CustomGraphQLTypes.netexIdFieldDefinition;
 
 @Component
@@ -82,6 +85,9 @@ public class InfoSpotObjectTypeCreator {
                     .field(newFieldDefinition()
                             .name(LINES)
                             .type(GraphQLString))
+                    .field(newFieldDefinition()
+                            .name(KEY_VALUES)
+                            .type(new GraphQLList(keyValuesObjectType)))
                     .build();
 
     public static GraphQLInputObjectType posterInputObjectType =
@@ -105,6 +111,9 @@ public class InfoSpotObjectTypeCreator {
                     .field(newInputObjectField()
                             .name(LINES)
                             .type(GraphQLString))
+                    .field(newInputObjectField()
+                            .name(KEY_VALUES)
+                            .type(new GraphQLList(keyValuesObjectInputType)))
                     .build();
 
     // LocationRef output type for versioned location references
@@ -192,6 +201,9 @@ public class InfoSpotObjectTypeCreator {
                 .field(newFieldDefinition()
                         .name(OUTPUT_TYPE_POSTER)
                         .type(new GraphQLList(posterObjectType)))
+                .field(newFieldDefinition()
+                        .name(KEY_VALUES)
+                        .type(new GraphQLList(keyValuesObjectType)))
                 .build();
     }
 
@@ -256,6 +268,9 @@ public class InfoSpotObjectTypeCreator {
                 .field(newInputObjectField()
                         .name(OUTPUT_TYPE_POSTER)
                         .type(new GraphQLList(posterInputObjectType)))
+                .field(newInputObjectField()
+                        .name(KEY_VALUES)
+                        .type(new GraphQLList(keyValuesObjectInputType)))
                 .build();
     }
 }
