@@ -1,7 +1,7 @@
 package org.rutebanken.tiamat.service.organisation;
 
 import com.google.api.client.util.Preconditions;
-import org.rutebanken.helper.organisation.ReflectionAuthorizationService;
+import org.rutebanken.helper.organisation.DataScopedAuthorizationService;
 import org.rutebanken.tiamat.auth.UsernameFetcher;
 import org.rutebanken.tiamat.changelog.EntityChangedListener;
 import org.rutebanken.tiamat.lock.MutateLock;
@@ -36,14 +36,14 @@ public class OrganisationDeleter {
 
     private final MutateLock mutateLock;
 
-    private final ReflectionAuthorizationService authorizationService;
+    private final DataScopedAuthorizationService authorizationService;
 
     @Autowired
     public OrganisationDeleter(OrganisationRepository organisationRepository,
                                EntityChangedListener entityChangedListener,
                                UsernameFetcher usernameFetcher,
                                MutateLock mutateLock,
-                               ReflectionAuthorizationService authorizationService) {
+                               DataScopedAuthorizationService authorizationService) {
         this.organisationRepository = organisationRepository;
         this.entityChangedListener = entityChangedListener;
         this.usernameFetcher = usernameFetcher;

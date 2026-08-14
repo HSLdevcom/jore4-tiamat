@@ -2,7 +2,7 @@ package org.rutebanken.tiamat.rest.graphql.fetchers;
 
 import com.google.api.client.util.Preconditions;
 import graphql.schema.DataFetchingEnvironment;
-import org.rutebanken.helper.organisation.ReflectionAuthorizationService;
+import org.rutebanken.helper.organisation.DataScopedAuthorizationService;
 import org.rutebanken.tiamat.model.Contact;
 import org.rutebanken.tiamat.model.EmbeddableMultilingualString;
 import org.rutebanken.tiamat.model.Organisation;
@@ -53,7 +53,7 @@ public class OrganisationUpdater implements DataFetcher {
     private OrganisationVersionedSaverService organisationVersionedSaverService;
 
     @Autowired
-    private ReflectionAuthorizationService authorizationService;
+    private DataScopedAuthorizationService authorizationService;
 
     @Autowired
     private VersionCreator versionCreator;

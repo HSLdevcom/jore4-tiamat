@@ -13,7 +13,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
-import org.rutebanken.helper.organisation.ReflectionAuthorizationService;
+import org.rutebanken.helper.organisation.DataScopedAuthorizationService;
 import org.rutebanken.tiamat.auth.UsernameFetcher;
 import org.rutebanken.tiamat.model.DisplayTypeEnumeration;
 import org.rutebanken.tiamat.model.InfoSpot;
@@ -92,7 +92,7 @@ public class InfoSpotsUpdater implements DataFetcher {
     private ShelterEquipmentRepository shelterEquipmentRepository;
 
     @Autowired
-    private ReflectionAuthorizationService authorizationService;
+    private DataScopedAuthorizationService authorizationService;
 
     @Autowired
     private InfoSpotVersionedSaverService infoSpotVersionedSaverService;
@@ -147,9 +147,9 @@ public class InfoSpotsUpdater implements DataFetcher {
             authorizationService.assertAuthorized(ROLE_EDIT_STOPS, Arrays.asList(existingVersion, updatedInfoSpot));
 
             // Check if this is a deletion
-            boolean isDeletion = (updatedInfoSpot.getLocationRefs() == null || updatedInfoSpot.getLocationRefs().isEmpty()) 
-                && existingVersion != null 
-                && existingVersion.getLocationRefs() != null 
+            boolean isDeletion = (updatedInfoSpot.getLocationRefs() == null || updatedInfoSpot.getLocationRefs().isEmpty())
+                && existingVersion != null
+                && existingVersion.getLocationRefs() != null
                 && !existingVersion.getLocationRefs().isEmpty();
 
             if (isDeletion) {
@@ -398,7 +398,7 @@ public class InfoSpotsUpdater implements DataFetcher {
     private InfoSpotPoster createPoster(Map input, List<InfoSpotPoster> existingPosters) {
         boolean isUpdated = false;
         String inputId = (String) input.get(ID);
-        
+
         InfoSpotPoster poster;
         if (inputId != null) {
             poster = existingPosters.stream()
@@ -648,7 +648,7 @@ public class InfoSpotsUpdater implements DataFetcher {
         );
 
         if (parent != null) {
-            logger.debug("StopPlace {} is a child of parent {}, will version parent instead", 
+            logger.debug("StopPlace {} is a child of parent {}, will version parent instead",
                 stopPlace.getNetexId(), parent.getNetexId());
             return parent;
         }
