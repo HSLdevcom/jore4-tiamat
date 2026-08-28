@@ -1,12 +1,24 @@
-CREATE USER tiamat with PASSWORD 'tiamat';
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname = 'tiamat') THEN
+    CREATE USER tiamat WITH PASSWORD 'tiamat';
+  END IF;
+END $$;
+
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname = 'postgres') THEN
 CREATE USER postgres;
+  END IF;
+END $$;
 
 --
 -- Name: topology; Type: SCHEMA; Schema: -; Owner: tiamat
 --
 
+CREATE SCHEMA IF NOT EXISTS stopregistry;
 CREATE SCHEMA IF NOT EXISTS topology;
 
+GRANT ALL ON SCHEMA stopregistry TO tiamat;
+ALTER ROLE tiamat SET search_path TO stopregistry, public;
 
 ALTER SCHEMA topology OWNER TO tiamat;
 
