@@ -412,7 +412,7 @@ public class StopPlaceQueryFromSearchBuilder {
 
             wheres.add("(" +nameMatchClause + quayPublicAndPrivateCodesMatchClause + ")");
 
-            orderByStatements.add("similarity(concat(s.name_value, p.name_value), :query) desc");
+            orderByStatements.add("public.similarity(concat(s.name_value, p.name_value), :query) desc");
         }
     }
 
