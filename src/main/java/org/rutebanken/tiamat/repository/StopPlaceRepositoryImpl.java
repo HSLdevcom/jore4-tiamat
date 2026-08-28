@@ -116,7 +116,7 @@ public class StopPlaceRepositoryImpl implements StopPlaceRepositoryCustom {
     /**
      * Check stop place or it's parent for match in geometry filter.
      */
-    protected static final String SQL_CHILD_OR_PARENT_WITHIN = "(ST_within(s.centroid, :filter) = true OR ST_within(p.centroid, :filter) = true) ";
+    protected static final String SQL_CHILD_OR_PARENT_WITHIN = "(public.ST_within(s.centroid, :filter) = true OR public.ST_within(p.centroid, :filter) = true) ";
 
     /**
      * SQL for making sure the stop selected is not a parent stop place.
@@ -232,9 +232,9 @@ public class StopPlaceRepositoryImpl implements StopPlaceRepositoryCustom {
         Geometry geometryFilter = geometryFactory.toGeometry(envelope);
 
         String sql = "SELECT sub.netex_id FROM " +
-                "(SELECT s.netex_id AS netex_id, similarity(s.name_value, :name) AS sim FROM stop_place s " +
+                "(SELECT s.netex_id AS netex_id, public.similarity(s.name_value, :name) AS sim FROM stop_place s " +
                 SQL_LEFT_JOIN_PARENT_STOP +
-                "WHERE ST_Within(s.centroid, :filter) = true " +
+                "WHERE public.ST_Within(s.centroid, :filter) = true " +
                 "AND " + SQL_STOP_PLACE_OR_PARENT_IS_VALID_AT_POINT_IN_TIME +
                 "AND s.stop_place_type = :stopPlaceType) sub " +
                 "WHERE sub.sim > 0.6 " +
@@ -254,7 +254,7 @@ public class StopPlaceRepositoryImpl implements StopPlaceRepositoryCustom {
 
         Query query = entityManager.createNativeQuery("SELECT s.netex_id FROM stop_place s " +
                                                            SQL_LEFT_JOIN_PARENT_STOP +
-                                                           "WHERE ST_Within(s.centroid, :filter) = true " +
+                                                           "WHERE public.ST_Within(s.centroid, :filter) = true " +
                                                            "AND " + SQL_STOP_PLACE_OR_PARENT_IS_VALID_AT_POINT_IN_TIME +
                                                            "AND s.name_value = :name ");
         query.setParameter("filter", geometryFilter);
@@ -271,7 +271,7 @@ public class StopPlaceRepositoryImpl implements StopPlaceRepositoryCustom {
 
         Query query = entityManager.createNativeQuery("SELECT s.netex_id FROM stop_place s " +
                                                                 SQL_LEFT_JOIN_PARENT_STOP +
-                                                                "WHERE ST_within(s.centroid, :filter) = true " +
+                                                                "WHERE public.ST_within(s.centroid, :filter) = true " +
                                                                 "AND " + SQL_STOP_PLACE_OR_PARENT_IS_VALID_AT_POINT_IN_TIME +
                                                                 "AND s.stop_place_type = :stopPlaceType");
 

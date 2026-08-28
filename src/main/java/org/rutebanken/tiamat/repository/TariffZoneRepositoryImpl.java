@@ -250,7 +250,7 @@ public class TariffZoneRepositoryImpl implements TariffZoneRepositoryCustom {
                                 ON PP.ID = TZ.POLYGON_ID
                         JOIN
                             STOP_PLACE SP
-                                ON ST_CONTAINS(PP.POLYGON,
+                                ON public.ST_CONTAINS(PP.POLYGON,
                             SP.CENTROID)
                             AND TZ.VERSION =  (SELECT
                                 MAX(TZV.VERSION)
