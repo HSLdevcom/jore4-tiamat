@@ -347,7 +347,7 @@ public class FareZoneRepositoryImpl implements FareZoneRepositoryCustom {
                     "                         STOP_PLACE SP " +
                     "                           ON FZ.SCOPING_METHOD='IMPLICIT_SPATIAL_PROJECTION' " +
                     "                           AND (FZ.POLYGON_ID IS NOT NULL OR FZ.MULTI_SURFACE_ID IS NOT NULL) " +
-                    "                           AND (ST_CONTAINS(PP.POLYGON,SP.CENTROID) OR ST_CONTAINS(PMP.MULTI_POLYGON,SP.CENTROID)) ";
+                    "                           AND (public.ST_CONTAINS(PP.POLYGON,SP.CENTROID) OR public.ST_CONTAINS(PMP.MULTI_POLYGON,SP.CENTROID)) ";
         }
         return subQuery;
     }

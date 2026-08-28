@@ -51,7 +51,7 @@ public class TariffZoneQueryFromSearchBuilder {
         if (search.getQuery() != null) {
             wheres.add("(lower(t.name_value) like concat('%', lower(:query), '%') or t.netex_id like concat('%', :query, '%'))");
             parameters.put("query", search.getQuery());
-            orderByStatements.add("similarity(t.name_value, :query) desc");
+            orderByStatements.add("public.similarity(t.name_value, :query) desc");
         }
         operators.add("and");
         wheres.add("t.version = (select max(tv.version) from tariff_zone tv where tv.netex_id = t.netex_id and (tv.to_date is null or tv.to_date > now()) and (tv.from_date is null or tv.from_date < now()))");
