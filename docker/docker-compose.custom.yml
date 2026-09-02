@@ -16,4 +16,5 @@ services:
       jore4-testdb:
         condition: service_healthy
     environment:
-      SECRET_STORE_BASE_PATH: "/mnt/secrets-store"
+     - SECRET_STORE_BASE_PATH=/mnt/secrets-store
+     - TIAMAT_DB_MAIN_DATABASE=jore4main

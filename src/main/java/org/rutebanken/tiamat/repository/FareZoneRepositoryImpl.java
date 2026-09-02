@@ -340,7 +340,7 @@ public class FareZoneRepositoryImpl implements FareZoneRepositoryCustom {
                     "                       ON PP.ID = FZ.POLYGON_ID " +
                     "                        JOIN" +
                     "                         STOP_PLACE SP " +
-                    "                           ON ST_CONTAINS(PP.POLYGON,SP.CENTROID) " +
+                    "                           ON public.ST_CONTAINS(PP.POLYGON,SP.CENTROID) " +
                     "                           AND FZ.SCOPING_METHOD='IMPLICIT_SPATIAL_PROJECTION' ";
         }
         return subQuery;

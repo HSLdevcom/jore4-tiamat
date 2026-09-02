@@ -90,9 +90,9 @@ public class TopographicPlaceRepositoryImpl implements TopographicPlaceRepositor
         }
 		//or t.netex_id like concat('%', :query, '%'))
         if(!Strings.isNullOrEmpty(name)) {
-            sql.append("AND (similarity(tp.name_value, :name) > 0.2 OR  similarity(tp.netex_id, :name) = 1)");
+            sql.append("AND (public.similarity(tp.name_value, :name) > 0.2 OR  public.similarity(tp.netex_id, :name) = 1)");
             parameters.put("name", name);
-            sql.append("ORDER BY SIMILARITY(tp.name_value, :name) DESC");
+            sql.append("ORDER BY public.SIMILARITY(tp.name_value, :name) DESC");
         }
 
 		Query query = entityManager.createNativeQuery(sql.toString(), TopographicPlace.class);

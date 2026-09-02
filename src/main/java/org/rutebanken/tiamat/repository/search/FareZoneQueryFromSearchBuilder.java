@@ -51,7 +51,7 @@ public class FareZoneQueryFromSearchBuilder {
         if (search.getQuery() != null) {
             wheres.add("(lower(f.name_value) like concat('%', lower(:query), '%') or f.netex_id like concat('%', :query, '%'))");
             parameters.put("query", search.getQuery());
-            orderByStatements.add("similarity(f.name_value, :query) desc");
+            orderByStatements.add("public.similarity(f.name_value, :query) desc");
         }
         if (search.getAuthorityRef() != null) {
             operators.add("and");
