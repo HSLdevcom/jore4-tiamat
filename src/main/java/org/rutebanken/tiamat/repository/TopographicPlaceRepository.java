@@ -34,8 +34,12 @@ public interface TopographicPlaceRepository extends EntityInVersionRepository<To
      */
     List<TopographicPlace> findByNameValueAndCountryRefRefAndTopographicPlaceType(String name, IanaCountryTldEnumeration ianCountryTld, TopographicPlaceTypeEnumeration placeType);
 
-    @QueryHints(value = { @QueryHint(name = "org.hibernate.cacheable", value = "true")}, forCounting = false)
-    @Query("select tp from TopographicPlace tp inner join tp.polygon pp where contains(pp.polygon, :#{#point}) = TRUE AND tp.version = (SELECT MAX(tpv.version) FROM TopographicPlace tpv WHERE tpv.netexId = tp.netexId)")
+        @QueryHints(value = { @QueryHint(name = "org.hibernate.cacheable", value = "true")}, forCounting = false)
+        @Query(value = "select tp.* from topographic_place tp " +
+            "inner join persistable_polygon pp on tp.polygon_id = pp.id " +
+            "where public.ST_Contains(pp.polygon, :#{#point}) = TRUE " +
+            "and tp.version = (SELECT MAX(tpv.version) FROM topographic_place tpv WHERE tpv.netex_id = tp.netex_id)",
+            nativeQuery = true)
     List<TopographicPlace> findByPoint(@Param("point") Point point);
 
     @QueryHints(value = { @QueryHint(name = "org.hibernate.cacheable", value = "true")}, forCounting = false)

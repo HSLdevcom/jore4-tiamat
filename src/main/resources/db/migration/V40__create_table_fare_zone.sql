@@ -15,7 +15,7 @@ CREATE TABLE fare_zone (
                              private_code_value character varying(255),
                              short_name_lang character varying(5),
                              short_name_value character varying(255),
-                             centroid geometry,
+                             centroid public.geometry,
                              polygon_id bigint,
                              changed_by character varying(255),
                              scoping_method character varying(255),
