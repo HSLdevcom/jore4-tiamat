@@ -41,3 +41,4 @@ jobs:
     uses: HSLdevcom/jore4-tools/.github/workflows/shared-run-e2e.yml@main
     with:
       tiamat_version: "${{ needs.publish_docker_image_to_acr.outputs.docker_image }}"
+      test-tags: ''
