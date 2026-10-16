@@ -15,6 +15,7 @@
 
 package org.rutebanken.tiamat.versioning.save;
 
+import com.google.common.collect.Sets;
 import org.rutebanken.tiamat.auth.StopPlaceAuthorizationService;
 import org.rutebanken.tiamat.auth.UsernameFetcher;
 import org.rutebanken.tiamat.changelog.EntityChangedListener;
@@ -28,6 +29,7 @@ import org.rutebanken.tiamat.model.StopPlace;
 import org.rutebanken.tiamat.model.TariffZoneRef;
 import org.rutebanken.tiamat.repository.StopPlaceRepository;
 import org.rutebanken.tiamat.repository.reference.ReferenceResolver;
+import org.rutebanken.tiamat.service.InfoSpotLinkageMaintainer;
 import org.rutebanken.tiamat.service.TariffZonesLookupService;
 import org.rutebanken.tiamat.service.TopographicPlaceLookupService;
 import org.rutebanken.tiamat.service.metrics.PrometheusMetricsService;
@@ -39,6 +41,7 @@ import org.rutebanken.tiamat.versioning.validate.VersionValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionSynchronization;
@@ -46,6 +49,7 @@ import org.springframework.transaction.support.TransactionSynchronizationManager
 
 import java.time.Instant;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -62,6 +66,20 @@ public class StopPlaceVersionedSaverService {
     public static final int ADJACENT_STOP_PLACE_MAX_DISTANCE_IN_METERS = 30;
 
     public static final InterchangeWeightingEnumeration DEFAULT_WEIGHTING = InterchangeWeightingEnumeration.INTERCHANGE_ALLOWED;
+
+    private static final Set<String> QUAY_DIFF_IGNORE_FIELDS = Sets.newHashSet(
+        "id", "version", "changed", "changedBy", "status", "modification", "envelope", "polygon"
+    );
+
+    private static final Set<String> STOP_PLACE_DIFF_IGNORE_FIELDS = Sets.newHashSet(
+        "id", "version", "changed", "changedBy", "status", "modification", "envelope", "polygon", "quays", "children", "validBetween", "accessibilityAssessment"
+    );
+
+    private final org.rutebanken.tiamat.diff.generic.GenericDiffConfig quayDiffConfig;
+    private final org.rutebanken.tiamat.diff.generic.GenericDiffConfig stopPlaceDiffConfig;
+
+    @Value("${tiamat.multimodal.allowSameNameForChild:false}")
+    private boolean allowSameNameForChild;
 
     @Autowired
     private ZoneDistanceChecker zoneDistanceChecker;
@@ -112,7 +130,26 @@ public class StopPlaceVersionedSaverService {
     private TiamatObjectDiffer tiamatObjectDiffer;
 
     @Autowired
+    private org.rutebanken.tiamat.diff.generic.GenericObjectDiffer genericObjectDiffer;
+
+    @Autowired
     private PrometheusMetricsService prometheusMetricsService;
+
+    @Autowired
+    private InfoSpotLinkageMaintainer infoSpotLinkageMaintainer;
+
+    public StopPlaceVersionedSaverService() {
+        this.quayDiffConfig = org.rutebanken.tiamat.diff.generic.GenericDiffConfig.builder()
+            .identifiers(Sets.newHashSet("netexId", "ref"))
+            .ignoreFields(QUAY_DIFF_IGNORE_FIELDS)
+            .onlyDoEqualsCheck(Sets.newHashSet(org.locationtech.jts.geom.Geometry.class))
+            .build();
+        this.stopPlaceDiffConfig = org.rutebanken.tiamat.diff.generic.GenericDiffConfig.builder()
+            .identifiers(Sets.newHashSet("netexId", "ref"))
+            .ignoreFields(STOP_PLACE_DIFF_IGNORE_FIELDS)
+            .onlyDoEqualsCheck(Sets.newHashSet(org.locationtech.jts.geom.Geometry.class))
+            .build();
+    }
 
     public StopPlace saveNewVersion(StopPlace existingVersion, StopPlace newVersion, Instant defaultValidFrom) {
         return saveNewVersion(existingVersion, newVersion, defaultValidFrom, new HashSet<>());
@@ -130,7 +167,19 @@ public class StopPlaceVersionedSaverService {
         return saveNewVersion(null, newVersion);
     }
 
+    /**
+     * Save a new version of a StopPlace, optionally excluding a specific InfoSpot from being copied.
+     * This is used when updating/deleting an InfoSpot - the old version should not be copied to the new entity version.
+     */
+    public StopPlace saveNewVersion(StopPlace existingVersion, StopPlace newVersion, String excludeInfoSpotNetexId) {
+        return saveNewVersion(existingVersion, newVersion, Instant.now(), new HashSet<>(), excludeInfoSpotNetexId);
+    }
+
     public StopPlace saveNewVersion(StopPlace existingVersion, StopPlace newVersion, Instant defaultValidFrom, Set<String> childStopsUpdated) {
+        return saveNewVersion(existingVersion, newVersion, defaultValidFrom, childStopsUpdated, null);
+    }
+
+    public StopPlace saveNewVersion(StopPlace existingVersion, StopPlace newVersion, Instant defaultValidFrom, Set<String> childStopsUpdated, String excludeInfoSpotNetexId) {
 
         versionValidator.validate(existingVersion, newVersion);
 
@@ -154,10 +203,17 @@ public class StopPlaceVersionedSaverService {
         submodeValidator.validate(newVersion);
 
         Instant changed = Instant.now();
-        newVersion.setChanged(changed);
 
-        logger.debug("Rearrange accessibility assessments for: {}", newVersion);
         accessibilityAssessmentOptimizer.optimizeAccessibilityAssessments(newVersion);
+
+        // Clean up empty/invalid fields before comparison
+        cleanEmptyFields(newVersion);
+        if (existingVersion != null) {
+            cleanEmptyFields(existingVersion);
+        }
+
+        // Check if the stop place itself (excluding quays) has changed
+        boolean stopPlaceChanged = hasStopPlaceChanged(existingVersion, newVersion);
 
         Instant newVersionValidFrom = validityUpdater.updateValidBetween(existingVersion, newVersion, defaultValidFrom);
 
@@ -173,9 +229,52 @@ public class StopPlaceVersionedSaverService {
             stopPlaceAuthorizationService.assertAuthorizedToEdit(existingVersionRefetched, newVersion, childStopsUpdated);
         }
 
+        // Identify which quays actually changed by comparing their content
+        final Set<String> modifiedQuayNetexIds = newVersion.getQuays() == null ? new HashSet<>() :
+            newVersion.getQuays().stream()
+                .filter(quay -> {
+                    if (existingVersion == null || existingVersion.getQuays() == null) {
+                        return true;
+                    }
+                    var existingQuay = existingVersion.getQuays().stream()
+                        .filter(eq -> eq.getNetexId() != null && eq.getNetexId().equals(quay.getNetexId()))
+                        .findFirst()
+                        .orElse(null);
+                    return hasQuayChanged(existingQuay, quay);
+                })
+                .map(quay -> quay.getNetexId())
+                .collect(Collectors.toSet());
+
         newVersion = versionIncrementor.initiateOrIncrementVersions(newVersion);
 
-        newVersion.setChangedBy(usernameFetcher.getUserNameForAuthenticatedUser());
+        String changedByUser = usernameFetcher.getUserNameForAuthenticatedUser();
+
+        // Only update stop place's changed/changedBy if stop place itself changed
+        if (stopPlaceChanged) {
+            newVersion.setChanged(changed);
+            newVersion.setChangedBy(changedByUser);
+        } else {
+            newVersion.setChanged(existingVersion.getChanged());
+            newVersion.setChangedBy(existingVersion.getChangedBy());
+        }
+
+        // Set changed and changedBy only on quays that were actually modified
+        if (newVersion.getQuays() != null) {
+            newVersion.getQuays().forEach(quay -> {
+                if (modifiedQuayNetexIds.contains(quay.getNetexId())) {
+                    quay.setChanged(changed);
+                    quay.setChangedBy(changedByUser);
+                } else if (existingVersion != null && existingVersion.getQuays() != null) {
+                    existingVersion.getQuays().stream()
+                            .filter(existingQuay -> quay.getNetexId().equals(existingQuay.getNetexId()))
+                            .findFirst().ifPresent(existingQuay -> {
+                                quay.setChanged(existingQuay.getChanged());
+                                quay.setChangedBy(existingQuay.getChangedBy());
+                            });
+                }
+            });
+        }
+
 
         if (newVersion.getWeighting() == null) {
             logger.info("Weighting is null for stop {} {}. Setting default value {}.", newVersion.getName(), newVersion.getNetexId(), DEFAULT_WEIGHTING);
@@ -189,6 +288,7 @@ public class StopPlaceVersionedSaverService {
         if (newVersion.getChildren() != null) {
             newVersion.getChildren().forEach(child -> {
                 child.setChanged(changed);
+                child.setChangedBy(changedByUser);
                 tariffZonesLookupService.populateTariffZone(child);
             });
 
@@ -204,6 +304,26 @@ public class StopPlaceVersionedSaverService {
         logger.info("StopPlace [{}], version {} changed by user [{}]. {}", newVersion.getNetexId(), newVersion.getVersion(), newVersion.getChangedBy(), newVersion.getValidBetween());
 
         logger.debug("Saved stop place with id: {} and childs {}", newVersion.getId(), newVersion.getChildren().stream().map(ch -> ch.getId()).collect(toList()));
+
+        // Copy InfoSpot linkages from old version to new version (with optional exclusion)
+        if (existingVersion != null) {
+            infoSpotLinkageMaintainer.maintainInfoSpotLinkagesExcluding(existingVersion, newVersion, excludeInfoSpotNetexId);
+        }
+
+        if (newVersion.getChildren() != null) {
+            newVersion.getChildren().forEach(child -> {
+                StopPlace previousChildVersion = stopPlaceRepository.findFirstByNetexIdAndVersion(
+                    child.getNetexId(),
+                    child.getVersion() - 1
+                );
+                if (previousChildVersion != null) {
+                    logger.debug("Maintaining InfoSpot linkages for child {} from version {} to version {}",
+                        child.getNetexId(), previousChildVersion.getVersion(), child.getVersion());
+                    infoSpotLinkageMaintainer.maintainInfoSpotLinkagesExcluding(
+                        previousChildVersion, child, excludeInfoSpotNetexId);
+                }
+            });
+        }
 
         updateParentSiteRefsForChildren(newVersion);
 
@@ -273,19 +393,21 @@ public class StopPlaceVersionedSaverService {
     }
 
     private void clearUnwantedChildFields(StopPlace stopPlaceToSave) {
-        if (stopPlaceToSave.getChildren() == null) return;
-        stopPlaceToSave.getChildren().forEach(child -> {
+        if (!allowSameNameForChild) {
+            if (stopPlaceToSave.getChildren() == null) return;
+            stopPlaceToSave.getChildren().forEach(child -> {
 
-            if (child.getName() != null
+                if (child.getName() != null
                         && stopPlaceToSave.getName() != null
                         && child.getName().getValue().equalsIgnoreCase(stopPlaceToSave.getName().getValue())
                         && (child.getName().getLang() == null || child.getName().getLang().equalsIgnoreCase(stopPlaceToSave.getName().getLang()))) {
-                logger.info("Name of child {}: {} is equal to parent's name {}. Clearing it", child.getNetexId(), stopPlaceToSave.getName(), stopPlaceToSave.getNetexId());
-                child.setName(null);
-            }
+                    logger.info("Name of child {}: {} is equal to parent's name {}. Clearing it", child.getNetexId(), stopPlaceToSave.getName(), stopPlaceToSave.getNetexId());
+                    child.setName(null);
+                }
 
-            child.setValidBetween(null);
-        });
+                child.setValidBetween(null);
+            });
+        }
     }
 
     /**
@@ -301,6 +423,82 @@ public class StopPlaceVersionedSaverService {
             count = parentStopPlace.getChildren().size();
         }
         logger.info("Updated {} childs with parent site refs", count);
+    }
+
+    /**
+     * Check if a quay has actual changes by comparing with its previous version.
+     * Ignores auto-generated fields like polygon, version, changed, etc.
+     *
+     * @param existingQuay the previous version of the quay (optional)
+     * @param newQuay the new version of the quay
+     * @return true if the quay has actual changes or is new
+     */
+    private boolean hasQuayChanged(org.rutebanken.tiamat.model.Quay existingQuay, org.rutebanken.tiamat.model.Quay newQuay) {
+        if (existingQuay == null) {
+            return true;
+        }
+
+        try {
+            return !genericObjectDiffer.compareObjects(existingQuay, newQuay, quayDiffConfig).isEmpty();
+        } catch (IllegalAccessException e) {
+            logger.warn("Could not compare quay {}, marking as modified", newQuay.getNetexId(), e);
+            return true;
+        }
+    }
+
+    /**
+     * Check if a stop place has actual changes by comparing with its previous version.
+     * Excludes quays and children from comparison.
+     *
+     * @param existingStopPlace the previous version of the stop place (optional)
+     * @param newStopPlace the new version of the stop place
+     * @return true if the stop place has actual changes or is new
+     */
+    private boolean hasStopPlaceChanged(StopPlace existingStopPlace, StopPlace newStopPlace) {
+        if (existingStopPlace == null) {
+            return true;
+        }
+
+        try {
+            List<org.rutebanken.tiamat.diff.generic.Difference> differences = genericObjectDiffer.compareObjects(existingStopPlace, newStopPlace, stopPlaceDiffConfig);
+            boolean hasChanges = !differences.isEmpty();
+
+            // Manually check if keyValues changed
+            if (!hasChanges && existingStopPlace.getKeyValues() != null && newStopPlace.getKeyValues() != null) {
+                if (!existingStopPlace.getKeyValues().equals(newStopPlace.getKeyValues())) {
+                    hasChanges = true;
+                }
+            }
+
+            return hasChanges;
+        } catch (IllegalAccessException e) {
+            logger.warn("Could not compare stop place {}, marking as modified", newStopPlace.getNetexId(), e);
+            return true;
+        }
+    }
+
+    /**
+     * Remove empty or invalid fields that shouldn't count as actual changes.
+     */
+    private void cleanEmptyFields(StopPlace stopPlace) {
+        // Clean empty alternative names
+        if (stopPlace.getAlternativeNames() != null) {
+            stopPlace.getAlternativeNames().removeIf(altName ->
+                altName.getName() == null ||
+                altName.getName().getValue() == null ||
+                altName.getName().getValue().trim().isEmpty() ||
+                "null".equalsIgnoreCase(altName.getName().getValue().trim())
+            );
+        }
+
+        // Clean empty keyValues entries
+        if (stopPlace.getKeyValues() != null) {
+            stopPlace.getKeyValues().entrySet().removeIf(entry ->
+                entry.getValue() == null ||
+                entry.getValue().getItems() == null ||
+                entry.getValue().getItems().isEmpty()
+            );
+        }
     }
 
 }

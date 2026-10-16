@@ -1,13 +1,18 @@
 {
-  "extends": ["github>entur/ror-renovate-config"],
-  "separateMinorPatch": true,
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "github>HSLdevcom/jore4-tools//renovatebot/jore4-default-preset.json5"
+  ],
   "packageRules": [
     {
-      "description": "Ensure simultaneous upgrade of graphql-java and graphql-java-extended-scalars",
-      "groupName": "com.graphql-java",
-      "matchDatasources": ["maven"],
-      "matchPackageNames": ["com.graphql-java:graphql-java", "com.graphql-java:graphql-java-extended-scalars"],
-      "versioning": "semver-coerced"
+      "matchPackageNames": ["*"],
+      "enabled": false
+    },
+    {
+      "groupName": "docker dependencies",
+      "groupSlug": "docker",
+      "matchManagers": ["dockerfile", "docker-compose"],
+      "enabled": true
     }
   ]
 }

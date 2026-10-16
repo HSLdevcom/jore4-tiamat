@@ -58,10 +58,8 @@ public class VersionCreator {
 
         EntityCopyMappings.registerPathLinkEnd(mapperFactory);
 
-        // Equipment belongs to the entity it hangs off rather than existing in its own right, so a
-        // copy gets a fresh identity rather than sharing the original's.
         List<Class<? extends EntityInVersionStructure>> excludeNetexIdAndVersionsForEntities =
-                Arrays.asList(PlaceEquipment.class, InstalledEquipment_VersionStructure.class);
+                List.of(PlaceEquipment.class);
 
         excludeNetexIdAndVersionsForEntities.forEach(clazz -> {
             mapperFactory.classMap(clazz, clazz)

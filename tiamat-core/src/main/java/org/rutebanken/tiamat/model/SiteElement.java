@@ -30,7 +30,7 @@ import java.util.List;
 import java.util.Set;
 
 @MappedSuperclass
-public abstract class SiteElement extends AddressablePlace {
+public abstract class SiteElement extends AddressablePlace implements EntityWithAlternativeNames {
 
     @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
