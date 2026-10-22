@@ -6,6 +6,3 @@ ALTER TABLE installed_equipment_version_structure ADD COLUMN replaces_rail_sign 
 ALTER TABLE installed_equipment_version_structure ADD COLUMN main_line_sign boolean;
 ALTER TABLE installed_equipment_version_structure ADD COLUMN note_value text;
 ALTER TABLE installed_equipment_version_structure ADD COLUMN note_lang text;
-
-ALTER TABLE local_service ADD COLUMN note_value text;
-ALTER TABLE local_service ADD COLUMN note_lang text;

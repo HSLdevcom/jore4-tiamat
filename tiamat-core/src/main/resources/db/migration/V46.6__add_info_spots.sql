@@ -29,8 +29,7 @@ create table info_spot
     display_type                      character varying(255),
     info_spot_location                character varying(255),
     centroid                          public.geometry,
-    polygon_id                        bigint,
-    multi_surface_id                  bigint references persistable_multi_polygon(id)
+    polygon_id                        bigint
 );
 
 create table info_spot_location
