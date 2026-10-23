@@ -45,7 +45,12 @@ public class StopPlaceObjectTypeCreator {
     @Autowired
     private TransportModeScalar transportModeScalar;
 
-    public GraphQLObjectType create(GraphQLInterfaceType stopPlaceInterface, List<GraphQLFieldDefinition> stopPlaceInterfaceFields, List<GraphQLFieldDefinition> commonFieldsList, GraphQLObjectType quayObjectType) {
+    public GraphQLObjectType create(
+            GraphQLInterfaceType stopPlaceInterface,
+            List<GraphQLFieldDefinition> stopPlaceInterfaceFields,
+            List<GraphQLFieldDefinition> commonFieldsList,
+            GraphQLObjectType quayObjectType
+    ) {
         return newObject()
                 .name(OUTPUT_TYPE_STOPPLACE)
                 .withInterface(stopPlaceInterface)

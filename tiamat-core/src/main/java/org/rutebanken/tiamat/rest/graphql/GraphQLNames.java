@@ -23,6 +23,8 @@ import static org.rutebanken.tiamat.rest.graphql.StopPlaceRegisterGraphQLSchema.
 import static org.rutebanken.tiamat.rest.graphql.StopPlaceRegisterGraphQLSchema.DEFAULT_SIZE_VALUE;
 import static org.rutebanken.tiamat.rest.graphql.scalars.DateScalar.DATE_TIME_PATTERN;
 import static org.rutebanken.tiamat.rest.graphql.scalars.DateScalar.EXAMPLE_DATE_TIME;
+import static org.rutebanken.tiamat.rest.graphql.scalars.LocalDateScalar.DATE_PATTERN;
+import static org.rutebanken.tiamat.rest.graphql.scalars.LocalDateScalar.EXAMPLE_DATE;
 
 public class GraphQLNames {
 
@@ -33,6 +35,9 @@ public class GraphQLNames {
 
     public static final String OUTPUT_TYPE_ACCESSIBILITY_LIMITATIONS = "AccessibilityLimitations";
     public static final String INPUT_TYPE_ACCESSIBILITY_LIMITATIONS = OUTPUT_TYPE_ACCESSIBILITY_LIMITATIONS + INPUT_TYPE_POSTFIX;
+
+    public static final String OUTPUT_TYPE_HSL_ACCESSIBILITY_PROPERTIES = "HslAccessibilityProperties";
+    public static final String INPUT_TYPE_HSL_ACCESSIBILITY_PROPERTIES = OUTPUT_TYPE_HSL_ACCESSIBILITY_PROPERTIES + INPUT_TYPE_POSTFIX;
 
     public static final String OUTPUT_TYPE_ACCESSIBILITY_ASSESSMENT = "AccessibilityAssessment";
     public static final String INPUT_TYPE_ACCESSIBILITY_ASSESSMENT = OUTPUT_TYPE_ACCESSIBILITY_ASSESSMENT + INPUT_TYPE_POSTFIX;
@@ -86,7 +91,9 @@ public class GraphQLNames {
     public static final String VALID_BETWEEN_FROM_DATE = "fromDate";
     public static final String VALID_BETWEEN_TO_DATE = "toDate";
 
-    public static final String DATE_SCALAR_DESCRIPTION = "Date time using the format: " + DATE_TIME_PATTERN + ". Example: "+EXAMPLE_DATE_TIME;
+    public static final String DATE_SCALAR_DESCRIPTION = "Date time using the format: " + DATE_TIME_PATTERN + ". Example: "+ EXAMPLE_DATE_TIME;
+
+    public static final String LOCAL_DATE_SCALAR_DESCRIPTION = "Date using the format: " + DATE_PATTERN + ". Example: "+ EXAMPLE_DATE;
 
     public static final String OUTPUT_TYPE_TRANSFER_DURATION = "TransferDuration";
     public static final String INPUT_TYPE_TRANSFER_DURATION = OUTPUT_TYPE_TRANSFER_DURATION + INPUT_TYPE_POSTFIX;
@@ -271,6 +278,7 @@ public class GraphQLNames {
     public static final String ACCESSIBILITY_ASSESSMENT = "accessibilityAssessment";
     public static final String LIMITATIONS = "limitations";
     public static final String MOBILITY_IMPAIRED_ACCESS = "mobilityImpairedAccess";
+    public static final String HSL_ACCESSIBILITY_PROPERTIES = "hslAccessibilityProperties";
 
     public static final String CHILDREN = "children";
 
@@ -280,6 +288,33 @@ public class GraphQLNames {
     public static final String LIFT_FREE_ACCESS = "liftFreeAccess";
     public static final String AUDIBLE_SIGNALS_AVAILABLE = "audibleSignalsAvailable";
     public static final String VISUAL_SIGNS_AVAILABLE = "visualSignsAvailable";
+
+    // HslAccessibilityProperties
+    public static final String STOP_AREA_SIDE_SLOPE = "stopAreaSideSlope";
+    public static final String STOP_AREA_LENGTHWISE_SLOPE = "stopAreaLengthwiseSlope";
+    public static final String END_RAMP_SLOPE = "endRampSlope";
+    public static final String SHELTER_LANE_DISTANCE = "shelterLaneDistance";
+    public static final String CURB_BACK_OF_RAIL_DISTANCE = "curbBackOfRailDistance";
+    public static final String CURB_DRIVE_SIDE_OF_RAIL_DISTANCE = "curbDriveSideOfRailDistance";
+    public static final String STRUCTURE_LANE_DISTANCE = "structureLaneDistance";
+    public static final String STOP_ELEVATION_FROM_RAIL_TOP = "stopElevationFromRailTop";
+    public static final String STOP_ELEVATION_FROM_SIDEWALK = "stopElevationFromSidewalk";
+    public static final String LOWER_CLEAT_HEIGHT = "lowerCleatHeight";
+    public static final String SERVICE_AREA_WIDTH = "serviceAreaWidth";
+    public static final String SERVICE_AREA_LENGTH = "serviceAreaLength";
+    public static final String PLATFORM_EDGE_WARNING_AREA = "platformEdgeWarningArea";
+    public static final String GUIDANCE_TILES = "guidanceTiles";
+    public static final String GUIDANCE_STRIPE = "guidanceStripe";
+    public static final String SERVICE_AREA_STRIPES = "serviceAreaStripes";
+    public static final String SIDEWALK_ACCESSIBLE_CONNECTION = "sidewalkAccessibleConnection";
+    public static final String STOP_AREA_SURROUNDINGS_ACCESSIBLE = "stopAreaSurroundingsAccessible";
+    public static final String CURVED_STOP = "curvedStop";
+    public static final String STOP_TYPE = "stopType";
+    public static final String SHELTER_WIDTH_TYPE = "shelterWidthType";
+    public static final String GUIDANCE_TYPE = "guidanceType";
+    public static final String MAP_TYPE = "mapType";
+    public static final String PEDESTRIAN_CROSSING_RAMP_TYPE = "pedestrianCrossingRampType";
+    public static final String ACCESSIBILITY_LEVEL = "accessibilityLevel";
 
     public static final String PLACE_EQUIPMENTS = "placeEquipments";
     public static final String TICKETING_EQUIPMENT = "ticketingEquipment";
@@ -302,6 +337,19 @@ public class GraphQLNames {
     // ShelterEquipment
     public static final String ENCLOSED = "enclosed";
 
+    public static final String SHELTER_TYPE = "shelterType";
+    public static final String SHELTER_ELECTRICITY = "shelterElectricity";
+    public static final String SHELTER_LIGHTING = "shelterLighting";
+    public static final String SHELTER_CONDITION = "shelterCondition";
+    public static final String TIMETABLE_CABINETS = "timetableCabinets";
+    public static final String TRASH_CAN = "trashCan";
+    public static final String SHELTER_HAS_DISPLAY = "shelterHasDisplay";
+    public static final String BICYCLE_PARKING = "bicycleParking";
+    public static final String LEANING_RAIL = "leaningRail";
+    public static final String OUTSIDE_BENCH = "outsideBench";
+    public static final String SHELTER_FASCIA_BOARD_TAPING = "shelterFasciaBoardTaping";
+    public static final String SHELTER_NUMBER = "shelterNumber";
+    public static final String SHELTER_EXTERNAL_ID = "shelterExternalId";
 
     // TicketingEquipment
     public static final String TICKET_MACHINES = "ticketMachines";
@@ -341,6 +389,7 @@ public class GraphQLNames {
     public static final String KEY_ARG_DESCRIPTION = "Must be used together with parameter 'values', other search-parameters are ignored. Defines key to search for.";
     public static final String VALUES = "values";
     public static final String VALUES_ARG_DESCRIPTION = "Must be used together with parameter 'key', other search-parameters are ignored. Defines value to search for.";
+    public static final String REF = "ref";
     public static final String VERSION = "version";
     public static final String VERSION_COMMENT = "versionComment";
     public static final String MODIFICATION_ENUMERATION = "modificationEnumeration";
@@ -492,6 +541,12 @@ public class GraphQLNames {
     public static final String END_TIME = "endTime";
     public static final String DAY_OFFSET = "dayOffset";
     public static final String PARENT_SITE_REF = "parentSiteRef";
+    public static final String STOP_PLACE_ORGANISATION_RELATIONSHIP_TYPE = "stopPlaceOrganisationRelationshipType";
+    public static final String OUTPUT_TYPE_STOP_PLACE_ORGANISATION_REF = "StopPlaceOrganisationRef";
+    public static final String INPUT_TYPE_STOP_PLACE_ORGANISATION_REF = OUTPUT_TYPE_STOP_PLACE_ORGANISATION_REF + INPUT_TYPE_POSTFIX;
+    public static final String ORGANISATIONS = "organisations";
+    public static final String ORGANISATION = "organisation";
+    public static final String RELATIONSHIP_TYPE = "relationshipType";
     public static final String ORGANISATION_REF = "organisationRef";
 
     public static final String VALID_TRANSPORT_MODES = "validTransportModes";
@@ -533,6 +588,7 @@ public class GraphQLNames {
     public static final String STOP_PLACE_IDS = "stopPlaceIds";
     public static final String FROM_STOP_PLACE_ID = "fromStopPlaceId";
     public static final String TO_STOP_PLACE_ID = "toStopPlaceId";
+    public static final String MOVE_QUAY_FROM_DATE = "moveQuayFromDate";
     public static final String FROM_QUAY_ID = "fromQuayId";
     public static final String TO_QUAY_ID = "toQuayId";
     public static final String MERGE_STOP_PLACES = "mergeStopPlaces";
@@ -551,4 +607,70 @@ public class GraphQLNames {
     public static final String CREATE_MULTI_MODAL_STOPPLACE = "createMultiModalStopPlace";
     public static final String ADD_TO_MULTIMODAL_STOPPLACE = "addToMultiModalStopPlace";
     public static final String REMOVE_FROM_MULTIMODAL_STOPPLACE = "removeFromMultiModalStopPlace";
+
+    public static final String NOTE = "note";
+    public static final String NUMBER_OF_FRAMES = "numberOfFrames";
+    public static final String LINE_SIGNAGE = "lineSignage";
+    public static final String MAIN_LINE_SIGN = "mainLineSign";
+    public static final String REPLACES_RAIL_SIGN = "replacesRailSign";
+
+    public static final String OUTPUT_TYPE_ORGANISATION = "Organisation";
+    public static final String INPUT_TYPE_ORGANISATION = OUTPUT_TYPE_ORGANISATION + INPUT_TYPE_POSTFIX;
+    public static final String FIND_ORGANISATION = "organisation";
+    public static final String MUTATE_ORGANISATION = "mutateOrganisation";
+    public static final String DELETE_ORGANISATION = "deleteOrganisation";
+    public static final String OUTPUT_TYPE_CONTACT = "Contact";
+    public static final String INPUT_TYPE_CONTACT = OUTPUT_TYPE_CONTACT + INPUT_TYPE_POSTFIX;
+
+    public static final String ORGANISATION_ID = "organisationId";
+    public static final String COMPANY_NUMBER = "companyNumber";
+    public static final String ORGANISATION_TYPE = "organisationType";
+    public static final String LEGAL_NAME = "legalName";
+    public static final String CONTACT_DETAILS = "contactDetails";
+    public static final String PRIVATE_CONTACT_DETAILS = "privateContactDetails";
+
+    public static final String CONTACT_PERSON = "contactPerson";
+    public static final String EMAIL = "email";
+    public static final String PHONE = "phone";
+    public static final String FAX = "fax";
+    public static final String FURTHER_DETAILS = "furtherDetails";
+
+    public static final String OUTPUT_TYPE_INFO_SPOT = "infoSpot";
+    public static final String INPUT_TYPE_INFO_SPOT = OUTPUT_TYPE_INFO_SPOT + INPUT_TYPE_POSTFIX;
+
+    public static final String INFO_SPOTS = "infoSpots";
+    public static final String MUTATE_INFO_SPOT = "mutateInfoSpots";
+
+    public static final String OUTPUT_TYPE_POSTER = "poster";
+    public static final String INPUT_TYPE_POSTER = OUTPUT_TYPE_POSTER + INPUT_TYPE_POSTFIX;
+
+    public static final String INFO_SPOT_TYPE = "infoSpotType";
+    public static final String PURPOSE = "purpose";
+    public static final String INTENDED_USER = "intendedUser";
+    public static final String WIDTH = "width";
+    public static final String HEIGHT = "height";
+    public static final String POSTER_PLACE_SIZE = "posterPlaceSize";
+    public static final String BACKLIGHT = "backlight";
+    public static final String MAINTENANCE = "maintenance";
+    public static final String ZONE_LABEL = "zoneLabel";
+    public static final String RAIL_INFORMATION = "railInformation";
+    public static final String FLOOR = "floor";
+    public static final String SPEECH_PROPERTY = "speechProperty";
+    public static final String DISPLAY_TYPE = "displayType";
+    public static final String INFO_SPOT_LOCATIONS = "infoSpotLocations";
+    public static final String LOCATION_REFS = "locationRefs";
+    public static final String LOCATION_REF = "locationRef";
+
+    public static final String EXTERNAL_LINKS = "externalLinks";
+    public static final String OUTPUT_TYPE_EXTERNAL_LINK = "externalLink";
+    public static final String INPUT_TYPE_EXTERNAL_LINK = OUTPUT_TYPE_EXTERNAL_LINK + INPUT_TYPE_POSTFIX;
+    public static final String OUTPUT_TYPE_STOP_PLACE_EXTERNAL_LINK = "stopPlaceExternalLink";
+    public static final String EXTERNAL_LINK_NAME = "name";
+    public static final String EXTERNAL_LINK_LOCATION = "location";
+    public static final String EXTERNAL_LINK_QUAY_ID = "quayId";
+    public static final String EXTERNAL_LINK_STOP_PLACE_ID = "stopPlaceId";
+    public static final String EXTERNAL_LINK_ORDER_NUM = "orderNum";
+
+    public static final String POSTER_SIZE = "posterSize";
+    public static final String LINES = "lines";
 }

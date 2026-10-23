@@ -1,8 +1,48 @@
-FROM eclipse-temurin:25-noble
-WORKDIR /deployments
-COPY target/tiamat.jar tiamat.jar
-RUN addgroup --gid 2000 appuser && adduser --uid 2000 --disabled-password --ingroup appuser appuser
-RUN mkdir -p /deployments/data && chown -R appuser:appuser /deployments/data
-USER appuser
-EXPOSE 8777
-CMD  [ "java", "-jar", "tiamat.jar"]
+FROM maven:3-eclipse-temurin-25 AS builder
+
+# set up workdir
+WORKDIR /build
+
+# download dependencies
+COPY ./pom.xml ./pom.xml
+COPY ./tiamat-core/pom.xml ./tiamat-core/pom.xml
+COPY ./tiamat-app/pom.xml ./tiamat-app/pom.xml
+RUN mvn --batch-mode --no-transfer-progress -pl tiamat-core -am dependency:go-offline
+
+# copy sources
+COPY ./tiamat-core/src ./tiamat-core/src
+COPY ./tiamat-app/src ./tiamat-app/src
+# package
+RUN mvn --batch-mode --no-transfer-progress -pl tiamat-app -am clean package -DskipTests
+
+FROM eclipse-temurin:25-jre-noble
+
+# Application Insights version
+ARG APPINSIGHTS_VERSION=3.7.7
+
+# expose server port
+EXPOSE 1888
+
+# Download a script for reading Docker secrets
+ADD --chmod=555 https://raw.githubusercontent.com/HSLdevcom/jore4-tools/main/docker/read-secrets.sh /tmp/read-secrets.sh
+
+# Downaload a Java applet to perform HEALTHCHECK with
+ADD --chmod=444 https://raw.githubusercontent.com/HSLdevcom/jore4-tools/main/docker/HealthCheck.jar /app/scripts/HealthCheck.jar
+
+# Connection string is provided as env in Kubernetes by secrets manager
+# it should not be provided for other environments (local etc)
+RUN mkdir -p /usr/src/jore4-tiamat
+ADD --chmod=444 https://github.com/microsoft/ApplicationInsights-Java/releases/download/${APPINSIGHTS_VERSION}/applicationinsights-agent-${APPINSIGHTS_VERSION}.jar /usr/src/jore4-tiamat/applicationinsights-agent.jar
+COPY --chmod=444 ./applicationinsights.json /usr/src/jore4-tiamat/applicationinsights.json
+
+# copy over helper scripts
+COPY --chmod=555 ./script/build-jdbc-urls.sh /tmp/
+
+# copy compiled jar from builder stage
+COPY --from=builder /build/tiamat-app/target/jore4-tiamat.jar /usr/src/jore4-tiamat/jore4-tiamat.jar
+
+# read Docker secrets into environment variables and run application
+CMD ["/bin/bash", "-c", "source /tmp/read-secrets.sh && source /tmp/build-jdbc-urls.sh && exec java --add-opens java.base/java.lang=ALL-UNNAMED -javaagent:/usr/src/jore4-tiamat/applicationinsights-agent.jar -jar /usr/src/jore4-tiamat/jore4-tiamat.jar"]
+
+HEALTHCHECK --interval=1m --timeout=5s \
+  CMD ["java", "-jar", "/app/scripts/HealthCheck.jar", "1888"]

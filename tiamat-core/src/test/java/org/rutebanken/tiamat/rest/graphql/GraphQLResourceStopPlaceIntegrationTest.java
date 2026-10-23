@@ -15,13 +15,17 @@
 
 package org.rutebanken.tiamat.rest.graphql;
 
+import java.time.LocalDate;
+import java.util.Set;
 import org.hamcrest.Matchers;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Point;
 import org.rutebanken.tiamat.changelog.EntityChangedEvent;
 import org.rutebanken.tiamat.changelog.EntityChangedJMSListener;
+import org.rutebanken.tiamat.exception.HSLErrorCodeEnumeration;
 import org.rutebanken.tiamat.model.AccessibilityAssessment;
 import org.rutebanken.tiamat.model.AccessibilityLimitation;
 import org.rutebanken.tiamat.model.AlternativeName;
@@ -29,11 +33,28 @@ import org.rutebanken.tiamat.model.AssistanceAvailabilityEnumeration;
 import org.rutebanken.tiamat.model.AssistanceFacilityEnumeration;
 import org.rutebanken.tiamat.model.AssistanceService;
 import org.rutebanken.tiamat.model.BusSubmodeEnumeration;
+import org.rutebanken.tiamat.model.Contact;
 import org.rutebanken.tiamat.model.CycleStorageEnumeration;
 import org.rutebanken.tiamat.model.CycleStorageEquipment;
 import org.rutebanken.tiamat.model.EmbeddableMultilingualString;
 import org.rutebanken.tiamat.model.GenderLimitationEnumeration;
 import org.rutebanken.tiamat.model.GeneralSign;
+import org.rutebanken.tiamat.model.Organisation;
+import org.rutebanken.tiamat.model.OrganisationTypeEnumeration;
+import org.rutebanken.tiamat.model.QuayExternalLink;
+import org.rutebanken.tiamat.model.StopPlaceExternalLink;
+import org.rutebanken.tiamat.model.StopPlaceOrganisationRef;
+import org.rutebanken.tiamat.model.StopPlaceOrganisationRelationshipEnumeration;
+import org.rutebanken.tiamat.model.hsl.AccessibilityLevelEnumeration;
+import org.rutebanken.tiamat.model.hsl.ElectricityTypeEnumeration;
+import org.rutebanken.tiamat.model.hsl.GuidanceTypeEnumeration;
+import org.rutebanken.tiamat.model.hsl.HslAccessibilityProperties;
+import org.rutebanken.tiamat.model.hsl.ShelterTypeEnumeration;
+import org.rutebanken.tiamat.model.hsl.HslStopTypeEnumeration;
+import org.rutebanken.tiamat.model.hsl.MapTypeEnumeration;
+import org.rutebanken.tiamat.model.hsl.PedestrianCrossingRampTypeEnumeration;
+import org.rutebanken.tiamat.model.hsl.ShelterConditionEnumeration;
+import org.rutebanken.tiamat.model.hsl.ShelterWidthTypeEnumeration;
 import org.rutebanken.tiamat.model.InterchangeWeightingEnumeration;
 import org.rutebanken.tiamat.model.LightingEnumeration;
 import org.rutebanken.tiamat.model.LimitationStatusEnumeration;
@@ -82,8 +103,10 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.ArrayList;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.anyOf;
 import static org.hamcrest.Matchers.comparesEqualTo;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
@@ -94,8 +117,10 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
+import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.MOVE_QUAY_FROM_DATE;
 import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.MOVE_QUAYS_TO_STOP;
 import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.QUAY_IDS;
+import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.TO_STOP_PLACE_ID;
 import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.TO_VERSION_COMMENT;
 import static org.rutebanken.tiamat.rest.graphql.scalars.DateScalar.DATE_TIME_PATTERN;
 
@@ -398,6 +423,51 @@ public class GraphQLResourceStopPlaceIntegrationTest extends AbstractGraphQLReso
                     .body("placeEquipments", notNullValue())
                 .rootPath("data.stopPlace[0].quays[0].placeEquipments.shelterEquipment[0]")
                 .body("seats", equalTo(3));
+    }
+
+    @Test
+    public void mutateStopPlaceRemoveAllShelterEquipmentFromQuay() {
+        var quay = new Quay();
+        var firstQuayName = "quay to add place equipment on";
+        quay.setName(new EmbeddableMultilingualString(firstQuayName));
+
+        var stopPlaceName = "StopPlace";
+        var stopPlace = new StopPlace(new EmbeddableMultilingualString(stopPlaceName));
+
+        var placeEquipments = new PlaceEquipment();
+        var shelter = new ShelterEquipment();
+        shelter.setBicycleParking(true);
+        shelter.setTrashCan(true);
+        placeEquipments.getInstalledEquipment().add(shelter);
+        quay.setPlaceEquipments(placeEquipments);
+
+        stopPlace.setQuays(new HashSet<>());
+        stopPlace.getQuays().add(quay);
+
+        stopPlaceRepository.save(stopPlace);
+
+        var graphqlQuery = """
+            mutation {
+              stopPlace: mutateStopPlace(StopPlace: {id: "%s", quays: [{id: "%s", placeEquipments: {shelterEquipment: []}}]}) {
+                id
+                quays {
+                  id
+                  placeEquipments {
+                    shelterEquipment {
+                      bicycleParking
+                      trashCan
+                    }
+                  }
+                }
+              }
+            }
+            """.formatted(stopPlace.getNetexId(),quay.getNetexId());
+
+        executeGraphqQLQueryOnly(graphqlQuery)
+                .rootPath("data.stopPlace[0].quays[0]")
+                .body("placeEquipments", notNullValue())
+                .rootPath("data.stopPlace[0].quays[0].placeEquipments")
+                .body("shelterEquipments", nullValue());
     }
 
     /**
@@ -1613,6 +1683,57 @@ public class GraphQLResourceStopPlaceIntegrationTest extends AbstractGraphQLReso
     }
 
     @Test
+    public void testSimpleMutationUpdateAlternativeNamesStopPlace() throws Exception {
+        StopPlace stopPlace = createStopPlace("Espa");
+        stopPlace.setShortName(new EmbeddableMultilingualString("E"));
+        stopPlace.setDescription(new EmbeddableMultilingualString("E6s beste boller"));
+        stopPlace.setStopPlaceType(StopTypeEnumeration.ONSTREET_BUS);
+        stopPlace.setCentroid(geometryFactory.createPoint(new Coordinate(10, 59)));
+        stopPlace.setAllAreasWheelchairAccessible(false);
+        stopPlace.setWeighting(InterchangeWeightingEnumeration.NO_INTERCHANGE);
+
+        final var translationValue = "E6s bästa bullarna";
+        final var aliasValue = "Alias";
+
+        final var translation = new AlternativeName();
+        translation.setName(new EmbeddableMultilingualString(translationValue, "swe"));
+        translation.setNameType(NameTypeEnumeration.TRANSLATION);
+        stopPlace.getAlternativeNames().add(translation);
+
+        stopPlaceVersionedSaverService.saveNewVersion(stopPlace);
+
+        String graphQlJsonQuery = """
+                 mutation {
+                  stopPlace: mutateStopPlace (StopPlace: {
+                          id: "%s"
+                          alternativeNames: [{
+                              name: { lang: "swe", value: "%s" },
+                              nameType: translation
+                          }, {
+                              name: { lang: "swe", value: "%s" },
+                              nameType: alias
+                          }],
+                      }) {
+                          id
+                          alternativeNames {
+                              nameType,
+                              name { lang, value }
+                          }
+                      }
+                  }""".formatted(stopPlace.getNetexId(), translationValue, aliasValue);
+
+        executeGraphqQLQueryOnly(graphQlJsonQuery)
+                .rootPath("data.stopPlace[0]")
+                .body("id", equalTo(stopPlace.getNetexId()))
+                .body("alternativeNames[0].nameType", equalTo("translation"))
+                .body("alternativeNames[0].name.lang", equalTo("swe"))
+                .body("alternativeNames[0].name.value", equalTo(translationValue))
+                .body("alternativeNames[1].nameType", equalTo("alias"))
+                .body("alternativeNames[1].name.lang", equalTo("swe"))
+                .body("alternativeNames[1].name.value", equalTo(aliasValue));
+    }
+
+    @Test
     public void testSimpleStopPlaceWithAccessibilityAssesment() throws Exception {
         String stopPlaceName = "StopPlace";
         StopPlace stopPlace = new StopPlace(new EmbeddableMultilingualString(stopPlaceName));
@@ -1922,6 +2043,8 @@ public class GraphQLResourceStopPlaceIntegrationTest extends AbstractGraphQLReso
         String privateCodeValue = "PB03";
         String privateCodeType = "Type";
 
+        String versionComment = "This is the initial version of the quay";
+
         Float lon =  Float.valueOf("10.11111");
         Float lat =  Float.valueOf("59.11111");
 
@@ -1931,12 +2054,13 @@ public class GraphQLResourceStopPlaceIntegrationTest extends AbstractGraphQLReso
                 mutation {
                  stopPlace:mutateStopPlace(StopPlace: {
                           id: "%s"
-                          quays: [{ 
+                          quays: [{
                             name: { value: "%s" }
                             shortName: { value: "%s" }
                             description: { value: "%s" }
                             publicCode: "%s"
                             privateCode: { value: "%s", type: "%s" }
+                            versionComment: "%s"
                             geometry: {
                               type: Point
                               coordinates: [%s,%s]
@@ -1953,11 +2077,12 @@ public class GraphQLResourceStopPlaceIntegrationTest extends AbstractGraphQLReso
                             description { value }
                             publicCode
                             privateCode { value type }
+                            versionComment
                             geometry { type coordinates }
                             lighting
                           }
                       }
-                  }""".formatted(stopPlace.getNetexId(), name, shortName, description, publicCode, privateCodeValue, privateCodeType, lon, lat, lighting.value());
+                  }""".formatted(stopPlace.getNetexId(), name, shortName, description, publicCode, privateCodeValue, privateCodeType, versionComment, lon, lat, lighting.value());
 
 
         executeGraphqQLQueryOnly(graphQlJsonQuery)
@@ -1971,6 +2096,8 @@ public class GraphQLResourceStopPlaceIntegrationTest extends AbstractGraphQLReso
                     .body("publicCode", equalTo(publicCode))
                     .body("privateCode.value", equalTo(privateCodeValue))
                     .body("privateCode.type", equalTo(privateCodeType))
+                    .body("privateCode.type", equalTo(privateCodeType))
+                    .body("versionComment", equalTo(versionComment))
                     .body("geometry.type", equalTo("Point"))
                     .body("geometry.coordinates[0]", comparesEqualTo(lon))
                     .body("geometry.coordinates[1]", comparesEqualTo(lat))
@@ -2051,34 +2178,52 @@ public class GraphQLResourceStopPlaceIntegrationTest extends AbstractGraphQLReso
     @Test
     public void testMoveQuayToNewStop() throws Exception {
 
-        StopPlace stopPlace = new StopPlace();
+        StopPlace sourceStopPlace = new StopPlace();
+        StopPlace destinationStopPlace = new StopPlace();
 
         Quay quay = new Quay();
-        stopPlace.getQuays().add(quay);
+        sourceStopPlace.getQuays().add(quay);
 
-        stopPlaceRepository.save(stopPlace);
+        stopPlaceRepository.save(sourceStopPlace);
+        stopPlaceRepository.save(destinationStopPlace);
 
         String versionComment = "moving quays";
+        LocalDate now = LocalDate.now();
+        String nowStr = now.toString();
 
         String graphQlJsonQuery = """
                     mutation {
-                    stopPlace: %s (%s: "%s", %s: "%s") {
+                    stopPlace: %s (%s: "%s", %s: "%s", %s: "%s", %s: "%s") {
                         id
                         ...on StopPlace {
                             quays {
                                 id
+                                keyValues {
+                                    key
+                                    values
+                                }
                             }
                         }
                         versionComment
                     }
                 }
-              """.formatted(MOVE_QUAYS_TO_STOP,QUAY_IDS,quay.getNetexId(),TO_VERSION_COMMENT,versionComment);
+              """
+                .formatted(
+                        MOVE_QUAYS_TO_STOP,
+                        QUAY_IDS, quay.getNetexId(),
+                        TO_STOP_PLACE_ID, destinationStopPlace.getNetexId(),
+                        TO_VERSION_COMMENT, versionComment,
+                        MOVE_QUAY_FROM_DATE, now);
 
         executeGraphqQLQueryOnly(graphQlJsonQuery)
-                .body("data.stopPlace.id", not(comparesEqualTo(stopPlace.getNetexId())))
+                .body("data.stopPlace.id", not(comparesEqualTo(sourceStopPlace.getNetexId())))
+                .body("data.stopPlace.id", comparesEqualTo(destinationStopPlace.getNetexId()))
                 .body("data.stopPlace.versionComment", equalTo(versionComment))
                 .rootPath("data.stopPlace.quays[0]")
-                    .body("id", comparesEqualTo(quay.getNetexId()));
+                    .body("id", not(comparesEqualTo(quay.getNetexId())))
+                    .body("keyValues", not(empty()))
+                    .body("keyValues.find { it.key == 'validityStart' }.values[0]", equalTo(nowStr));
+
     }
 
 
@@ -2623,7 +2768,7 @@ public class GraphQLResourceStopPlaceIntegrationTest extends AbstractGraphQLReso
 //                .body("nameType", equalTo(altName.getNameType())) //RestAssured apparently does not like comparing response with enums...
                 .body("generalSign[0]", notNullValue())
                 .body("generalSign[0].privateCode.type", comparesEqualTo(type))
-                .body("generalSign[0].privateCode.value", comparesEqualTo(value));
+                    .body("generalSign[0].privateCode.value", comparesEqualTo(value));
 
     }
 
@@ -2674,6 +2819,2009 @@ public class GraphQLResourceStopPlaceIntegrationTest extends AbstractGraphQLReso
                 .body("mobilityFacilityList", equalTo(expectedMobilityFacilities));
     }
 
+    @Test
+    public void testMutatePlaceEquipmentSignHSLValues() throws Exception {
+
+        StopPlace stopPlace = new StopPlace();
+        stopPlace.setName(new EmbeddableMultilingualString("Name"));
+        stopPlace.setCentroid(geometryFactory.createPoint(new Coordinate(11.1, 60.1)));
+
+        stopPlaceVersionedSaverService.saveNewVersion(stopPlace);
+
+        String netexId = stopPlace.getNetexId();
+        Integer numberOfFrames = 12;
+        Boolean lineSignage = true;
+        Boolean mainLineSign = true;
+        Boolean replacesRailSign = false;
+        String lang = "fin";
+        String value = "Deviation from signage guide";
+
+        String graphQlStopPlaceQuery = "{" +
+                "\"query\":\"mutation { " +
+                "  stopPlace: " + GraphQLNames.MUTATE_STOPPLACE + " (StopPlace: {" +
+                "      id:\\\"" + netexId + "\\\"" +
+                "      placeEquipments: {" +
+                "        generalSign:  [{" +
+                "          numberOfFrames: " + numberOfFrames + "," +
+                "          lineSignage: " + lineSignage + "," +
+                "          mainLineSign: " + mainLineSign + "," +
+                "          replacesRailSign: " + replacesRailSign + "," +
+                "          note: {" +
+                "            value: \\\"" + value + "\\\"" +
+                "            lang:\\\"" + lang + "\\\"" +
+                "          }" +
+                "        }]" +
+                "      }" +
+                "    }) " +
+                "    {" +
+                "      id" +
+                "      placeEquipments {" +
+                "        generalSign {" +
+                "          numberOfFrames, " +
+                "          lineSignage, " +
+                "          mainLineSign, " +
+                "          replacesRailSign, " +
+                "          note { value, lang } " +
+                "        }" +
+                "      }" +
+                "    }" +
+                "  }" +
+                "\",\"variables\":\"\"}";
+
+        executeGraphQL(graphQlStopPlaceQuery)
+                .body("data.stopPlace[0].id", comparesEqualTo(netexId))
+                .body("data.stopPlace[0].placeEquipments", notNullValue())
+                .rootPath("data.stopPlace[0].placeEquipments")
+                .body("generalSign[0]", notNullValue())
+                .body("generalSign[0].numberOfFrames", comparesEqualTo(numberOfFrames))
+                .body("generalSign[0].lineSignage", is(lineSignage))
+                .body("generalSign[0].mainLineSign", is(mainLineSign))
+                .body("generalSign[0].replacesRailSign", is(replacesRailSign))
+                .body("generalSign[0].note.lang", comparesEqualTo(lang))
+                .body("generalSign[0].note.value", comparesEqualTo(value));
+    }
+
+    @Test
+    public void testCreateStopWithTopographicPlaceHSL() {
+        TopographicPlace topographicPlace = new TopographicPlace(new EmbeddableMultilingualString("countyforinstance", "fin"));
+        topographicPlace.setTopographicPlaceType(TopographicPlaceTypeEnumeration.MUNICIPALITY);
+        topographicPlaceRepository.save(topographicPlace);
+
+        String stopName = "Stop one";
+
+        String graphQlJsonQuery = """
+            mutation {
+            stopPlace: mutateStopPlace(StopPlace: {
+                        name: { value: "%s" }
+                        topographicPlace: {
+                          id: "%s"
+                        }
+                }) {
+                    id
+                    name { value }
+                    topographicPlace { id topographicPlaceType name { lang value } }
+                }
+            }""".formatted(stopName,
+                topographicPlace.getNetexId()
+        );
+
+        executeGraphqQLQueryOnly(graphQlJsonQuery)
+                .rootPath("data.stopPlace[0]")
+                .body("name.value", equalTo(stopName))
+                .body("topographicPlace.id", equalTo(topographicPlace.getNetexId()))
+                .body("topographicPlace.topographicPlaceType", equalTo(TopographicPlaceTypeEnumeration.MUNICIPALITY.value()))
+                .body("topographicPlace.name", notNullValue())
+                .body("topographicPlace.name.lang", equalTo(topographicPlace.getName().getLang()))
+                .body("topographicPlace.name.value", equalTo(topographicPlace.getName().getValue()));
+    }
+
+    @Test
+    public void testCreateStopWithoutTopographicPlaceHSL() {
+        TopographicPlace topographicPlace = new TopographicPlace(new EmbeddableMultilingualString("countyforinstance", "fin"));
+        topographicPlace.setTopographicPlaceType(TopographicPlaceTypeEnumeration.MUNICIPALITY);
+        topographicPlaceRepository.save(topographicPlace);
+
+        String stopName = "Stop one";
+
+        String graphQlJsonQuery = """
+            mutation {
+            stopPlace: mutateStopPlace(StopPlace: {
+                        name: { value: "%s" }
+                }) {
+                    id
+                    name { value }
+                    topographicPlace { id topographicPlaceType name { lang value } }
+                }
+            }""".formatted(stopName
+        );
+
+        executeGraphqQLQueryOnly(graphQlJsonQuery)
+                .rootPath("data.stopPlace[0]")
+                .body("name.value", equalTo(stopName))
+                .body("topographicPlace", nullValue());
+    }
+
+    @Test
+    public void testMutateStopChangeTopographicPlaceHSL() {
+        TopographicPlace topographicPlaceOrigin = new TopographicPlace(new EmbeddableMultilingualString("original location", "fin"));
+        topographicPlaceOrigin.setTopographicPlaceType(TopographicPlaceTypeEnumeration.MUNICIPALITY);
+        topographicPlaceRepository.save(topographicPlaceOrigin);
+
+        TopographicPlace topographicPlaceTarget = new TopographicPlace(new EmbeddableMultilingualString("target location", "swe"));
+        topographicPlaceTarget.setTopographicPlaceType(TopographicPlaceTypeEnumeration.MUNICIPALITY);
+        topographicPlaceRepository.save(topographicPlaceTarget);
+
+        StopPlace stopPlace = createStopPlace("Espa");
+        stopPlace.setTopographicPlace(topographicPlaceOrigin);
+        stopPlaceVersionedSaverService.saveNewVersion(stopPlace);
+
+        String graphQlJsonQuery = """
+            mutation {
+            stopPlace: mutateStopPlace(StopPlace: {
+                        id: "%s"
+                        topographicPlace: {
+                          id: "%s"
+                        }
+                }) {
+                    id
+                    name { value }
+                    topographicPlace { id topographicPlaceType name { lang value } }
+                }
+            }""".formatted(stopPlace.getNetexId(),
+                topographicPlaceTarget.getNetexId()
+        );
+
+        executeGraphqQLQueryOnly(graphQlJsonQuery)
+                .rootPath("data.stopPlace[0]")
+                .body("id", equalTo(stopPlace.getNetexId()))
+                .body("name.value", equalTo(stopPlace.getName().getValue()))
+                .body("topographicPlace.id", equalTo(topographicPlaceTarget.getNetexId()))
+                .body("topographicPlace.topographicPlaceType", equalTo(TopographicPlaceTypeEnumeration.MUNICIPALITY.value()))
+                .body("topographicPlace.name", notNullValue())
+                .body("topographicPlace.name.lang", equalTo(topographicPlaceTarget.getName().getLang()))
+                .body("topographicPlace.name.value", equalTo(topographicPlaceTarget.getName().getValue()));
+    }
+
+    @Test
+    public void testQueryHslAccessibilityPropertiesOfStop() {
+        StopPlace stopPlace = new StopPlace();
+        stopPlace.setName(new EmbeddableMultilingualString("Name"));
+        Quay quay = new Quay();
+        quay.setName(new EmbeddableMultilingualString("quay"));
+        stopPlace.getQuays().add(quay);
+        AccessibilityAssessment accessibilityAssessment = createAccessibilityAssessment();
+        HslAccessibilityProperties hslAccessibilityProperties = createHslAccessibilityProperties();
+        accessibilityAssessment.setHslAccessibilityProperties(hslAccessibilityProperties);
+        stopPlace.setAccessibilityAssessment(accessibilityAssessment);
+
+        stopPlaceVersionedSaverService.saveNewVersion(stopPlace);
+
+        String graphQlJsonQuery = """
+            {
+              stopPlace:  stopPlace (query:"%s", allVersions:true) {
+                id
+                accessibilityAssessment {
+                  id
+                  hslAccessibilityProperties {
+                    id
+                    version
+                    stopAreaSideSlope
+                    stopAreaLengthwiseSlope
+                    endRampSlope
+                    shelterLaneDistance
+                    curbBackOfRailDistance
+                    curbDriveSideOfRailDistance
+                    structureLaneDistance
+                    stopElevationFromRailTop
+                    stopElevationFromSidewalk
+                    lowerCleatHeight
+                    serviceAreaWidth
+                    serviceAreaLength
+                    platformEdgeWarningArea
+                    guidanceTiles
+                    guidanceStripe
+                    serviceAreaStripes
+                    sidewalkAccessibleConnection
+                    stopAreaSurroundingsAccessible
+                    curvedStop
+                    stopType
+                    shelterType
+                    guidanceType
+                    mapType
+                    pedestrianCrossingRampType
+                    accessibilityLevel
+                  }
+                }
+              }
+            }""".formatted(stopPlace.getNetexId());
+
+        executeGraphqQLQueryOnly(graphQlJsonQuery)
+            .body("data.stopPlace[0].id", equalTo(stopPlace.getNetexId()))
+            .rootPath("data.stopPlace[0].accessibilityAssessment.hslAccessibilityProperties")
+            .body(notNullValue())
+            .body("id", equalTo(stopPlace.getAccessibilityAssessment().getHslAccessibilityProperties().getNetexId()))
+            .body("version", equalTo("1"))
+            // Note: RestAssured parses numbers as Float by default, even if they should be doubles here. Does not matter though since float range is sufficient.
+            .body("stopAreaSideSlope", equalTo(hslAccessibilityProperties.getStopAreaSideSlope().floatValue()))
+            .body("stopAreaLengthwiseSlope", equalTo(hslAccessibilityProperties.getStopAreaLengthwiseSlope().floatValue()))
+            .body("endRampSlope", equalTo(hslAccessibilityProperties.getEndRampSlope().floatValue()))
+            .body("shelterLaneDistance", equalTo(hslAccessibilityProperties.getShelterLaneDistance().floatValue()))
+            .body("curbBackOfRailDistance", equalTo(hslAccessibilityProperties.getCurbBackOfRailDistance().floatValue()))
+            .body("curbDriveSideOfRailDistance", equalTo(hslAccessibilityProperties.getCurbDriveSideOfRailDistance().floatValue()))
+            .body("structureLaneDistance", equalTo(hslAccessibilityProperties.getStructureLaneDistance().floatValue()))
+            .body("stopElevationFromRailTop", equalTo(hslAccessibilityProperties.getStopElevationFromRailTop().floatValue()))
+            .body("stopElevationFromSidewalk", equalTo(hslAccessibilityProperties.getStopElevationFromSidewalk().floatValue()))
+            .body("lowerCleatHeight", equalTo(hslAccessibilityProperties.getLowerCleatHeight().floatValue()))
+            .body("serviceAreaWidth", equalTo(hslAccessibilityProperties.getServiceAreaWidth().floatValue()))
+            .body("serviceAreaLength", equalTo(hslAccessibilityProperties.getServiceAreaLength().floatValue()))
+            .body("platformEdgeWarningArea", equalTo(hslAccessibilityProperties.isPlatformEdgeWarningArea()))
+            .body("guidanceTiles", equalTo(hslAccessibilityProperties.isGuidanceTiles()))
+            .body("guidanceStripe", equalTo(hslAccessibilityProperties.isGuidanceStripe()))
+            .body("serviceAreaStripes", equalTo(hslAccessibilityProperties.isServiceAreaStripes()))
+            .body("sidewalkAccessibleConnection", equalTo(hslAccessibilityProperties.isSidewalkAccessibleConnection()))
+            .body("stopAreaSurroundingsAccessible", equalTo(hslAccessibilityProperties.isStopAreaSurroundingsAccessible()))
+            .body("curvedStop", equalTo(hslAccessibilityProperties.isCurvedStop()))
+            .body("stopType", equalTo(hslAccessibilityProperties.getStopType().value()))
+            .body("shelterType", equalTo(hslAccessibilityProperties.getShelterType().value()))
+            .body("guidanceType", equalTo(hslAccessibilityProperties.getGuidanceType().value()))
+            .body("mapType", equalTo(hslAccessibilityProperties.getMapType().value()))
+            .body("pedestrianCrossingRampType", equalTo(hslAccessibilityProperties.getPedestrianCrossingRampType().value()))
+            .body("accessibilityLevel", equalTo(hslAccessibilityProperties.getAccessibilityLevel().value()));
+    }
+
+    @Test
+    public void testInsertHslAccessibilityPropertiesForStop() {
+        StopPlace stopPlace = new StopPlace();
+        stopPlace.setName(new EmbeddableMultilingualString("Name"));
+        Quay quay = new Quay();
+        quay.setName(new EmbeddableMultilingualString("quay"));
+        stopPlace.getQuays().add(quay);
+
+        stopPlaceVersionedSaverService.saveNewVersion(stopPlace);
+
+        var graphqlQuery = """
+            mutation {
+              stopPlace: mutateStopPlace(StopPlace: {
+                id: "%s",
+                # Could insert under quays, but because there's only 1 it gets optimized and moved under stopPlace.
+                accessibilityAssessment: {
+                  id: "%s"
+                  # Required, but irrelevant for this test.
+                  limitations: { wheelchairAccess: FALSE, stepFreeAccess: FALSE, escalatorFreeAccess: FALSE, liftFreeAccess: FALSE, audibleSignalsAvailable: FALSE, visualSignsAvailable: FALSE }
+                  hslAccessibilityProperties: {
+                    stopAreaSideSlope: 1
+                    stopAreaLengthwiseSlope: -2
+                    endRampSlope: 333.33
+                    shelterLaneDistance: 44
+                    curbBackOfRailDistance: 55555.55
+                    curbDriveSideOfRailDistance: 1.5
+                    structureLaneDistance: 2.25
+                    stopElevationFromRailTop: 33.55
+                    stopElevationFromSidewalk: 4.5
+                    lowerCleatHeight: 5.5
+                    serviceAreaWidth: 6.5
+                    serviceAreaLength: 7.5
+                    platformEdgeWarningArea: true
+                    guidanceTiles: true
+                    guidanceStripe: true
+                    serviceAreaStripes: true
+                    sidewalkAccessibleConnection: true
+                    stopAreaSurroundingsAccessible: true
+                    curvedStop: true
+                    stopType: pullOut
+                    shelterType: wide
+                    guidanceType: braille
+                    mapType: tactile
+                    pedestrianCrossingRampType: RK4_LR
+                    accessibilityLevel: partiallyInaccessible
+                  }
+                }
+              }) {
+                id
+                accessibilityAssessment {
+                  id
+                  hslAccessibilityProperties {
+                    id
+                    version
+                    stopAreaSideSlope
+                    stopAreaLengthwiseSlope
+                    endRampSlope
+                    shelterLaneDistance
+                    curbBackOfRailDistance
+                    curbDriveSideOfRailDistance
+                    structureLaneDistance
+                    stopElevationFromRailTop
+                    stopElevationFromSidewalk
+                    lowerCleatHeight
+                    serviceAreaWidth
+                    serviceAreaLength
+                    platformEdgeWarningArea
+                    guidanceTiles
+                    guidanceStripe
+                    serviceAreaStripes
+                    sidewalkAccessibleConnection
+                    stopAreaSurroundingsAccessible
+                    curvedStop
+                    stopType
+                    shelterType
+                    guidanceType
+                    mapType
+                    pedestrianCrossingRampType
+                    accessibilityLevel
+                  }
+                }
+              }
+            }
+            """.formatted(
+                stopPlace.getNetexId(),
+                stopPlace.getAccessibilityAssessment().getNetexId()
+            );
+
+        executeGraphqQLQueryOnly(graphqlQuery)
+            .body("data.stopPlace[0].id", equalTo(stopPlace.getNetexId()))
+            .rootPath("data.stopPlace[0].accessibilityAssessment.hslAccessibilityProperties")
+            .body(notNullValue())
+            .body("id", notNullValue())
+            .body("version", equalTo("1"))
+            // Note: RestAssured parses numbers as Float by default, even if they should be doubles here. Does not matter though since float range is sufficient.
+            .body("stopAreaSideSlope", equalTo(1.f))
+            .body("stopAreaLengthwiseSlope", equalTo(-2.f))
+            .body("endRampSlope", equalTo(333.33f))
+            .body("shelterLaneDistance", equalTo(44.f))
+            .body("curbBackOfRailDistance", equalTo(55555.55f))
+            .body("curbDriveSideOfRailDistance", equalTo(1.5f))
+            .body("structureLaneDistance", equalTo(2.25f))
+            .body("stopElevationFromRailTop", equalTo(33.55f))
+            .body("stopElevationFromSidewalk", equalTo(4.5f))
+            .body("lowerCleatHeight", equalTo(5.5f))
+            .body("serviceAreaWidth", equalTo(6.5f))
+            .body("serviceAreaLength", equalTo(7.5f))
+            .body("platformEdgeWarningArea", equalTo(true))
+            .body("guidanceTiles", equalTo(true))
+            .body("guidanceStripe", equalTo(true))
+            .body("serviceAreaStripes", equalTo(true))
+            .body("sidewalkAccessibleConnection", equalTo(true))
+            .body("stopAreaSurroundingsAccessible", equalTo(true))
+            .body("curvedStop", equalTo(true))
+            .body("stopType", equalTo(HslStopTypeEnumeration.PULL_OUT.value()))
+            .body("shelterType", equalTo(ShelterWidthTypeEnumeration.WIDE.value()))
+            .body("guidanceType", equalTo(GuidanceTypeEnumeration.BRAILLE.value()))
+            .body("mapType", equalTo(MapTypeEnumeration.TACTILE.value()))
+            .body("pedestrianCrossingRampType", equalTo(PedestrianCrossingRampTypeEnumeration.RK4_LR.value()))
+            .body("accessibilityLevel", equalTo(AccessibilityLevelEnumeration.PARTIALLY_INACCESSIBLE.value()));
+    }
+
+    @Test
+    public void testMutateHslAccessibilityPropertiesOfStop() {
+        StopPlace stopPlace = new StopPlace();
+        stopPlace.setName(new EmbeddableMultilingualString("Name"));
+        Quay quay = new Quay();
+        quay.setName(new EmbeddableMultilingualString("quay"));
+        stopPlace.getQuays().add(quay);
+        AccessibilityAssessment accessibilityAssessment = createAccessibilityAssessment();
+        HslAccessibilityProperties hslAccessibilityProperties = createHslAccessibilityProperties();
+        accessibilityAssessment.setHslAccessibilityProperties(hslAccessibilityProperties);
+        stopPlace.setAccessibilityAssessment(accessibilityAssessment);
+
+        stopPlaceVersionedSaverService.saveNewVersion(stopPlace);
+
+        var graphqlQuery = """
+            mutation {
+              stopPlace: mutateStopPlace(StopPlace: {
+                id: "%s",
+                accessibilityAssessment: {
+                  id: "%s"
+                  # Required, but irrelevant for this test.
+                  limitations: { wheelchairAccess: FALSE, stepFreeAccess: FALSE, escalatorFreeAccess: FALSE, liftFreeAccess: FALSE, audibleSignalsAvailable: FALSE, visualSignsAvailable: FALSE }
+                  hslAccessibilityProperties: {
+                    id: "%s"
+                    stopAreaSideSlope: 1
+                    stopAreaLengthwiseSlope: -2
+                    endRampSlope: 333.33
+                    shelterLaneDistance: 44
+                    curbBackOfRailDistance: 55555.55
+                    curbDriveSideOfRailDistance: 1.5
+                    structureLaneDistance: 2.25
+                    stopElevationFromRailTop: 33.55
+                    stopElevationFromSidewalk: 4.5
+                    lowerCleatHeight: 5.5
+                    serviceAreaWidth: 6.5
+                    serviceAreaLength: 7.5
+                    platformEdgeWarningArea: true
+                    guidanceTiles: true
+                    guidanceStripe: true
+                    serviceAreaStripes: true
+                    sidewalkAccessibleConnection: true
+                    stopAreaSurroundingsAccessible: true
+                    curvedStop: true
+                    stopType: busBulb
+                    shelterType: narrow
+                    guidanceType: none
+                    mapType: other
+                    pedestrianCrossingRampType: LR
+                    accessibilityLevel: fullyAccessible
+                  }
+                }
+              }) {
+                id
+                accessibilityAssessment {
+                  id
+                  hslAccessibilityProperties {
+                    id
+                    version
+                    stopAreaSideSlope
+                    stopAreaLengthwiseSlope
+                    endRampSlope
+                    shelterLaneDistance
+                    curbBackOfRailDistance
+                    curbDriveSideOfRailDistance
+                    structureLaneDistance
+                    stopElevationFromRailTop
+                    stopElevationFromSidewalk
+                    lowerCleatHeight
+                    serviceAreaWidth
+                    serviceAreaLength
+                    platformEdgeWarningArea
+                    guidanceTiles
+                    guidanceStripe
+                    serviceAreaStripes
+                    sidewalkAccessibleConnection
+                    stopAreaSurroundingsAccessible
+                    curvedStop
+                    stopType
+                    shelterType
+                    guidanceType
+                    mapType
+                    pedestrianCrossingRampType
+                    accessibilityLevel
+                  }
+                }
+              }
+            }
+            """.formatted(
+                stopPlace.getNetexId(),
+                stopPlace.getAccessibilityAssessment().getNetexId(),
+                stopPlace.getAccessibilityAssessment().getHslAccessibilityProperties().getNetexId()
+            );
+
+        executeGraphqQLQueryOnly(graphqlQuery)
+            .body("data.stopPlace[0].id", equalTo(stopPlace.getNetexId()))
+            .rootPath("data.stopPlace[0].accessibilityAssessment.hslAccessibilityProperties")
+            .body(notNullValue())
+            .body("id", notNullValue())
+            // Note: versioning is kind of broken.
+            // When mutating an existing entity, version is not incremented but a new row is created instead.
+            // This behavior is similar to accessibilityLimitations however, so keeping it like this for now.
+            .body("id", not(equalTo(stopPlace.getAccessibilityAssessment().getHslAccessibilityProperties().getNetexId())))
+            .body("version", equalTo("1"))
+            // Note: RestAssured parses numbers as Float by default, even if they should be doubles here. Does not matter though since float range is sufficient.
+            .body("stopAreaSideSlope", equalTo(1.f))
+            .body("stopAreaLengthwiseSlope", equalTo(-2.f))
+            .body("endRampSlope", equalTo(333.33f))
+            .body("shelterLaneDistance", equalTo(44.f))
+            .body("curbBackOfRailDistance", equalTo(55555.55f))
+            .body("curbDriveSideOfRailDistance", equalTo(1.5f))
+            .body("structureLaneDistance", equalTo(2.25f))
+            .body("stopElevationFromRailTop", equalTo(33.55f))
+            .body("stopElevationFromSidewalk", equalTo(4.5f))
+            .body("lowerCleatHeight", equalTo(5.5f))
+            .body("serviceAreaWidth", equalTo(6.5f))
+            .body("serviceAreaLength", equalTo(7.5f))
+            .body("platformEdgeWarningArea", equalTo(true))
+            .body("guidanceTiles", equalTo(true))
+            .body("guidanceStripe", equalTo(true))
+            .body("serviceAreaStripes", equalTo(true))
+            .body("sidewalkAccessibleConnection", equalTo(true))
+            .body("stopAreaSurroundingsAccessible", equalTo(true))
+            .body("curvedStop", equalTo(true))
+            .body("stopType", equalTo(HslStopTypeEnumeration.BUS_BULB.value()))
+            .body("shelterType", equalTo(ShelterWidthTypeEnumeration.NARROW.value()))
+            .body("guidanceType", equalTo(GuidanceTypeEnumeration.NONE.value()))
+            .body("mapType", equalTo(MapTypeEnumeration.OTHER.value()))
+            .body("pedestrianCrossingRampType", equalTo(PedestrianCrossingRampTypeEnumeration.LR.value()))
+            .body("accessibilityLevel", equalTo(AccessibilityLevelEnumeration.FULLY_ACCESSIBLE.value()));
+    }
+
+    @Test
+    public void testMutateHslAccessibilityPropertiesOfStopClearFields() {
+        StopPlace stopPlace = new StopPlace();
+        stopPlace.setName(new EmbeddableMultilingualString("Name"));
+        Quay quay = new Quay();
+        quay.setName(new EmbeddableMultilingualString("quay"));
+        stopPlace.getQuays().add(quay);
+        AccessibilityAssessment accessibilityAssessment = createAccessibilityAssessment();
+        HslAccessibilityProperties hslAccessibilityProperties = createHslAccessibilityProperties();
+        accessibilityAssessment.setHslAccessibilityProperties(hslAccessibilityProperties);
+        stopPlace.setAccessibilityAssessment(accessibilityAssessment);
+
+        stopPlaceVersionedSaverService.saveNewVersion(stopPlace);
+
+        var graphqlQuery = """
+            mutation {
+              stopPlace: mutateStopPlace(StopPlace: {
+                id: "%s",
+                accessibilityAssessment: {
+                  id: "%s"
+                  # Required, but irrelevant for this test.
+                  limitations: { wheelchairAccess: FALSE, stepFreeAccess: FALSE, escalatorFreeAccess: FALSE, liftFreeAccess: FALSE, audibleSignalsAvailable: FALSE, visualSignsAvailable: FALSE }
+                  hslAccessibilityProperties: {
+                    id: "%s"
+                    stopAreaSideSlope: null
+                    stopAreaLengthwiseSlope: null
+                    endRampSlope: null
+                    shelterLaneDistance: null
+                    curbBackOfRailDistance: null
+                    curbDriveSideOfRailDistance: null
+                    structureLaneDistance: null
+                    stopElevationFromRailTop: null
+                    stopElevationFromSidewalk: null
+                    lowerCleatHeight: null
+                    serviceAreaWidth: null
+                    serviceAreaLength: null
+                    platformEdgeWarningArea: null
+                    guidanceTiles: null
+                    guidanceStripe: null
+                    serviceAreaStripes: null
+                    sidewalkAccessibleConnection: null
+                    stopAreaSurroundingsAccessible: null
+                    curvedStop: null
+                    stopType: null
+                    shelterType: null
+                    guidanceType: null
+                    mapType: null
+                    pedestrianCrossingRampType: null
+                    accessibilityLevel: unknown
+                  }
+                }
+              }) {
+                id
+                accessibilityAssessment {
+                  id
+                  hslAccessibilityProperties {
+                    id
+                    version
+                    stopAreaSideSlope
+                    stopAreaLengthwiseSlope
+                    endRampSlope
+                    shelterLaneDistance
+                    curbBackOfRailDistance
+                    curbDriveSideOfRailDistance
+                    structureLaneDistance
+                    stopElevationFromRailTop
+                    stopElevationFromSidewalk
+                    lowerCleatHeight
+                    serviceAreaWidth
+                    serviceAreaLength
+                    platformEdgeWarningArea
+                    guidanceTiles
+                    guidanceStripe
+                    serviceAreaStripes
+                    sidewalkAccessibleConnection
+                    stopAreaSurroundingsAccessible
+                    curvedStop
+                    stopType
+                    shelterType
+                    guidanceType
+                    mapType
+                    pedestrianCrossingRampType
+                    accessibilityLevel
+                  }
+                }
+              }
+            }
+            """.formatted(
+                stopPlace.getNetexId(),
+                stopPlace.getAccessibilityAssessment().getNetexId(),
+                stopPlace.getAccessibilityAssessment().getHslAccessibilityProperties().getNetexId()
+            );
+
+        executeGraphqQLQueryOnly(graphqlQuery)
+            .body("data.stopPlace[0].id", equalTo(stopPlace.getNetexId()))
+            .rootPath("data.stopPlace[0].accessibilityAssessment.hslAccessibilityProperties")
+            .body(notNullValue())
+            .body("id", notNullValue())
+            // Note: versioning is kind of broken.
+            // When mutating an existing entity, version is not incremented but a new row is created instead.
+            // This behavior is similar to accessibilityLimitations however, so keeping it like this for now.
+            .body("id", not(equalTo(stopPlace.getAccessibilityAssessment().getHslAccessibilityProperties().getNetexId())))
+            .body("version", equalTo("1"))
+            .body("stopAreaSideSlope", equalTo(null))
+            .body("stopAreaLengthwiseSlope", equalTo(null))
+            .body("endRampSlope", equalTo(null))
+            .body("shelterLaneDistance", equalTo(null))
+            .body("curbBackOfRailDistance", equalTo(null))
+            .body("curbDriveSideOfRailDistance", equalTo(null))
+            .body("structureLaneDistance", equalTo(null))
+            .body("stopElevationFromRailTop", equalTo(null))
+            .body("stopElevationFromSidewalk", equalTo(null))
+            .body("lowerCleatHeight", equalTo(null))
+            .body("serviceAreaWidth", equalTo(null))
+            .body("serviceAreaLength", equalTo(null))
+            .body("platformEdgeWarningArea", equalTo(null))
+            .body("guidanceTiles", equalTo(null))
+            .body("guidanceStripe", equalTo(null))
+            .body("serviceAreaStripes", equalTo(null))
+            .body("sidewalkAccessibleConnection", equalTo(null))
+            .body("stopAreaSurroundingsAccessible", equalTo(null))
+            .body("curvedStop", equalTo(null))
+            .body("stopType", equalTo(null))
+            .body("shelterType", equalTo(null))
+            .body("guidanceType", equalTo(null))
+            .body("mapType", equalTo(null))
+            .body("pedestrianCrossingRampType", equalTo(null))
+            .body("accessibilityLevel", equalTo(AccessibilityLevelEnumeration.UNKNOWN.value())); // Not nullable
+    }
+
+    @Test
+    public void testQueryStopPlaceEquipmentShelterHSL() {
+        StopPlace stopPlace = new StopPlace();
+        stopPlace.setName(new EmbeddableMultilingualString("Name"));
+        PlaceEquipment placeEquipment = new PlaceEquipment();
+        ShelterEquipment shelterEquipment = createShelterEquipmentHSl();
+        placeEquipment.getInstalledEquipment().add(shelterEquipment);
+        stopPlace.setPlaceEquipments(placeEquipment);
+        stopPlaceVersionedSaverService.saveNewVersion(stopPlace);
+
+        String graphQlJsonQuery = """
+            {
+              stopPlace: stopPlace (query:"%s", allVersions:true) {
+                id
+                placeEquipments {
+                  shelterEquipment {
+                    enclosed
+                    shelterType
+                    shelterElectricity
+                    shelterLighting
+                    shelterCondition
+                    timetableCabinets
+                    trashCan
+                    shelterHasDisplay
+                    bicycleParking
+                    leaningRail
+                    outsideBench
+                    shelterFasciaBoardTaping
+                    shelterNumber
+                    shelterExternalId
+                  }
+                }
+              }
+            }""".formatted(stopPlace.getNetexId());
+
+        executeGraphqQLQueryOnly(graphQlJsonQuery)
+                .body("data.stopPlace[0].id", equalTo(stopPlace.getNetexId()))
+                .rootPath("data.stopPlace[0].placeEquipments.shelterEquipment[0]")
+                .body(notNullValue())
+                .body("enclosed", equalTo(shelterEquipment.isEnclosed()))
+                .body("shelterType", equalTo(shelterEquipment.getShelterType().value()))
+                .body("shelterElectricity", equalTo(shelterEquipment.getShelterElectricity().value()))
+                .body("shelterLighting", equalTo(shelterEquipment.isShelterLighting()))
+                .body("shelterCondition", equalTo(shelterEquipment.getShelterCondition().value()))
+                .body("timetableCabinets", equalTo(shelterEquipment.getTimetableCabinets()))
+                .body("trashCan", equalTo(shelterEquipment.isTrashCan()))
+                .body("shelterHasDisplay", equalTo(shelterEquipment.isShelterHasDisplay()))
+                .body("bicycleParking", equalTo(shelterEquipment.isBicycleParking()))
+                .body("leaningRail", equalTo(shelterEquipment.isLeaningRail()))
+                .body("outsideBench", equalTo(shelterEquipment.isOutsideBench()))
+                .body("shelterFasciaBoardTaping", equalTo(shelterEquipment.isShelterFasciaBoardTaping()))
+                .body("shelterNumber", equalTo(shelterEquipment.getShelterNumber()))
+                .body("shelterExternalId", equalTo(shelterEquipment.getShelterExternalId()));
+    }
+
+    @Test
+    public void testInsertStopPlaceEquipmentShelterHSL() {
+        StopPlace stopPlace = new StopPlace();
+        stopPlace.setName(new EmbeddableMultilingualString("Name"));
+
+        stopPlaceVersionedSaverService.saveNewVersion(stopPlace);
+
+        var graphqlQuery = """
+            mutation {
+              stopPlace: mutateStopPlace(StopPlace: {
+                id: "%s"
+                placeEquipments: {
+                  shelterEquipment: [{
+                    enclosed: true
+                    shelterType: steel
+                    shelterElectricity: continuous
+                    shelterLighting: true
+                    shelterCondition: mediocre
+                    timetableCabinets: 2
+                    trashCan: true
+                    shelterHasDisplay: false
+                    bicycleParking: true
+                    leaningRail: false
+                    outsideBench: true
+                    shelterFasciaBoardTaping: true
+                    shelterNumber: 1
+                    shelterExternalId: "99"
+                  },
+                  {
+                    enclosed: false
+                    shelterType: glass
+                    shelterElectricity: light
+                    shelterLighting: false
+                    shelterCondition: bad
+                    timetableCabinets: 1
+                    trashCan: false
+                    shelterHasDisplay: true
+                    bicycleParking: false
+                    leaningRail: true
+                    outsideBench: false
+                    shelterFasciaBoardTaping: false
+                    shelterNumber: 3
+                    shelterExternalId: "98"
+                  }]
+                }
+              }) {
+                id
+                placeEquipments {
+                  shelterEquipment {
+                    enclosed
+                    shelterType
+                    shelterElectricity
+                    shelterLighting
+                    shelterCondition
+                    timetableCabinets
+                    trashCan
+                    shelterHasDisplay
+                    bicycleParking
+                    leaningRail
+                    outsideBench
+                    shelterFasciaBoardTaping
+                    shelterNumber
+                    shelterExternalId
+                  }
+                }
+              }
+            }
+            """.formatted(
+                stopPlace.getNetexId()
+        );
+
+        executeGraphqQLQueryOnly(graphqlQuery)
+                .body("data.stopPlace[0].id", equalTo(stopPlace.getNetexId()))
+                .rootPath("data.stopPlace[0].placeEquipments.shelterEquipment[0]")
+                .body(notNullValue())
+                .body("enclosed", equalTo(true))
+                .body("shelterType", equalTo(ShelterTypeEnumeration.STEEL.value()))
+                .body("shelterElectricity", equalTo(ElectricityTypeEnumeration.CONTINUOUS.value()))
+                .body("shelterLighting", equalTo(true))
+                .body("shelterCondition", equalTo(ShelterConditionEnumeration.MEDIOCRE.value()))
+                .body("timetableCabinets", equalTo(2))
+                .body("trashCan", equalTo(true))
+                .body("shelterHasDisplay", equalTo(false))
+                .body("bicycleParking", equalTo(true))
+                .body("leaningRail", equalTo(false))
+                .body("outsideBench", equalTo(true))
+                .body("shelterFasciaBoardTaping", equalTo(true))
+                .body("shelterNumber", equalTo(1))
+                .body("shelterExternalId", equalTo("99"))
+                .rootPath("data.stopPlace[0].placeEquipments.shelterEquipment[1]")
+                .body(notNullValue())
+                .body("enclosed", equalTo(false))
+                .body("shelterType", equalTo(ShelterTypeEnumeration.GLASS.value()))
+                .body("shelterElectricity", equalTo(ElectricityTypeEnumeration.LIGHT.value()))
+                .body("shelterLighting", equalTo(false))
+                .body("shelterCondition", equalTo(ShelterConditionEnumeration.BAD.value()))
+                .body("timetableCabinets", equalTo(1))
+                .body("trashCan", equalTo(false))
+                .body("shelterHasDisplay", equalTo(true))
+                .body("bicycleParking", equalTo(false))
+                .body("leaningRail", equalTo(true))
+                .body("outsideBench", equalTo(false))
+                .body("shelterFasciaBoardTaping", equalTo(false))
+                .body("shelterNumber", equalTo(3))
+                .body("shelterExternalId", equalTo("98"));
+    }
+
+    @Test
+    public void testMutateStopPlaceEquipmentShelterHSL() {
+        StopPlace stopPlace = new StopPlace();
+        stopPlace.setName(new EmbeddableMultilingualString("Name"));
+        PlaceEquipment placeEquipment = new PlaceEquipment();
+        ShelterEquipment shelterEquipment = createShelterEquipmentHSl();
+        placeEquipment.getInstalledEquipment().add(shelterEquipment);
+        stopPlace.setPlaceEquipments(placeEquipment);
+        stopPlaceVersionedSaverService.saveNewVersion(stopPlace);
+
+        var graphqlQuery = """
+            mutation {
+              stopPlace: mutateStopPlace(StopPlace: {
+                id: "%s"
+                placeEquipments: {
+                  shelterEquipment: [{
+                    enclosed: true
+                    shelterType: steel
+                    shelterElectricity: continuous
+                    shelterLighting: true
+                    shelterCondition: mediocre
+                    timetableCabinets: 2
+                    trashCan: true
+                    shelterHasDisplay: false
+                    bicycleParking: true
+                    leaningRail: false
+                    outsideBench: true
+                    shelterFasciaBoardTaping: true
+                    shelterNumber: 2
+                    shelterExternalId: "9"
+                  }]
+                }
+              }) {
+                id
+                placeEquipments {
+                  shelterEquipment {
+                    enclosed
+                    shelterType
+                    shelterElectricity
+                    shelterLighting
+                    shelterCondition
+                    timetableCabinets
+                    trashCan
+                    shelterHasDisplay
+                    bicycleParking
+                    leaningRail
+                    outsideBench
+                    shelterFasciaBoardTaping
+                    shelterNumber
+                    shelterExternalId
+                  }
+                }
+              }
+            }
+            """.formatted(
+                stopPlace.getNetexId()
+        );
+
+        executeGraphqQLQueryOnly(graphqlQuery)
+                .body("data.stopPlace[0].id", equalTo(stopPlace.getNetexId()))
+                .rootPath("data.stopPlace[0].placeEquipments.shelterEquipment[0]")
+                .body(notNullValue())
+                .body("enclosed", equalTo(true))
+                .body("shelterType", equalTo(ShelterTypeEnumeration.STEEL.value()))
+                .body("shelterElectricity", equalTo(ElectricityTypeEnumeration.CONTINUOUS.value()))
+                .body("shelterLighting", equalTo(true))
+                .body("shelterCondition", equalTo(ShelterConditionEnumeration.MEDIOCRE.value()))
+                .body("timetableCabinets", equalTo(2))
+                .body("trashCan", equalTo(true))
+                .body("shelterHasDisplay", equalTo(false))
+                .body("bicycleParking", equalTo(true))
+                .body("leaningRail", equalTo(false))
+                .body("outsideBench", equalTo(true))
+                .body("shelterFasciaBoardTaping", equalTo(true))
+                .body("shelterNumber", equalTo(2))
+                .body("shelterExternalId", equalTo("9"));
+    }
+
+    @Test
+    public void testMutateQuayEquipmentKeepsNetexId() {
+        StopPlace stopPlace = new StopPlace();
+        stopPlace.setName(new EmbeddableMultilingualString("stopPlaceWithEquipment"));
+        Quay quay = new Quay();
+        quay.setName(new EmbeddableMultilingualString("quayWithEquipment"));
+        PlaceEquipment placeEquipment = new PlaceEquipment();
+        ShelterEquipment shelterEquipment = new ShelterEquipment();
+        shelterEquipment.setEnclosed(false);
+        placeEquipment.getInstalledEquipment().add(shelterEquipment);
+        quay.setPlaceEquipments(placeEquipment);
+        stopPlace.setQuays(Set.of(quay));
+        stopPlaceVersionedSaverService.saveNewVersion(stopPlace);
+
+        var savedQuay = stopPlace.getQuays().stream().findAny().orElseThrow();
+        var savedPlaceEquipment = savedQuay.getPlaceEquipments();
+        var installedEquipment = savedPlaceEquipment.getInstalledEquipment().stream().findAny().orElseThrow();
+
+        var graphqlQuery = """
+            mutation {
+              stopPlace: mutateStopPlace(StopPlace: {
+                id: "%s"
+                quays: {
+                  id: "%s"
+                  placeEquipments: {
+                    shelterEquipment: [{
+                      id: "%s"
+                      enclosed: true
+                    }]
+                  }
+                }
+              }) {
+                id
+                quays {
+                  id
+                  placeEquipments {
+                    shelterEquipment {
+                      id
+                      version
+                      enclosed
+                    }
+                  }
+                }
+              }
+            }
+            """.formatted(
+                stopPlace.getNetexId(),
+                savedQuay.getNetexId(),
+                installedEquipment.getNetexId()
+        );
+
+        executeGraphqQLQueryOnly(graphqlQuery)
+                .body("data.stopPlace[0].id", equalTo(stopPlace.getNetexId()))
+                .rootPath("data.stopPlace[0].quays[0]")
+                .body("id", equalTo(savedQuay.getNetexId()))
+                .appendRootPath("placeEquipments.shelterEquipment[0]")
+                .body(notNullValue())
+                .body("id", equalTo(installedEquipment.getNetexId()))
+                .body("version", equalTo(String.valueOf(installedEquipment.getVersion() + 1)))
+                .body("enclosed", equalTo(true));
+    }
+
+    @Test
+    public void testMutateQuayEquipmentReplacesShelterWhenNoNetexId() {
+        StopPlace stopPlace = new StopPlace();
+        stopPlace.setName(new EmbeddableMultilingualString("stopPlaceWithEquipment"));
+        Quay quay = new Quay();
+        quay.setName(new EmbeddableMultilingualString("quayWithEquipment"));
+        PlaceEquipment placeEquipment = new PlaceEquipment();
+        ShelterEquipment shelterEquipment = new ShelterEquipment();
+        shelterEquipment.setEnclosed(false);
+        placeEquipment.getInstalledEquipment().add(shelterEquipment);
+        quay.setPlaceEquipments(placeEquipment);
+        stopPlace.setQuays(Set.of(quay));
+        stopPlaceVersionedSaverService.saveNewVersion(stopPlace);
+
+        var savedQuay = stopPlace.getQuays().stream().findAny().orElseThrow();
+        var savedPlaceEquipment = savedQuay.getPlaceEquipments();
+        var installedEquipment = savedPlaceEquipment.getInstalledEquipment().stream().findAny().orElseThrow();
+
+        var graphqlQuery = """
+            mutation {
+              stopPlace: mutateStopPlace(StopPlace: {
+                id: "%s"
+                quays: {
+                  id: "%s"
+                  placeEquipments: {
+                    shelterEquipment: [{
+                      enclosed: true
+                    }]
+                  }
+                }
+              }) {
+                id
+                quays {
+                  id
+                  placeEquipments {
+                    shelterEquipment {
+                      id
+                      version
+                      enclosed
+                    }
+                  }
+                }
+              }
+            }
+            """.formatted(
+                stopPlace.getNetexId(),
+                savedQuay.getNetexId(),
+                installedEquipment.getNetexId()
+        );
+
+        executeGraphqQLQueryOnly(graphqlQuery)
+                .body("data.stopPlace[0].id", equalTo(stopPlace.getNetexId()))
+                .rootPath("data.stopPlace[0].quays[0]")
+                .body("id", equalTo(savedQuay.getNetexId()))
+                .appendRootPath("placeEquipments.shelterEquipment[0]")
+                .body(notNullValue())
+                .body("id", not(equalTo(installedEquipment.getNetexId())))
+                .body("version", equalTo("1"))
+                .body("enclosed", equalTo(true));
+    }
+
+    @Test
+    public void testMutateQuayEquipmentDoNotClearEquipmentWhenNotDefined() {
+        StopPlace stopPlace = new StopPlace();
+        stopPlace.setName(new EmbeddableMultilingualString("stopPlaceWithEquipment"));
+        Quay quay = new Quay();
+        quay.setName(new EmbeddableMultilingualString("quayWithEquipment"));
+        PlaceEquipment placeEquipment = new PlaceEquipment();
+        ShelterEquipment shelterEquipment = new ShelterEquipment();
+        shelterEquipment.setEnclosed(false);
+        placeEquipment.getInstalledEquipment().add(shelterEquipment);
+        quay.setPlaceEquipments(placeEquipment);
+        stopPlace.setQuays(Set.of(quay));
+        stopPlaceVersionedSaverService.saveNewVersion(stopPlace);
+
+        var savedQuay = stopPlace.getQuays().stream().findAny().orElseThrow();
+        var savedPlaceEquipment = savedQuay.getPlaceEquipments();
+        var installedEquipment = savedPlaceEquipment.getInstalledEquipment().stream().findAny().orElseThrow();
+
+        var graphqlQuery = """
+            mutation {
+              stopPlace: mutateStopPlace(StopPlace: {
+                id: "%s"
+                quays: {
+                  id: "%s"
+                  placeEquipments: {
+                    sanitaryEquipment: {
+                      numberOfToilets: 5
+                    }
+                  }
+                }
+              }) {
+                id
+                quays {
+                  id
+                  placeEquipments {
+                    shelterEquipment {
+                      id
+                      version
+                      enclosed
+                    }
+                    sanitaryEquipment {
+                      numberOfToilets
+                    }
+                  }
+                }
+              }
+            }
+            """.formatted(
+                stopPlace.getNetexId(),
+                savedQuay.getNetexId()
+        );
+
+        executeGraphqQLQueryOnly(graphqlQuery)
+                .body("data.stopPlace[0].id", equalTo(stopPlace.getNetexId()))
+                .rootPath("data.stopPlace[0].quays[0]")
+                .body("id", equalTo(savedQuay.getNetexId()))
+                .appendRootPath("placeEquipments.shelterEquipment[0]")
+                .body(notNullValue())
+                .body("id", equalTo(installedEquipment.getNetexId()))
+                .body("version", equalTo(String.valueOf(installedEquipment.getVersion() + 1)))
+                .body("enclosed", equalTo(shelterEquipment.isEnclosed()));
+    }
+
+    @Test
+    public void testMutateQuayEquipmentRemoveUndefined() {
+        StopPlace stopPlace = new StopPlace();
+        stopPlace.setName(new EmbeddableMultilingualString("stopPlaceWithEquipment"));
+        Quay quay = new Quay();
+        quay.setName(new EmbeddableMultilingualString("quayWithEquipment"));
+        PlaceEquipment placeEquipment = new PlaceEquipment();
+        ShelterEquipment shelterEquipment = new ShelterEquipment();
+        shelterEquipment.setEnclosed(true);
+        ShelterEquipment shelterEquipment2 = new ShelterEquipment();
+        shelterEquipment2.setEnclosed(true);
+        placeEquipment.getInstalledEquipment().add(shelterEquipment);
+        placeEquipment.getInstalledEquipment().add(shelterEquipment2);
+        quay.setPlaceEquipments(placeEquipment);
+        stopPlace.setQuays(Set.of(quay));
+        stopPlaceVersionedSaverService.saveNewVersion(stopPlace);
+
+        var savedQuay = stopPlace.getQuays().stream().findAny().orElseThrow();
+        var savedPlaceEquipment = savedQuay.getPlaceEquipments();
+        var installedEquipment = savedPlaceEquipment.getInstalledEquipment();
+
+        var graphqlQuery = """
+            mutation {
+              stopPlace: mutateStopPlace(StopPlace: {
+                id: "%s"
+                quays: {
+                  id: "%s"
+                  placeEquipments: {
+                    shelterEquipment: [{
+                      id: "%s"
+                      enclosed: false
+                    },
+                    {
+                      enclosed: true
+                    }
+                    ]
+                  }
+                }
+              }) {
+                id
+                quays {
+                  id
+                  placeEquipments {
+                    shelterEquipment {
+                      id
+                      version
+                      enclosed
+                    }
+                  }
+                }
+              }
+            }
+            """.formatted(
+                stopPlace.getNetexId(),
+                savedQuay.getNetexId(),
+                installedEquipment.getFirst().getNetexId()
+        );
+
+        executeGraphqQLQueryOnly(graphqlQuery)
+                .body("data.stopPlace[0].id", equalTo(stopPlace.getNetexId()))
+                .rootPath("data.stopPlace[0].quays[0]")
+                .body("id", equalTo(savedQuay.getNetexId()))
+                .appendRootPath("placeEquipments")
+                .body("shelterEquipment", hasSize(2))
+                .appendRootPath("shelterEquipment[0]")
+                .body(notNullValue())
+                .body("id", equalTo(installedEquipment.getFirst().getNetexId()))
+                .body("version", equalTo(String.valueOf(installedEquipment.getFirst().getVersion() + 1)))
+                .body("enclosed", equalTo(false))
+                .detachRootPath("shelterEquipment[0]")
+                .appendRootPath("shelterEquipment[1]")
+                .body("id", not(anyOf(equalTo(installedEquipment.getFirst().getNetexId()), equalTo(installedEquipment.getLast().getNetexId()))))
+                .body("version", equalTo("1"))
+                .body("enclosed", equalTo(true));
+    }
+    @Test
+    public void testNullExistingStopPlaceEquipmentShelterHSL() {
+        StopPlace stopPlace = new StopPlace();
+        stopPlace.setName(new EmbeddableMultilingualString("Name"));
+        PlaceEquipment placeEquipment = new PlaceEquipment();
+        ShelterEquipment shelterEquipment = createShelterEquipmentHSl();
+        placeEquipment.getInstalledEquipment().add(shelterEquipment);
+        stopPlace.setPlaceEquipments(placeEquipment);
+        stopPlaceVersionedSaverService.saveNewVersion(stopPlace);
+
+        var graphqlQuery = """
+            mutation {
+              stopPlace: mutateStopPlace(StopPlace: {
+                id: "%s"
+                placeEquipments: {
+                  shelterEquipment: [{
+                    enclosed: null
+                    shelterType: null
+                    shelterElectricity: null
+                    shelterLighting: null
+                    shelterCondition: null
+                    timetableCabinets: null
+                    trashCan: null
+                    shelterHasDisplay: null
+                    bicycleParking: null
+                    leaningRail: null
+                    outsideBench: null
+                    shelterFasciaBoardTaping: null
+                  }]
+                }
+              }) {
+                id
+                placeEquipments {
+                  shelterEquipment {
+                    enclosed
+                    shelterType
+                    shelterElectricity
+                    shelterLighting
+                    shelterCondition
+                    timetableCabinets
+                    trashCan
+                    shelterHasDisplay
+                    bicycleParking
+                    leaningRail
+                    outsideBench
+                    shelterFasciaBoardTaping
+                  }
+                }
+              }
+            }
+            """.formatted(
+                stopPlace.getNetexId()
+        );
+
+        executeGraphqQLQueryOnly(graphqlQuery)
+                .body("data.stopPlace[0].id", equalTo(stopPlace.getNetexId()))
+                .rootPath("data.stopPlace[0].placeEquipments.shelterEquipment[0]")
+                .body(notNullValue())
+                .body("enclosed", equalTo(null))
+                .body("shelterType", equalTo(null))
+                .body("shelterElectricity", equalTo(null))
+                .body("shelterLighting", equalTo(null))
+                .body("shelterCondition", equalTo(null))
+                .body("timetableCabinets", equalTo(null))
+                .body("trashCan", equalTo(null))
+                .body("shelterHasDisplay", equalTo(null))
+                .body("bicycleParking", equalTo(null))
+                .body("leaningRail", equalTo(null))
+                .body("outsideBench", equalTo(null))
+                .body("shelterFasciaBoardTaping", equalTo(null));
+    }
+
+    private void testMutateStopPlaceOrganisationImpl(boolean parentStopPlace) {
+        Organisation organisation1 = new Organisation();
+        organisation1.setCompanyNumber("112233");
+        organisation1.setName("Test Organisation");
+        organisation1.setOrganisationType(OrganisationTypeEnumeration.OTHER);
+        Contact privateContactDetails1 = new Contact();
+        privateContactDetails1.setEmail("private@example.com");
+        organisation1.setPrivateContactDetails(privateContactDetails1);
+        organisationRepository.save(organisation1);
+
+        Organisation organisation2 = new Organisation();
+        organisation2.setCompanyNumber("56789");
+        organisation2.setName("Another Organisation");
+        organisation2.setOrganisationType(OrganisationTypeEnumeration.OTHER);
+        Contact privateContactDetails2 = new Contact();
+        privateContactDetails2.setEmail("nulle@example.com");
+        organisation2.setPrivateContactDetails(privateContactDetails2);
+        organisationRepository.save(organisation2);
+
+        StopPlace stopPlace = new StopPlace();
+        stopPlace.setParentStopPlace(parentStopPlace);
+        stopPlace.setName(new EmbeddableMultilingualString("Name"));
+        // Set one existing organisation for the stop place.
+        stopPlace.getOrganisations().add(new StopPlaceOrganisationRef(
+                organisation1,
+                StopPlaceOrganisationRelationshipEnumeration.MAINTENANCE
+        ));
+
+        stopPlaceVersionedSaverService.saveNewVersion(stopPlace);
+
+        // Change relationship type of an existing organisation, and add a new one.
+        var graphqlQuery = """
+            mutation {
+              stopPlace: %s(%s: {
+                id: "%s"
+                organisations: [
+                  {
+                      organisationRef: "%s",
+                      relationshipType: infoUpkeep
+                  },
+                  {
+                      organisationRef: "%s",
+                      relationshipType: winterMaintenance
+                  }
+                ]
+              }) {
+                id
+                organisations {
+                  organisationRef
+                  relationshipType
+                  organisation {
+                    id
+                    name
+                    privateContactDetails {
+                      email
+                    }
+                  }
+                }
+              }
+            }
+            """.formatted(
+                parentStopPlace ? "mutateParentStopPlace" : "mutateStopPlace",
+                parentStopPlace ? "ParentStopPlace" : "StopPlace",
+                stopPlace.getNetexId(),
+                organisation1.getNetexId(),
+                organisation2.getNetexId()
+        );
+
+        executeGraphqQLQueryOnly(graphqlQuery)
+                .body("data.stopPlace[0].id", equalTo(stopPlace.getNetexId()))
+                .rootPath("data.stopPlace[0].organisations")
+                .body(notNullValue())
+                .body("", hasSize(2))
+                .body("[0].relationshipType", equalTo(StopPlaceOrganisationRelationshipEnumeration.INFO_UPKEEP.value()))
+                .body("[0].organisation.id", equalTo(organisation1.getNetexId()))
+                .body("[0].organisation.name", equalTo(organisation1.getName()))
+                .body("[0].organisation.privateContactDetails.email", equalTo(organisation1.getPrivateContactDetails().getEmail()))
+                .body("[1].relationshipType", equalTo(StopPlaceOrganisationRelationshipEnumeration.WINTER_MAINTENANCE.value()))
+                .body("[1].organisation.id", equalTo(organisation2.getNetexId()))
+                .body("[1].organisation.name", equalTo(organisation2.getName()))
+                .body("[1].organisation.privateContactDetails.email", equalTo(organisation2.getPrivateContactDetails().getEmail()));
+    }
+
+    private void testMutateStopPlaceEmptyOrganisationsImpl(boolean parentStopPlace) {
+        Organisation organisation1 = new Organisation();
+        organisation1.setCompanyNumber("112233");
+        organisation1.setName("Test Organisation");
+        organisation1.setOrganisationType(OrganisationTypeEnumeration.OTHER);
+        Contact privateContactDetails1 = new Contact();
+        privateContactDetails1.setEmail("private@example.com");
+        organisation1.setPrivateContactDetails(privateContactDetails1);
+        organisationRepository.save(organisation1);
+
+        StopPlace stopPlace = new StopPlace();
+        stopPlace.setParentStopPlace(parentStopPlace);
+        stopPlace.setName(new EmbeddableMultilingualString("Name"));
+        // Set one existing organisation for the stop place.
+        stopPlace.getOrganisations().add(new StopPlaceOrganisationRef(
+                organisation1,
+                StopPlaceOrganisationRelationshipEnumeration.MAINTENANCE
+        ));
+
+        stopPlaceVersionedSaverService.saveNewVersion(stopPlace);
+
+        // Mutate without organisations -> should remove an existing organisation relationship.
+        var graphqlQuery = """
+            mutation {
+              stopPlace: %s(%s: {
+                id: "%s"
+                organisations: []
+              }) {
+                id
+                organisations {
+                  organisationRef
+                  relationshipType
+                  organisation {
+                    id
+                    name
+                    privateContactDetails {
+                      email
+                    }
+                  }
+                }
+              }
+            }
+            """.formatted(
+                parentStopPlace ? "mutateParentStopPlace" : "mutateStopPlace",
+                parentStopPlace ? "ParentStopPlace" : "StopPlace",
+                stopPlace.getNetexId());
+
+        executeGraphqQLQueryOnly(graphqlQuery)
+                .body("data.stopPlace[0].id", equalTo(stopPlace.getNetexId()))
+                .rootPath("data.stopPlace[0].organisations")
+                .body(notNullValue())
+                .body("", hasSize(0));
+    }
+
+    @Test
+    public void testMutateStopPlaceOrganisation() {
+        testMutateStopPlaceOrganisationImpl(false);
+    }
+
+    @Test
+    public void testMutateStopPlaceEmptyOrganisations() {
+        testMutateStopPlaceEmptyOrganisationsImpl(false);
+    }
+
+    @Test
+    public void testMutateParentStopPlaceOrganisation() {
+        testMutateStopPlaceOrganisationImpl(true);
+    }
+
+    @Test
+    public void testMutateParentStopPlaceEmptyOrganisations() {
+        testMutateStopPlaceEmptyOrganisationsImpl(true);
+    }
+
+    private void testMutateQuayOrganisationImpl() {
+        Organisation organisation1 = new Organisation();
+        organisation1.setCompanyNumber("112234");
+        organisation1.setName("Test Quay Organisation");
+        organisation1.setOrganisationType(OrganisationTypeEnumeration.OTHER);
+        Contact privateContactDetails1 = new Contact();
+        privateContactDetails1.setEmail("quay@example.com");
+        organisation1.setPrivateContactDetails(privateContactDetails1);
+        organisationRepository.save(organisation1);
+
+        Organisation organisation2 = new Organisation();
+        organisation2.setCompanyNumber("16789");
+        organisation2.setName("Another Quay Organisation");
+        organisation2.setOrganisationType(OrganisationTypeEnumeration.OTHER);
+        Contact privateContactDetails2 = new Contact();
+        privateContactDetails2.setEmail("quay2@example.com");
+        organisation2.setPrivateContactDetails(privateContactDetails2);
+        organisationRepository.save(organisation2);
+
+        StopPlace stopPlace = new StopPlace();
+        stopPlace.setName(new EmbeddableMultilingualString("StopPlace with Quay"));
+
+        Quay quay = new Quay();
+        quay.setName(new EmbeddableMultilingualString("Quay"));
+        // Set one existing organisation for the quay.
+        quay.getOrganisations().add(new StopPlaceOrganisationRef(
+                organisation1,
+                StopPlaceOrganisationRelationshipEnumeration.MAINTENANCE
+        ));
+
+        stopPlace.getQuays().add(quay);
+        stopPlaceVersionedSaverService.saveNewVersion(stopPlace);
+
+        // Change relationship type of an existing organisation, and add a new one.
+        var graphqlQuery = """
+            mutation {
+              stopPlace: mutateStopPlace(StopPlace: {
+                id: "%s"
+                quays: [{
+                  id: "%s"
+                  organisations: [
+                    {
+                        organisationRef: "%s",
+                        relationshipType: infoUpkeep
+                    },
+                    {
+                        organisationRef: "%s",
+                        relationshipType: winterMaintenance
+                    }
+                  ]
+                }]
+              }) {
+                id
+                quays {
+                  id
+                  organisations {
+                    organisationRef
+                    relationshipType
+                    organisation {
+                      id
+                      name
+                      privateContactDetails {
+                        email
+                      }
+                    }
+                  }
+                }
+              }
+            }
+            """.formatted(
+                stopPlace.getNetexId(),
+                quay.getNetexId(),
+                organisation1.getNetexId(),
+                organisation2.getNetexId()
+        );
+
+        executeGraphqQLQueryOnly(graphqlQuery)
+                .body("data.stopPlace[0].id", equalTo(stopPlace.getNetexId()))
+                .rootPath("data.stopPlace[0].quays[0].organisations")
+                .body(notNullValue())
+                .body("", hasSize(2))
+                .body("[0].relationshipType", equalTo(StopPlaceOrganisationRelationshipEnumeration.INFO_UPKEEP.value()))
+                .body("[0].organisation.id", equalTo(organisation1.getNetexId()))
+                .body("[0].organisation.name", equalTo(organisation1.getName()))
+                .body("[0].organisation.privateContactDetails.email", equalTo(organisation1.getPrivateContactDetails().getEmail()))
+                .body("[1].relationshipType", equalTo(StopPlaceOrganisationRelationshipEnumeration.WINTER_MAINTENANCE.value()))
+                .body("[1].organisation.id", equalTo(organisation2.getNetexId()))
+                .body("[1].organisation.name", equalTo(organisation2.getName()))
+                .body("[1].organisation.privateContactDetails.email", equalTo(organisation2.getPrivateContactDetails().getEmail()));
+    }
+
+    private void testMutateQuayEmptyOrganisationsImpl() {
+        Organisation organisation1 = new Organisation();
+        organisation1.setCompanyNumber("112234");
+        organisation1.setName("Test Quay Organisation");
+        organisation1.setOrganisationType(OrganisationTypeEnumeration.OTHER);
+        Contact privateContactDetails1 = new Contact();
+        privateContactDetails1.setEmail("quay@example.com");
+        organisation1.setPrivateContactDetails(privateContactDetails1);
+        organisationRepository.save(organisation1);
+
+        StopPlace stopPlace = new StopPlace();
+        stopPlace.setName(new EmbeddableMultilingualString("StopPlace with Quay"));
+
+        Quay quay = new Quay();
+        quay.setName(new EmbeddableMultilingualString("Quay"));
+        // Set one existing organisation for the quay.
+        quay.getOrganisations().add(new StopPlaceOrganisationRef(
+                organisation1,
+                StopPlaceOrganisationRelationshipEnumeration.MAINTENANCE
+        ));
+
+        stopPlace.getQuays().add(quay);
+        stopPlaceVersionedSaverService.saveNewVersion(stopPlace);
+
+        // Mutate without organisations -> should remove existing organisation relationship.
+        var graphqlQuery = """
+            mutation {
+              stopPlace: mutateStopPlace(StopPlace: {
+                id: "%s"
+                quays: [{
+                  id: "%s"
+                  organisations: []
+                }]
+              }) {
+                id
+                quays {
+                  id
+                  organisations {
+                    organisationRef
+                    relationshipType
+                    organisation {
+                      id
+                      name
+                      privateContactDetails {
+                        email
+                      }
+                    }
+                  }
+                }
+              }
+            }
+            """.formatted(
+                stopPlace.getNetexId(),
+                quay.getNetexId()
+        );
+
+        executeGraphqQLQueryOnly(graphqlQuery)
+                .body("data.stopPlace[0].id", equalTo(stopPlace.getNetexId()))
+                .rootPath("data.stopPlace[0].quays[0].organisations")
+                .body(notNullValue())
+                .body("", hasSize(0));
+    }
+
+    @Test
+    public void testMutateQuayOrganisation() {
+        testMutateQuayOrganisationImpl();
+    }
+
+    @Test
+    public void testMutateQuayEmptyOrganisations() {
+        testMutateQuayEmptyOrganisationsImpl();
+    }
+
+    @Test
+    public void testMutateChildStopPlace() {
+
+        var stop = new StopPlace();
+        stop.setName(new EmbeddableMultilingualString("Stop Place"));
+        stop.setCentroid(geometryFactory.createPoint(new Coordinate(10, 59.05)));
+        stop = stopPlaceVersionedSaverService.saveNewVersion(stop);
+
+        String stationName = "Station";
+
+        var graphQlJsonQuery = """
+                mutation {
+                stopPlace: createMultiModalStopPlace (input: {
+                         stopPlaceIds:["%s"]
+                         name: { value: "%s" }
+                      }) {
+                         id
+                         name { value }
+                         children {
+                          id name { value }
+                         }
+                      }
+                 }""".formatted(stop.getNetexId(), stationName);
+
+        executeGraphqQLQueryOnly(graphQlJsonQuery)
+                .body("data.stopPlace.name.value", equalTo(stationName))
+                .body("data.stopPlace.children[0].name.value", equalTo(stop.getName().getValue()));
+
+        String newName = "new stop";
+
+        var mutateChildQuery = """
+                mutation {
+                  stopPlace: mutateStopPlace(StopPlace: {
+                    id: "%s"
+                    name: { value: "%s" }
+                  }) {
+                    id
+                    name { value }
+                  }
+                }
+                """.formatted(
+                stop.getNetexId(),
+                newName
+        );
+
+        executeGraphqQLQueryOnly(mutateChildQuery)
+                .body("data.stopPlace[0].id", equalTo(stop.getNetexId()))
+                .body("data.stopPlace[0].name.value", equalTo(newName));
+    }
+
+    @Test
+    public void testMultimodalStopKeepsEquipmentNetexIds() {
+
+        var stop = new StopPlace();
+        stop.setName(new EmbeddableMultilingualString("Stop Place"));
+        stop.setCentroid(geometryFactory.createPoint(new Coordinate(10, 59.05)));
+        var quay = new Quay();
+        quay.setPublicCode("Q1234");
+        var placeEquipment = new PlaceEquipment();
+        var shelter = new ShelterEquipment();
+        shelter.setEnclosed(true);
+        placeEquipment.getInstalledEquipment().add(shelter);
+        quay.setPlaceEquipments(placeEquipment);
+        stop.setQuays(Set.of(quay));
+        stop = stopPlaceVersionedSaverService.saveNewVersion(stop);
+
+        String stationName = "Station";
+
+        var graphQlJsonQuery = """
+                mutation {
+                stopPlace: createMultiModalStopPlace (input: {
+                         stopPlaceIds:["%s"]
+                         name: { value: "%s" }
+                      }) {
+                         id
+                         name { value }
+                         children {
+                           id
+                           name { value }
+                           quays {
+                             id
+                             placeEquipments {
+                               shelterEquipment {
+                                 id
+                                 enclosed
+                               }
+                             }
+                           }
+                         }
+                      }
+                 }""".formatted(stop.getNetexId(), stationName);
+
+        executeGraphqQLQueryOnly(graphQlJsonQuery)
+                .rootPath("data.stopPlace")
+                .body("name.value", equalTo(stationName))
+                .body("children", hasSize(1))
+                .appendRootPath("children[0]")
+                .body("name.value", equalTo(stop.getName().getValue()))
+                .body("quays", hasSize(1))
+                .appendRootPath("quays[0]")
+                .body("id", equalTo(quay.getNetexId()))
+                .appendRootPath("placeEquipments")
+                .body("shelterEquipment", hasSize(1))
+                .appendRootPath("shelterEquipment[0]")
+                .body("id", equalTo(shelter.getNetexId()))
+                .body("enclosed", equalTo(shelter.isEnclosed()));
+    }
+
+    @Ignore("Needs to have property set in order to skip clearing child stop names.")
+    @Test
+    public void testSameNameForParentAndChild() {
+        String name = "testname";
+
+        var stop = new StopPlace();
+        stop.setName(new EmbeddableMultilingualString(name));
+        stop.setCentroid(geometryFactory.createPoint(new Coordinate(10, 59.05)));
+        stop = stopPlaceVersionedSaverService.saveNewVersion(stop);
+
+        var graphQlJsonQuery = """
+                mutation {
+                stopPlace: createMultiModalStopPlace (input: {
+                         stopPlaceIds:["%s"]
+                         name: { value: "%s" }
+                      }) {
+                         id
+                         name { value }
+                         children {
+                          id name { value }
+                         }
+                      }
+                 }""".formatted(stop.getNetexId(), name);
+
+        executeGraphqQLQueryOnly(graphQlJsonQuery)
+                .body("data.stopPlace.name.value", equalTo(name))
+                .body("data.stopPlace.children[0].name.value", equalTo(name));
+
+        var fetchChildNameQuery = """
+                {
+                stopPlace:  stopPlace (id:"%s", onlyMonomodalStopPlaces:true) {
+                          id
+                          name { value }
+                      }
+                  }
+                """.formatted(stop.getNetexId());
+
+        executeGraphqQLQueryOnly(fetchChildNameQuery)
+                .body("data.stopPlace[0].name.value", equalTo(name));
+    }
+
+    @Test
+    public void forbidOverlappingValidityPeriodsWithSamePrivateCode() {
+
+        String startDate = "1990-01-01";
+        String endDate = "1991-01-01";
+        String newStartDate = "1990-06-01";
+        String newEndDate = "1991-06-01";
+
+        String stopPlaceName = "OldName";
+        String newStopPlaceName = "NewName";
+
+        String privateCode = "X1234";
+
+        StopPlace stopPlace = new StopPlace(new EmbeddableMultilingualString(stopPlaceName));
+
+        stopPlace.setPrivateCode(new PrivateCodeStructure(privateCode, "COD"));
+        stopPlace.getKeyValues().put("validityStart", new Value(startDate));
+        stopPlace.getKeyValues().put("validityEnd", new Value(endDate));
+        stopPlaceRepository.save(stopPlace);
+
+        String graphQlJsonQuery = """
+                mutation {
+                stopPlace: mutateStopPlace(StopPlace: {
+                          name: { value:"%s" }
+                          privateCode: { type: "COD", value: "%s" },
+                          keyValues: [
+                            { key:"validityStart" values:"%s" },
+                            { key:"validityEnd" values:"%s" }
+                          ]
+                  }) {
+                        id
+                    }
+                }
+                """.formatted(
+                newStopPlaceName,
+                privateCode,
+                newStartDate,
+                newEndDate
+        );
+
+        executeGraphqQLQueryOnly(graphQlJsonQuery)
+                .body("errors[0].extensions.errorCode", equalTo(HSLErrorCodeEnumeration.STOP_PLACE_UNIQUE_PRIVATE_CODE.name()));
+    }
+
+    @Test
+    public void forbidOverlappingValidityPeriodsWithNoEndDate() {
+
+        String startDate = "1990-01-01";
+        String newStartDate = "1990-06-01";
+        String newEndDate = "1991-06-01";
+
+        String name = "Some name";
+        String privateCode = "privateCode";
+        StopPlace stopPlace = new StopPlace(new EmbeddableMultilingualString(name));
+        stopPlace.setPrivateCode(new PrivateCodeStructure(privateCode, "HSL/TEST"));
+
+        stopPlace.getKeyValues().put("validityStart", new Value(startDate));
+        stopPlaceRepository.save(stopPlace);
+
+        String graphQlJsonQuery = """
+                mutation {
+                stopPlace: mutateStopPlace(StopPlace: {
+                          name: { value:"%s" }
+                          privateCode: { value:"%s", type:"HSL/TEST" }
+                          keyValues: [
+                            { key:"validityStart" values:"%s" },
+                            { key:"validityEnd" values:"%s" }
+                          ]
+                  }) {
+                        id
+                    }
+                }
+                """.formatted(
+                name,
+                privateCode,
+                newStartDate,
+                newEndDate
+        );
+
+        executeGraphqQLQueryOnly(graphQlJsonQuery)
+                .body("errors[0].extensions.errorCode", equalTo(HSLErrorCodeEnumeration.STOP_PLACE_UNIQUE_PRIVATE_CODE.name()));
+    }
+
+    @Test
+    public void allowNotOverlappingValidityPeriodsWithSameName() {
+
+        String startDate = "1990-01-01";
+        String endDate = "1991-01-01";
+        String newStartDate = "1991-01-02";
+        String newEndDate = "1992-01-01";
+
+        String stopPlaceName = "SameName";
+        StopPlace stopPlace = new StopPlace(new EmbeddableMultilingualString(stopPlaceName));
+
+        stopPlace.getKeyValues().put("validityStart", new Value(startDate));
+        stopPlace.getKeyValues().put("validityEnd", new Value(endDate));
+        stopPlace = stopPlaceRepository.save(stopPlace);
+
+        String graphQlJsonQuery = """
+                mutation {
+                stopPlace: mutateStopPlace(StopPlace: {
+                          name: { value:"%s" }
+                          keyValues: [
+                            { key:"validityStart" values:"%s" },
+                            { key:"validityEnd" values:"%s" }
+                          ]
+                  }) {
+                        id
+                    }
+                }
+                """.formatted(
+                stopPlaceName,
+                newStartDate,
+                newEndDate
+        );
+
+        executeGraphqQLQueryOnly(graphQlJsonQuery)
+                .body("data.stopPlace.id", not(equalTo(stopPlace.getNetexId())));
+    }
+
+    @Test
+    public void readQuayExternalLinksTest() {
+
+        StopPlace stopPlace = new StopPlace();
+        stopPlace.setName(new EmbeddableMultilingualString("stop"));
+        Quay quay = new Quay();
+
+        QuayExternalLink link1 = new QuayExternalLink();
+        link1.setName("link one");
+        link1.setLocation("http://www.test.location");
+
+        QuayExternalLink link2 = new QuayExternalLink();
+        link2.setName("second link");
+        link2.setLocation("local://location");
+
+        quay.setExternalLinks(List.of(link1, link2));
+        stopPlace.setQuays(Set.of(quay));
+        stopPlace = stopPlaceRepository.save(stopPlace);
+
+        String graphQLJsonQuery = """
+        {
+          stopPlace: stopPlace (query:"%s", allVersions:true) {
+            id
+            ... on StopPlace {
+              quays {
+                externalLinks {
+                  name
+                  location
+                  quayId
+                  orderNum
+                }
+              }
+            }
+          }
+        }""".formatted(stopPlace.getNetexId());
+
+        int quayId = stopPlace.getQuays().stream().findFirst().map(Quay::getId).map(Long::intValue).get();
+
+        executeGraphqQLQueryOnly(graphQLJsonQuery)
+                .rootPath("data.stopPlace[0]")
+                .body("id", equalTo(stopPlace.getNetexId()))
+                .body("quays", hasSize(1))
+                .appendRootPath("quays[0]")
+                .body("externalLinks", hasSize(2))
+                .body("externalLinks[0].name", equalTo(link1.getName()))
+                .body("externalLinks[0].location", equalTo(link1.getLocation()))
+                .body("externalLinks[0].quayId", equalTo(quayId))
+                .body("externalLinks[0].orderNum", equalTo(0))
+                .body("externalLinks[1].name", equalTo(link2.getName()))
+                .body("externalLinks[1].location", equalTo(link2.getLocation()))
+                .body("externalLinks[1].quayId", equalTo(quayId))
+                .body("externalLinks[1].orderNum", equalTo(1));
+    }
+
+    @Test
+    public void setQuayExternalLinkTest() {
+
+        String stopPlaceName = "testStopPlace";
+
+        String link1Name = "link one";
+        String link1Location = "http://www.test.location";
+
+        String link2Name = "second link";
+        String link2Location = "local://location";
+
+        String graphQLJsonQuery = """
+            mutation {
+              stopPlace: mutateStopPlace(StopPlace: {
+                name: { value: "%s" }
+                quays: {
+                  externalLinks: [
+                  {
+                    name: "%s"
+                    location: "%s"
+                  },
+                  {
+                    name: "%s"
+                    location: "%s"
+                  }
+                  ]
+                }
+              }) {
+                    id
+                    quays {
+                      externalLinks {
+                        name
+                        location
+                      }
+                    }
+                }
+            }
+            """.formatted(
+                stopPlaceName,
+                link1Name,
+                link1Location,
+                link2Name,
+                link2Location
+        );
+
+        executeGraphqQLQueryOnly(graphQLJsonQuery)
+                .rootPath("data.stopPlace")
+                .body("quays", hasSize(1))
+                .appendRootPath("quays[0]")
+                // RestAssured fails to parse array in this case and wraps it one time too many, requiring extra [0]
+                .body("externalLinks[0]", hasSize(2))
+                .body("externalLinks[0][0].name", equalTo(link1Name))
+                .body("externalLinks[0][0].location", equalTo(link1Location))
+                .body("externalLinks[0][1].name", equalTo(link2Name))
+                .body("externalLinks[0][1].location", equalTo(link2Location));
+    }
+
+    @Test
+    public void readStopPlaceExternalLinksTest() {
+
+        StopPlace stopPlace = new StopPlace();
+        stopPlace.setName(new EmbeddableMultilingualString("stop"));
+
+        StopPlaceExternalLink link1 = new StopPlaceExternalLink();
+        link1.setName("link one");
+        link1.setLocation("http://www.test.location");
+
+        StopPlaceExternalLink link2 = new StopPlaceExternalLink();
+        link2.setName("second link");
+        link2.setLocation("local://location");
+
+        stopPlace.setStopPlaceExternalLinks(List.of(link1, link2));
+        stopPlace = stopPlaceRepository.save(stopPlace);
+
+        String graphQLJsonQuery = """
+        {
+          stopPlace: stopPlace (query:"%s", allVersions:true) {
+            id
+            externalLinks {
+              name
+              location
+              stopPlaceId
+              orderNum
+            }
+          }
+        }""".formatted(stopPlace.getNetexId());
+
+        int stopPlaceId = stopPlace.getId().intValue();
+
+        executeGraphqQLQueryOnly(graphQLJsonQuery)
+                .rootPath("data.stopPlace[0]")
+                .body("id", equalTo(stopPlace.getNetexId()))
+                .body("externalLinks", hasSize(2))
+                .body("externalLinks[0].name", equalTo(link1.getName()))
+                .body("externalLinks[0].location", equalTo(link1.getLocation()))
+                .body("externalLinks[0].stopPlaceId", equalTo(stopPlaceId))
+                .body("externalLinks[0].orderNum", equalTo(0))
+                .body("externalLinks[1].name", equalTo(link2.getName()))
+                .body("externalLinks[1].location", equalTo(link2.getLocation()))
+                .body("externalLinks[1].stopPlaceId", equalTo(stopPlaceId))
+                .body("externalLinks[1].orderNum", equalTo(1));
+    }
+
+    @Test
+    public void setStopPlaceExternalLinkTest() {
+
+        String stopPlaceName = "testStopPlace";
+
+        String link1Name = "link one";
+        String link1Location = "http://www.test.location";
+
+        String link2Name = "second link";
+        String link2Location = "local://location";
+
+        String graphQLJsonQuery = """
+            mutation {
+              stopPlace: mutateStopPlace(StopPlace: {
+                name: { value: "%s" }
+                externalLinks: [
+                {
+                  name: "%s"
+                  location: "%s"
+                },
+                {
+                  name: "%s"
+                  location: "%s"
+                }
+                ]
+              }) {
+                id
+                externalLinks {
+                  name
+                  location
+                }
+                }
+            }
+            """.formatted(
+                stopPlaceName,
+                link1Name,
+                link1Location,
+                link2Name,
+                link2Location
+        );
+
+        executeGraphqQLQueryOnly(graphQLJsonQuery)
+                .rootPath("data.stopPlace")
+                // RestAssured fails to parse array in this case and wraps it one time too many, requiring extra [0]
+                .body("externalLinks[0]", hasSize(2))
+                .body("externalLinks[0][0].name", equalTo(link1Name))
+                .body("externalLinks[0][0].location", equalTo(link1Location))
+                .body("externalLinks[0][1].name", equalTo(link2Name))
+                .body("externalLinks[0][1].location", equalTo(link2Location));
+    }
 
     private StopPlace createStopPlaceWithMunicipalityRef(String name, TopographicPlace municipality, StopTypeEnumeration type) {
         StopPlace stopPlace = new StopPlace(new EmbeddableMultilingualString(name));
@@ -2781,5 +4929,71 @@ public class GraphQLResourceStopPlaceIntegrationTest extends AbstractGraphQLReso
                 .body("facilities[0].passengerInformationFacilityList", hasSize(1))
                 .body("facilities[0].passengerInformationFacilityList", hasItem(siteFacilitySet.getPassengerInformationFacilityList().getFirst().value()));
         ;
+    }
+
+    private AccessibilityAssessment createAccessibilityAssessment() {
+        AccessibilityLimitation accessibilityLimitation = new AccessibilityLimitation();
+        accessibilityLimitation.setWheelchairAccess(LimitationStatusEnumeration.FALSE);
+        accessibilityLimitation.setLiftFreeAccess(LimitationStatusEnumeration.FALSE);
+        accessibilityLimitation.setEscalatorFreeAccess(LimitationStatusEnumeration.FALSE);
+        accessibilityLimitation.setAudibleSignalsAvailable(LimitationStatusEnumeration.FALSE);
+        accessibilityLimitation.setStepFreeAccess(LimitationStatusEnumeration.FALSE);
+        List<AccessibilityLimitation> limitations = new ArrayList<>();
+        limitations.add(accessibilityLimitation);
+
+        AccessibilityAssessment accessibilityAssessment = new AccessibilityAssessment();
+        accessibilityAssessment.setLimitations(limitations);
+
+        return accessibilityAssessment;
+    }
+
+    private HslAccessibilityProperties createHslAccessibilityProperties() {
+        HslAccessibilityProperties hslAccessibilityProperties = new HslAccessibilityProperties();
+        hslAccessibilityProperties.setStopAreaSideSlope(5.3);
+        hslAccessibilityProperties.setStopAreaLengthwiseSlope(1.8);
+        hslAccessibilityProperties.setEndRampSlope(5.);
+        hslAccessibilityProperties.setShelterLaneDistance(123.);
+        hslAccessibilityProperties.setCurbBackOfRailDistance(145.);
+        hslAccessibilityProperties.setCurbDriveSideOfRailDistance(5.);
+        hslAccessibilityProperties.setStructureLaneDistance(15.);
+        hslAccessibilityProperties.setStopElevationFromRailTop(10.);
+        hslAccessibilityProperties.setStopElevationFromSidewalk(7.);
+        hslAccessibilityProperties.setLowerCleatHeight(5.);
+        hslAccessibilityProperties.setServiceAreaWidth(4.60);
+        hslAccessibilityProperties.setServiceAreaLength(5.52);
+        hslAccessibilityProperties.setPlatformEdgeWarningArea(true);
+        hslAccessibilityProperties.setGuidanceTiles(true);
+        hslAccessibilityProperties.setGuidanceStripe(false);
+        hslAccessibilityProperties.setServiceAreaStripes(false);
+        hslAccessibilityProperties.setSidewalkAccessibleConnection(true);
+        hslAccessibilityProperties.setStopAreaSurroundingsAccessible(false);
+        hslAccessibilityProperties.setCurvedStop(true);
+        hslAccessibilityProperties.setStopType(HslStopTypeEnumeration.PULL_OUT);
+        hslAccessibilityProperties.setShelterType(ShelterWidthTypeEnumeration.WIDE);
+        hslAccessibilityProperties.setGuidanceType(GuidanceTypeEnumeration.BRAILLE);
+        hslAccessibilityProperties.setMapType(MapTypeEnumeration.TACTILE);
+        hslAccessibilityProperties.setPedestrianCrossingRampType(PedestrianCrossingRampTypeEnumeration.LR);
+        hslAccessibilityProperties.setAccessibilityLevel(AccessibilityLevelEnumeration.MOSTLY_ACCESSIBLE);
+
+        return hslAccessibilityProperties;
+    }
+
+    private ShelterEquipment createShelterEquipmentHSl() {
+        ShelterEquipment shelterEquipment = new ShelterEquipment();
+        shelterEquipment.setEnclosed(true);
+        shelterEquipment.setShelterType(ShelterTypeEnumeration.GLASS);
+        shelterEquipment.setShelterElectricity(ElectricityTypeEnumeration.LIGHT);
+        shelterEquipment.setShelterLighting(true);
+        shelterEquipment.setShelterCondition(ShelterConditionEnumeration.GOOD);
+        shelterEquipment.setTimetableCabinets(2);
+        shelterEquipment.setTrashCan(true);
+        shelterEquipment.setShelterHasDisplay(false);
+        shelterEquipment.setBicycleParking(true);
+        shelterEquipment.setLeaningRail(false);
+        shelterEquipment.setOutsideBench(true);
+        shelterEquipment.setShelterFasciaBoardTaping(false);
+        shelterEquipment.setShelterNumber(3);
+        shelterEquipment.setShelterExternalId("ext123");
+        return shelterEquipment;
     }
 }

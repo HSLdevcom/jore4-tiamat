@@ -17,15 +17,22 @@ package org.rutebanken.tiamat.model;
 
 import com.google.common.base.MoreObjects;
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.CollectionTable;
+import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.OrderColumn;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import org.rutebanken.tiamat.netex.mapping.mapper.NetexIdMapper;
 
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
@@ -54,6 +61,19 @@ public class Quay extends StopPlaceSpace_VersionStructure {
      * https://rutebanken.atlassian.net/browse/NRP-895
      */
     protected Float compassBearing;
+
+    @ElementCollection(fetch = FetchType.LAZY)
+    @CollectionTable(
+            joinColumns = @JoinColumn(name = "quayId")
+    )
+    @OrderColumn(name = "orderNum")
+    protected List<QuayExternalLink> externalLinks = new ArrayList<>();
+
+    @ElementCollection(targetClass = StopPlaceOrganisationRef.class, fetch = FetchType.EAGER)
+    @CollectionTable(
+            name = "quay_organisations"
+    )
+    private Set<StopPlaceOrganisationRef> organisations = new HashSet<>();
 
     public Quay(EmbeddableMultilingualString name) {
         super(name);
@@ -96,6 +116,37 @@ public class Quay extends StopPlaceSpace_VersionStructure {
 
     public void setLighting(LightingEnumeration lighting) {
         this.lighting = lighting;
+    }
+
+    public List<QuayExternalLink> getExternalLinks() {
+        return externalLinks;
+    }
+
+    public void setExternalLinks(Collection<QuayExternalLink> externalLinks) {
+        this.externalLinks = List.copyOf(externalLinks);
+    }
+
+    public Set<StopPlaceOrganisationRef> getOrganisations() {
+        return organisations;
+    }
+
+    public void setOrganisations(Set<StopPlaceOrganisationRef> organisations) {
+        this.organisations = organisations;
+    }
+
+    public void resetNetexIds() {
+
+        resetEntityInVersionStructureIdentifiers(this);
+        resetEntityInVersionStructureIdentifiers(getAccessibilityAssessment());
+        resetEntityInVersionStructureIdentifiers(getPlaceEquipments());
+        if (getPlaceEquipments() != null) {
+            resetEntityInVersionStructureCollection(getPlaceEquipments().installedEquipment);
+        }
+
+        resetEntityInVersionStructureCollection(getAlternativeNames());
+        resetEntityInVersionStructureCollection(getBoardingPositions());
+        resetEntityInVersionStructureCollection(getCheckConstraints());
+        resetEntityInVersionStructureCollection(getEquipmentPlaces());
     }
 
     @Override

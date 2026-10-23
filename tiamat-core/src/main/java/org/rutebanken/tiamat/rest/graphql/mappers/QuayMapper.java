@@ -21,7 +21,10 @@ import org.rutebanken.tiamat.model.LightingEnumeration;
 import org.rutebanken.tiamat.model.PrivateCodeStructure;
 import org.rutebanken.tiamat.model.Quay;
 import org.rutebanken.tiamat.model.SiteFacilitySet;
+import org.rutebanken.tiamat.model.QuayExternalLink;
 import org.rutebanken.tiamat.model.StopPlace;
+import org.rutebanken.tiamat.model.StopPlaceOrganisationRef;
+import org.rutebanken.tiamat.model.StopPlaceOrganisationRelationshipEnumeration;
 import org.rutebanken.tiamat.service.BoardingPositionUpdater;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,14 +38,21 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Stream;
 
 import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.BOARDING_POSITIONS;
 import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.COMPASS_BEARING;
 import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.FACILITIES;
+import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.EXTERNAL_LINKS;
+import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.EXTERNAL_LINK_LOCATION;
+import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.EXTERNAL_LINK_NAME;
 import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.ID;
 import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.LIGHTING;
+import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.ORGANISATIONS;
+import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.ORGANISATION_REF;
 import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.PRIVATE_CODE;
 import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.PUBLIC_CODE;
+import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.RELATIONSHIP_TYPE;
 import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.TYPE;
 import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.VALUE;
 
@@ -117,6 +127,40 @@ public class QuayMapper {
         if (quayInputMap.get(LIGHTING) != null) {
             LightingEnumeration lighting = (LightingEnumeration) quayInputMap.get(LIGHTING);
             quay.setLighting(lighting);
+        isQuayUpdated = true;
+    }
+
+        if (quayInputMap.get(ORGANISATIONS) != null) {
+            quay.getOrganisations().clear();
+            List organisations = (List) quayInputMap.get(ORGANISATIONS);
+            for(Object organisationObject : organisations) {
+                Map organisationMap = (Map) organisationObject;
+                StopPlaceOrganisationRef organisationRef = new StopPlaceOrganisationRef(
+                        (String) organisationMap.get(ORGANISATION_REF),
+                        (StopPlaceOrganisationRelationshipEnumeration) organisationMap.get(RELATIONSHIP_TYPE)
+                );
+                logger.trace("Adding organisation {} for quay {}", organisationRef, quay);
+                quay.getOrganisations().add(organisationRef);
+            }
+            isQuayUpdated = true;
+        }
+
+        if (quayInputMap.get(EXTERNAL_LINKS) != null) {
+            // Use Stream<?> to get rid of raw type warning
+            Stream<?> linkStream = ((List) quayInputMap.get(EXTERNAL_LINKS)).stream();
+            List<QuayExternalLink> externalLinks =
+                    linkStream .map(externalLink -> {
+                        if (externalLink instanceof Map linkMap) {
+                            var link = new QuayExternalLink();
+                            link.setName((String) linkMap.get(EXTERNAL_LINK_NAME));
+                            link.setLocation((String) linkMap.get(EXTERNAL_LINK_LOCATION));
+                            return link;
+                        }
+                        throw new IllegalArgumentException(externalLink.toString() + " could not be cast as a link");
+                    })
+                    .toList();
+
+            quay.setExternalLinks(externalLinks);
             isQuayUpdated = true;
         }
 

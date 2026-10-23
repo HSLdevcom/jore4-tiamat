@@ -26,11 +26,16 @@ import org.rutebanken.tiamat.model.RailSubmodeEnumeration;
 import org.rutebanken.tiamat.model.SiteFacilitySet;
 import org.rutebanken.tiamat.model.SiteRefStructure;
 import org.rutebanken.tiamat.model.StopPlace;
+import org.rutebanken.tiamat.model.StopPlaceExternalLink;
+import org.rutebanken.tiamat.model.StopPlaceOrganisationRef;
+import org.rutebanken.tiamat.model.StopPlaceOrganisationRelationshipEnumeration;
 import org.rutebanken.tiamat.model.StopTypeEnumeration;
 import org.rutebanken.tiamat.model.TelecabinSubmodeEnumeration;
+import org.rutebanken.tiamat.model.TopographicPlace;
 import org.rutebanken.tiamat.model.TramSubmodeEnumeration;
 import org.rutebanken.tiamat.model.VehicleModeEnumeration;
 import org.rutebanken.tiamat.model.WaterSubmodeEnumeration;
+import org.rutebanken.tiamat.repository.TopographicPlaceRepository;
 import org.rutebanken.tiamat.rest.graphql.scalars.TransportModeScalar;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,17 +49,26 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Stream;
 
 import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.ADJACENT_SITES;
 import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.ENTITY_REF_REF;
 import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.FACILITIES;
+import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.EXTERNAL_LINKS;
+import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.EXTERNAL_LINK_LOCATION;
+import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.EXTERNAL_LINK_NAME;
+import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.ID;
+import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.ORGANISATIONS;
+import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.ORGANISATION_REF;
 import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.PARENT_SITE_REF;
 import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.POSTAL_ADDRESS;
 import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.PRIVATE_CODE;
 import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.PUBLIC_CODE;
 import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.QUAYS;
+import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.RELATIONSHIP_TYPE;
 import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.STOP_PLACE_TYPE;
 import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.SUBMODE;
+import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.TOPOGRAPHIC_PLACE;
 import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.TRANSPORT_MODE;
 import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.TYPE;
 import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.URL;
@@ -85,6 +99,9 @@ public class StopPlaceMapper {
 
     @Autowired
     private PostalAddressMapper postalAddressMapper;
+
+    @Autowired
+    private TopographicPlaceRepository topographicPlaceRepository;
 
     /**
      * @param input
@@ -126,6 +143,20 @@ public class StopPlaceMapper {
             }
             isUpdated = true;
         }
+        if (input.get(ORGANISATIONS) != null) {
+            stopPlace.getOrganisations().clear();
+            List organisations = (List) input.get(ORGANISATIONS);
+            for(Object organisationObject : organisations) {
+                Map organisationMap = (Map) organisationObject;
+                StopPlaceOrganisationRef organisationRef = new StopPlaceOrganisationRef(
+                        (String) organisationMap.get(ORGANISATION_REF),
+                        (StopPlaceOrganisationRelationshipEnumeration) organisationMap.get(RELATIONSHIP_TYPE)
+                );
+                logger.trace("Adding organisation {} for stop place {}", organisationRef, stopPlace);
+                stopPlace.getOrganisations().add(organisationRef);
+            }
+            isUpdated = true;
+        }
 
         if (input.get(PUBLIC_CODE) != null) {
             stopPlace.setPublicCode((String) input.get(PUBLIC_CODE));
@@ -149,6 +180,32 @@ public class StopPlaceMapper {
 
         if (input.containsKey(POSTAL_ADDRESS)) {
             isUpdated = postalAddressMapper.populatePostalAddressFromInput(stopPlace, (Map) input.get(POSTAL_ADDRESS));
+        }
+
+        if (input.get(TOPOGRAPHIC_PLACE) != null) {
+            Map topographicPlaceInputMap = (Map) input.get(TOPOGRAPHIC_PLACE);
+            String topographicPlaceRef = (String) topographicPlaceInputMap.get(ID);
+            TopographicPlace topographicPlace = topographicPlaceRepository.findFirstByNetexIdOrderByVersionDesc(topographicPlaceRef);
+            stopPlace.setTopographicPlace(topographicPlace);
+            isUpdated = true;
+        }
+
+        if (input.get(EXTERNAL_LINKS) != null) {
+            Stream<?> linkStream = ((List) input.get(EXTERNAL_LINKS)).stream();
+            List<StopPlaceExternalLink> externalLinks =
+                    linkStream .map(externalLink -> {
+                                if (externalLink instanceof Map linkMap) {
+                                    var link = new StopPlaceExternalLink();
+                                    link.setName((String) linkMap.get(EXTERNAL_LINK_NAME));
+                                    link.setLocation((String) linkMap.get(EXTERNAL_LINK_LOCATION));
+                                    return link;
+                                }
+                                throw new IllegalArgumentException(externalLink.toString() + " could not be cast as a link");
+                            })
+                            .toList();
+
+            stopPlace.setStopPlaceExternalLinks(externalLinks);
+            isUpdated = true;
         }
 
         isUpdated |= stopPlaceTariffZoneRefsMapper.populate(input, stopPlace);

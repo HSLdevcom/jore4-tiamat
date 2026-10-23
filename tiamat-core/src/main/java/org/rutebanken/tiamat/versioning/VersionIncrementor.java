@@ -24,6 +24,10 @@ import org.rutebanken.tiamat.model.Parking;
 import org.rutebanken.tiamat.model.ParkingArea;
 import org.rutebanken.tiamat.model.ParkingEntranceForVehicles;
 import org.rutebanken.tiamat.model.ParkingProperties;
+import org.rutebanken.tiamat.model.GroupOfStopPlaces;
+import org.rutebanken.tiamat.model.Organisation;
+import org.rutebanken.tiamat.model.InfoSpot;
+import org.rutebanken.tiamat.model.hsl.HslAccessibilityProperties;
 import org.rutebanken.tiamat.model.PlaceEquipment;
 import org.rutebanken.tiamat.model.SiteElement;
 import org.rutebanken.tiamat.model.StopPlace;
@@ -68,6 +72,11 @@ public class VersionIncrementor {
             if (accessibilityAssessment.getLimitations() != null && !accessibilityAssessment.getLimitations().isEmpty()) {
                 AccessibilityLimitation limitation = accessibilityAssessment.getLimitations().getFirst();
                 initiateOrIncrement(limitation);
+            }
+
+            HslAccessibilityProperties hslAccessibilityProperties = accessibilityAssessment.getHslAccessibilityProperties();
+            if (hslAccessibilityProperties != null) {
+                initiateOrIncrement(hslAccessibilityProperties);
             }
         }
     }
@@ -184,6 +193,30 @@ public class VersionIncrementor {
     public void initiateOrIncrementBoardingPositions(BoardingPosition boardingPosition) {
         if (boardingPosition != null) {
             initiateOrIncrement(boardingPosition);
+        }
+    }
+
+    public Organisation initiateOrIncrementVersions(Organisation organisation) {
+        initiateOrIncrement(organisation);
+        if (organisation.getContactDetails() != null) {
+            initiateOrIncrement(organisation.getContactDetails());
+        }
+        if (organisation.getPrivateContactDetails() != null) {
+            initiateOrIncrement(organisation.getPrivateContactDetails());
+        }
+        return organisation;
+    }
+
+    public void initiateOrIncrementInfoSpot(InfoSpot infoSpot) {
+        if (infoSpot != null) {
+            initiateOrIncrement(infoSpot);
+        }
+    }
+
+    public void initiateOrIncrementGroupOfStopPlaces(GroupOfStopPlaces groupOfStopPlaces) {
+        if (groupOfStopPlaces != null) {
+            initiateOrIncrement(groupOfStopPlaces);
+            initiateOrIncrementAlternativeNamesVersion(groupOfStopPlaces.getAlternativeNames());
         }
     }
 }

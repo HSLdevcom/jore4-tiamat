@@ -18,12 +18,13 @@ package org.rutebanken.tiamat;
 import org.rutebanken.tiamat.model.StopPlace;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.activemq.autoconfigure.ActiveMQAutoConfiguration;
 import org.springframework.boot.persistence.autoconfigure.EntityScan;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.jpa.convert.threeten.Jsr310JpaConverters;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
-@SpringBootApplication
+@SpringBootApplication(exclude = ActiveMQAutoConfiguration.class)
 @Configuration
 @EnableTransactionManagement
 @EnableCaching

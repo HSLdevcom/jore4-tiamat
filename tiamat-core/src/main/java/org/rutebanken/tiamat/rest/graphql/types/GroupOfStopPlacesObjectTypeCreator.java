@@ -38,6 +38,7 @@ import org.springframework.stereotype.Component;
 import static graphql.Scalars.GraphQLString;
 import static graphql.schema.GraphQLFieldDefinition.newFieldDefinition;
 import static graphql.schema.GraphQLObjectType.newObject;
+import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.ALTERNATIVE_NAMES;
 import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.DESCRIPTION;
 import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.GROUP_OF_STOP_PLACES_MEMBERS;
 import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.NAME;
@@ -45,15 +46,21 @@ import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.OUTPUT_TYPE_GROUP_
 import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.PERMISSIONS;
 import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.PURPOSE_OF_GROUPING;
 import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.SHORT_NAME;
+import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.VALID_BETWEEN;
 import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.VERSION;
 import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.VERSION_COMMENT;
+import static org.rutebanken.tiamat.rest.graphql.types.CustomGraphQLTypes.alternativeNameObjectType;
 import static org.rutebanken.tiamat.rest.graphql.types.CustomGraphQLTypes.embeddableMultilingualStringObjectType;
+import static org.rutebanken.tiamat.rest.graphql.types.CustomGraphQLTypes.geometryFieldDefinition;
 import static org.rutebanken.tiamat.rest.graphql.types.CustomGraphQLTypes.netexIdFieldDefinition;
 
 @Component
 public class GroupOfStopPlacesObjectTypeCreator {
 
-    public GraphQLObjectType create(GraphQLInterfaceType stopPlaceInterface, GraphQLObjectType purposeOfGroupingType, GraphQLObjectType entityPermissionObjectType) {
+    public GraphQLObjectType create(GraphQLInterfaceType stopPlaceInterface,
+                                    GraphQLObjectType purposeOfGroupingType,
+                                                                        GraphQLObjectType entityPermissionObjectType,
+                                    GraphQLObjectType validBetweenObjectType) {
 
         return newObject()
                 .name(OUTPUT_TYPE_GROUP_OF_STOPPLACES)
@@ -68,6 +75,9 @@ public class GroupOfStopPlacesObjectTypeCreator {
                         .name(DESCRIPTION)
                         .type(embeddableMultilingualStringObjectType))
                 .field(newFieldDefinition()
+                        .name(ALTERNATIVE_NAMES)
+                        .type(new GraphQLList(alternativeNameObjectType)))
+                .field(newFieldDefinition()
                         .name(VERSION)
                         .type(GraphQLString))
                 .field(newFieldDefinition()
@@ -76,6 +86,10 @@ public class GroupOfStopPlacesObjectTypeCreator {
                 .field(newFieldDefinition()
                         .name(PURPOSE_OF_GROUPING)
                         .type(purposeOfGroupingType))
+                .field(newFieldDefinition()
+                        .name(VALID_BETWEEN)
+                        .type(validBetweenObjectType))
+                .field(geometryFieldDefinition)
                 .field(newFieldDefinition()
                         .name(GROUP_OF_STOP_PLACES_MEMBERS)
                         .type(new GraphQLList(stopPlaceInterface)))
