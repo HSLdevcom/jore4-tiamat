@@ -534,7 +534,7 @@ public class GraphQLNames {
     public static final String END_TIME = "endTime";
     public static final String DAY_OFFSET = "dayOffset";
     public static final String PARENT_SITE_REF = "parentSiteRef";
-    public static final String STOP_PLACE_ORGANISATION_REF = "stopPlaceOrganisationRef";
+    public static final String STOP_PLACE_ORGANISATION_RELATIONSHIP_TYPE = "stopPlaceOrganisationRelationshipType";
     public static final String OUTPUT_TYPE_STOP_PLACE_ORGANISATION_REF = "StopPlaceOrganisationRef";
     public static final String INPUT_TYPE_STOP_PLACE_ORGANISATION_REF = OUTPUT_TYPE_STOP_PLACE_ORGANISATION_REF + INPUT_TYPE_POSTFIX;
     public static final String ORGANISATIONS = "organisations";
