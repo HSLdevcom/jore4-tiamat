@@ -27,7 +27,12 @@ public class EmbeddableMultilingualStringMapper {
 
     public static EmbeddableMultilingualString getEmbeddableString(Map map) {
         if (map != null) {
-            return new EmbeddableMultilingualString((String) map.get(VALUE), (String) map.get(LANG));
+            String value = (String) map.get(VALUE);
+            String lang = (String) map.get(LANG);
+            if (value == null && lang == null) {
+                return null;
+            }
+            return new EmbeddableMultilingualString(value, lang);
         }
         return null;
     }

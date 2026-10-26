@@ -19,6 +19,7 @@ import graphql.GraphQLContext;
 import graphql.execution.CoercedVariables;
 import graphql.language.ArrayValue;
 import graphql.language.FloatValue;
+import graphql.language.IntValue;
 import graphql.language.Value;
 import graphql.schema.Coercing;
 import graphql.schema.GraphQLScalarType;
@@ -32,6 +33,18 @@ import java.util.Locale;
 
 
 public class CustomScalars {
+
+    private static double graphQlNumericValueToDouble(Object value) {
+        if (value instanceof FloatValue gqlValue) {
+            return gqlValue.getValue().doubleValue();
+        }
+
+        if (value instanceof IntValue gqlValue) {
+            return gqlValue.getValue().doubleValue();
+        }
+
+        throw new IllegalStateException("Expected graphql.language.FloatValue or graphql.language.IntValue but got value of type %s with value:  %s".formatted(value.getClass().getCanonicalName(), value.toString()));
+    }
 
     public static GraphQLScalarType GraphQLLegacyGeoJSONCoordinates = new GraphQLScalarType.Builder()
             .name("legacyCoordinates")
@@ -75,9 +88,9 @@ public class CustomScalars {
                         for (int i = 0; i < coordinateList.size(); i++) {
                             List v = coordinateList.get(i).getChildren();
 
-                            FloatValue longitude = (FloatValue) v.get(0);
-                            FloatValue latitude = (FloatValue) v.get(1);
-                            coordinates[i] = new Coordinate(longitude.getValue().doubleValue(), latitude.getValue().doubleValue());
+                            double longitude = graphQlNumericValueToDouble(v.get(0));
+                            double latitude = graphQlNumericValueToDouble(v.get(1));
+                            coordinates[i] = new Coordinate(longitude, latitude);
 
                 }
                 return coordinates;
@@ -145,12 +158,12 @@ public class CustomScalars {
                         List<Value> values = arrayValue.getValues();
 
                         // Check if this is a single coordinate pair [lon, lat] or array of coordinates [[lon, lat], ...]
-                        if (!values.isEmpty() && values.getFirst() instanceof FloatValue) {
+                        if (!values.isEmpty() && (values.getFirst() instanceof FloatValue || values.getFirst() instanceof IntValue)) {
                             // Single coordinate pair: [10.3, 59.9]
                             Coordinate[] coordinates = new Coordinate[1];
-                            var longitude = (FloatValue) values.getFirst();
-                            var latitude = (FloatValue) values.getLast();
-                            coordinates[0] = new Coordinate(longitude.getValue().doubleValue(), latitude.getValue().doubleValue());
+                            double longitude = graphQlNumericValueToDouble(values.getFirst());
+                            double latitude = graphQlNumericValueToDouble(values.getLast());
+                            coordinates[0] = new Coordinate(longitude, latitude);
                             return coordinates;
                         } else if (!values.isEmpty() && values.getFirst() instanceof ArrayValue) {
                             // Array of coordinate pairs: [[10.3, 59.9], [10.3, 59.9], ...]
@@ -158,9 +171,9 @@ public class CustomScalars {
                             for (int i = 0; i < values.size(); i++) {
                                 ArrayValue coordPair = (ArrayValue) values.get(i);
                                 List<Value> pair = coordPair.getValues();
-                                FloatValue longitude = (FloatValue) pair.get(0);
-                                FloatValue latitude = (FloatValue) pair.get(1);
-                                coordinates[i] = new Coordinate(longitude.getValue().doubleValue(), latitude.getValue().doubleValue());
+                                double longitude = graphQlNumericValueToDouble(pair.get(0));
+                                double latitude = graphQlNumericValueToDouble(pair.get(1));
+                                coordinates[i] = new Coordinate(longitude, latitude);
                             }
                             return coordinates;
                         }
@@ -173,9 +186,9 @@ public class CustomScalars {
                         for (int i = 0; i < coordinateList.size(); i++) {
                             List v = coordinateList.get(i).getChildren();
 
-                            FloatValue longitude = (FloatValue) v.get(0);
-                            FloatValue latitude = (FloatValue) v.get(1);
-                            coordinates[i] = new Coordinate(longitude.getValue().doubleValue(), latitude.getValue().doubleValue());
+                            double longitude = graphQlNumericValueToDouble(v.get(0));
+                            double latitude = graphQlNumericValueToDouble(v.get(1));
+                            coordinates[i] = new Coordinate(longitude, latitude);
 
                         }
                         return coordinates;

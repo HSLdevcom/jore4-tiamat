@@ -9,6 +9,14 @@ import java.util.List;
 class DefaultAuthorizationServiceTest {
 
     @Test
+    void canEditAllEntitiesIsTemporarilyUnconditional() {
+        DefaultAuthorizationService enabledService = new DefaultAuthorizationService(null, true, null, null, null);
+        DefaultAuthorizationService disabledService = new DefaultAuthorizationService(null, false, null, null, null);
+        Assertions.assertTrue(enabledService.canEditAllEntities());
+        Assertions.assertTrue(disabledService.canEditAllEntities());
+    }
+
+    @Test
     void canEditAllEntities() {
         List<RoleAssignment> roleAssignments = RoleAssignmentListBuilder.builder().withAccessAllAreas().build();
         DefaultAuthorizationService defaultAuthorizationService = new DefaultAuthorizationService(null,false, null, null, null);

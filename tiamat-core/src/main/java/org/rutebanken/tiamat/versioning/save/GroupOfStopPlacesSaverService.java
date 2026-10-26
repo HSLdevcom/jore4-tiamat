@@ -43,7 +43,6 @@ import java.util.Optional;
 /**
  * No history for group of stop places.
  * Version is incremented and changed date is updated, but the history will not be kept.
- * Valid between must not be populated
  */
 @Transactional
 @Service
@@ -197,10 +196,6 @@ public class GroupOfStopPlacesSaverService {
                                                  GroupOfStopPlaces existing,
                                                  PurposeOfGrouping purposeOfGrouping) {
         BeanUtils.copyProperties(newVersion, existing, "id", "created", "version");
-        existing.getMembers().clear();
-        if (newVersion.getMembers() != null) {
-            existing.getMembers().addAll(newVersion.getMembers());
-        }
         existing.setChanged(Instant.now());
         if (purposeOfGrouping != null) {
             existing.setPurposeOfGrouping(purposeOfGrouping);
@@ -209,16 +204,17 @@ public class GroupOfStopPlacesSaverService {
     }
 
     private void finalizeGOSP(GroupOfStopPlaces groupOfStopPlaces, String username) {
-        groupOfStopPlaces.setValidBetween(null);
         groupOfStopPlaces.setChangedBy(username);
 
-        Optional<Point> centroid = groupOfStopPlacesCentroidComputer.compute(groupOfStopPlaces);
-        if (centroid.isPresent()) {
-            logger.info("Setting centroid for group of stop place {} to {}", groupOfStopPlaces.getNetexId(), centroid.get());
-            groupOfStopPlaces.setCentroid(centroid.get());
+        if (groupOfStopPlaces.getCentroid() == null) {
+            Optional<Point> centroid = groupOfStopPlacesCentroidComputer.compute(groupOfStopPlaces);
+            if (centroid.isPresent()) {
+                logger.info("Setting centroid for group of stop place {} to {}", groupOfStopPlaces.getNetexId(), centroid.get());
+                groupOfStopPlaces.setCentroid(centroid.get());
+            }
         }
 
-        versionIncrementor.incrementVersion(groupOfStopPlaces);
+        versionIncrementor.initiateOrIncrementGroupOfStopPlaces(groupOfStopPlaces);
     }
 
 

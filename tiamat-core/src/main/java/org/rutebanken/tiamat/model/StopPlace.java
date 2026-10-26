@@ -25,14 +25,17 @@ import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.Index;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
+import jakarta.persistence.OrderColumn;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
 import jakarta.persistence.UniqueConstraint;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
@@ -104,11 +107,24 @@ public class StopPlace
     )
     private Set<TariffZoneRef> tariffZones = new HashSet<>();
 
+    @ElementCollection(targetClass = StopPlaceOrganisationRef.class, fetch = FetchType.EAGER)
+    @CollectionTable(
+            name = "stop_place_organisations"
+    )
+    private Set<StopPlaceOrganisationRef> organisations = new HashSet<>();
+
     @Enumerated(EnumType.STRING)
     private ModificationEnumeration modificationEnumeration;
 
     @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private PostalAddress postalAddress;
+
+    @ElementCollection(fetch = FetchType.LAZY)
+    @CollectionTable(
+            joinColumns = @JoinColumn(name = "stopPlaceId")
+    )
+    @OrderColumn(name = "orderNum")
+    protected List<StopPlaceExternalLink> externalLinks = new ArrayList<>();
 
     public StopPlace(EmbeddableMultilingualString name) {
         super(name);
@@ -290,6 +306,14 @@ public class StopPlace
         this.tariffZones = tariffZones;
     }
 
+    public Set<StopPlaceOrganisationRef> getOrganisations() {
+        return organisations;
+    }
+
+    public void setOrganisations(Set<StopPlaceOrganisationRef> organisations) {
+        this.organisations = organisations;
+    }
+
     public boolean isParentStopPlace() {
         return parentStopPlace;
     }
@@ -322,6 +346,14 @@ public class StopPlace
     @Override
     public void setUrl(String value) {
         this.url = value;
+    }
+
+    public List<StopPlaceExternalLink> getStopPlaceExternalLinks() {
+        return externalLinks;
+    }
+
+    public void setStopPlaceExternalLinks(Collection<StopPlaceExternalLink> externalLinks) {
+        this.externalLinks = List.copyOf(externalLinks);
     }
 
     @Override
@@ -359,6 +391,7 @@ public class StopPlace
                 .add("netexId", netexId)
                 .add("version", version)
                 .add("name", name)
+                .add("alternativeNames", getAlternativeNames())
                 .add("stopPlaceType", stopPlaceType)
                 .add("centroid", centroid)
                 .add("keyValues", getKeyValues())

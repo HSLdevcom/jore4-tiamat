@@ -1,6 +1,8 @@
 package org.rutebanken.tiamat.rest.graphql.scalars;
 
 import graphql.GraphQLContext;
+import graphql.execution.CoercedVariables;
+import graphql.parser.Parser;
 import org.jetbrains.annotations.NotNull;
 import org.junit.Test;
 import org.locationtech.jts.geom.Coordinate;
@@ -19,6 +21,29 @@ import static org.junit.Assert.assertTrue;
 
 public class CustomScalarsTest {
 
+    @Test
+    public void testParseLiteralMixedNumericPoint() {
+        Coordinate[] coordinates = (Coordinate[]) CustomScalars.GraphQLGeoJSONCoordinates.getCoercing()
+                .parseLiteral(Parser.parseValue("[10, 20.5]"), CoercedVariables.emptyVariables(), GraphQLContext.getDefault(), Locale.ROOT);
+        assertEquals(1, coordinates.length);
+        assertEquals(10.0, coordinates[0].x, 0.0);
+        assertEquals(20.5, coordinates[0].y, 0.0);
+    }
+
+    @Test
+    public void testParseLiteralMixedNumericNestedCoordinates() {
+        var literal = Parser.parseValue("[[10, 20.5], [30.25, 40]]");
+        Coordinate[] coordinates = (Coordinate[]) CustomScalars.GraphQLGeoJSONCoordinates.getCoercing()
+                .parseLiteral(literal, CoercedVariables.emptyVariables(), GraphQLContext.getDefault(), Locale.ROOT);
+        Coordinate[] legacyCoordinates = (Coordinate[]) CustomScalars.GraphQLLegacyGeoJSONCoordinates.getCoercing()
+                .parseLiteral(literal, CoercedVariables.emptyVariables(), GraphQLContext.getDefault(), Locale.ROOT);
+        assertEquals(2, coordinates.length);
+        assertEquals(2, legacyCoordinates.length);
+        assertEquals(20.5, coordinates[0].y, 0.0);
+        assertEquals(30.25, coordinates[1].x, 0.0);
+        assertEquals(40.0, coordinates[1].y, 0.0);
+        assertEquals(coordinates[1], legacyCoordinates[1]);
+    }
 
     @Test
     public void testNonStandardSerializePolygon() {

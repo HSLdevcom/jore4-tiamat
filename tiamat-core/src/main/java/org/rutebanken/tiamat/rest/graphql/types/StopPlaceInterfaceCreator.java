@@ -32,7 +32,10 @@ import static graphql.schema.GraphQLFieldDefinition.newFieldDefinition;
 import static graphql.schema.GraphQLInterfaceType.newInterface;
 import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.ALTERNATIVE_NAMES;
 import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.CHANGED_BY;
+import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.EXTERNAL_LINKS;
 import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.FARE_ZONES;
+import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.INFO_SPOTS;
+import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.ORGANISATIONS;
 import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.OUTPUT_TYPE_GROUP_OF_STOPPLACES;
 import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.OUTPUT_TYPE_STOPPLACE_INTERFACE;
 import static org.rutebanken.tiamat.rest.graphql.GraphQLNames.PERMISSIONS;
@@ -61,7 +64,10 @@ public class StopPlaceInterfaceCreator {
                                                                     GraphQLObjectType fareZoneObjectType,
                                                                     GraphQLObjectType topographicPlaceObjectType,
                                                                     GraphQLObjectType validBetweenObjectType,
-                                                                    GraphQLObjectType entityPermissionObjectType) {
+                                                                    GraphQLObjectType entityPermissionObjectType,
+                                                                    GraphQLObjectType infoSpotObjectType,
+                                                                    GraphQLObjectType externalLinkObjectType,
+                                                                    GraphQLObjectType stopPlaceOrganisationRefObjectType) {
         List<GraphQLFieldDefinition> stopPlaceInterfaceFields = new ArrayList<>();
         stopPlaceInterfaceFields.add(newFieldDefinition()
                 .name(VERSION_COMMENT)
@@ -109,6 +115,18 @@ public class StopPlaceInterfaceCreator {
         stopPlaceInterfaceFields.add(newFieldDefinition()
                 .name(POSTAL_ADDRESS)
                 .type(postalAddressObjectType)
+                .build());
+        stopPlaceInterfaceFields.add(newFieldDefinition()
+                .name(INFO_SPOTS)
+                .type(new GraphQLList(infoSpotObjectType))
+                .build());
+        stopPlaceInterfaceFields.add(newFieldDefinition()
+                .name(EXTERNAL_LINKS)
+                .type(new GraphQLList(externalLinkObjectType))
+                .description("External links").build());
+        stopPlaceInterfaceFields.add(newFieldDefinition()
+                .name(ORGANISATIONS)
+                .type(new GraphQLList(stopPlaceOrganisationRefObjectType))
                 .build());
         return stopPlaceInterfaceFields;
     }

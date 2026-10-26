@@ -39,7 +39,7 @@
     </dependencies>
 
     <build>
-        <finalName>tiamat</finalName>
+        <finalName>jore4-tiamat</finalName>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

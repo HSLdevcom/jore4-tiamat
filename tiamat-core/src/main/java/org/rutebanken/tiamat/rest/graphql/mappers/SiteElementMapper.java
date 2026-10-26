@@ -18,6 +18,7 @@ package org.rutebanken.tiamat.rest.graphql.mappers;
 import org.rutebanken.tiamat.model.AccessibilityAssessment;
 import org.rutebanken.tiamat.model.AccessibilityLimitation;
 import org.rutebanken.tiamat.model.AlternativeName;
+import org.rutebanken.tiamat.model.hsl.HslAccessibilityProperties;
 import org.rutebanken.tiamat.model.LimitationStatusEnumeration;
 import org.rutebanken.tiamat.model.LocalService;
 import org.rutebanken.tiamat.model.PlaceEquipment;
@@ -45,12 +46,6 @@ public class SiteElementMapper {
     private static final Logger logger = LoggerFactory.getLogger(SiteElementMapper.class);
 
     @Autowired
-    private AlternativeNameMapper alternativeNameMapper;
-
-    @Autowired
-    private AlternativeNameUpdater alternativeNameUpdater;
-
-    @Autowired
     private AccessibilityLimitationMapper accessibilityLimitationMapper;
 
     @Autowired
@@ -62,20 +57,12 @@ public class SiteElementMapper {
     @Autowired
     private GeometryMapper geometryMapper;
 
+    @Autowired
+    private HslAccessibilityPropertiesMapper hslAccessibilityPropertiesMapper;
+
     public boolean populate(Map input, SiteElement siteElement) {
 
         boolean isUpdated = false;
-
-        if (input.get(ALTERNATIVE_NAMES) != null) {
-            List alternativeNames = (List) input.get(ALTERNATIVE_NAMES);
-            List<AlternativeName> mappedAlternativeNames = alternativeNameMapper.mapAlternativeNames(alternativeNames);
-
-            if (alternativeNameUpdater.updateAlternativeNames(siteElement, mappedAlternativeNames)) {
-                isUpdated = true;
-            } else {
-                logger.info("AlternativeName not changed");
-            }
-        }
 
         if (input.get(GEOMETRY) != null) {
 
@@ -125,9 +112,33 @@ public class SiteElementMapper {
 
                 isUpdated = true;
             }
+
+            Object hslAccessibilityPropertiesInput = accessibilityAssessmentInput.get("hslAccessibilityProperties");
+            if (hslAccessibilityPropertiesInput != null) {
+                HslAccessibilityProperties existingHslAccessibilityProperties = accessibilityAssessment.getHslAccessibilityProperties();
+                HslAccessibilityProperties hslAccessibilityPropertiesFromInput = hslAccessibilityPropertiesMapper.mapHslAccessibilityProperties((Map) hslAccessibilityPropertiesInput);
+                if (existingHslAccessibilityProperties == null || !existingHslAccessibilityProperties.equals(hslAccessibilityPropertiesFromInput)) {
+                    if (existingHslAccessibilityProperties == null) {
+                        existingHslAccessibilityProperties = new HslAccessibilityProperties();
+                    }
+                    existingHslAccessibilityProperties.copyPropertiesFrom(hslAccessibilityPropertiesFromInput);
+                    accessibilityAssessment.setHslAccessibilityProperties(existingHslAccessibilityProperties);
+                    isUpdated = true;
+                }
+
+            }
         }
 
-        Optional<PlaceEquipment> placeEquipment = placeEquipmentMapper.map(input);
+        PlaceEquipment oldPlaceEquipment;
+        if (siteElement instanceof Site_VersionStructure siteVersionStructure) {
+            oldPlaceEquipment = siteVersionStructure.getPlaceEquipments();
+        } else if (siteElement instanceof SiteComponent_VersionStructure siteComponentVersionStructure) {
+            oldPlaceEquipment = siteComponentVersionStructure.getPlaceEquipments();
+        } else {
+            oldPlaceEquipment = new PlaceEquipment();
+        }
+
+        Optional<PlaceEquipment> placeEquipment = placeEquipmentMapper.map(oldPlaceEquipment, input);
 
         if (placeEquipment.isPresent()) {
             if (siteElement instanceof Site_VersionStructure siteVersionStructure) {
