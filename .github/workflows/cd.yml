@@ -41,6 +41,4 @@ jobs:
     uses: HSLdevcom/jore4-tools/.github/workflows/shared-run-e2e.yml@main
     with:
       tiamat_version: "${{ needs.publish_docker_image_to_acr.outputs.docker_image }}"
-      ui_version: "crjore4prod001.azurecr.io/jore4-ui:tiamat-field-2026-10-21-6cb05f70672a997a24505e0186011a8175a39320"
-      cypress_version: "crjore4prod001.azurecr.io/jore4-cypress:tiamat-field-2026-10-21-6cb05f70672a997a24505e0186011a8175a39320"
       test-tags: ''
