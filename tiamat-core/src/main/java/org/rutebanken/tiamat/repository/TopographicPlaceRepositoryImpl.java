@@ -199,7 +199,7 @@ public class TopographicPlaceRepositoryImpl implements TopographicPlaceRepositor
 				            0 AS geometry_priority
 				        FROM stop_place sp
 				        JOIN persistable_multi_polygon pmp
-				            ON ST_Contains(pmp.multi_polygon, sp.centroid)
+				            ON public.ST_Contains(pmp.multi_polygon, sp.centroid)
 				        JOIN topographic_place tp
 				            ON tp.multi_surface_id = pmp.id
 				            AND tp.version = (
@@ -241,7 +241,7 @@ public class TopographicPlaceRepositoryImpl implements TopographicPlaceRepositor
 				            1 AS geometry_priority
 				        FROM stop_place sp
 				        JOIN persistable_polygon pp
-				            ON ST_Contains(pp.polygon, sp.centroid)
+				            ON public.ST_Contains(pp.polygon, sp.centroid)
 				        JOIN topographic_place tp
 				            ON tp.polygon_id = pp.id
 				            AND tp.version = (

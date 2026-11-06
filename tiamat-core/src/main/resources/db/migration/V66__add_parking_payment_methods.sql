@@ -1,10 +1,10 @@
-CREATE TABLE public.parking_payment_methods
+CREATE TABLE parking_payment_methods
 (
     parking_id      bigint NOT NULL,
     payment_methods character varying(255)
 );
 
-ALTER TABLE public.parking_payment_methods
+ALTER TABLE parking_payment_methods
     OWNER to tiamat;
 
 ALTER TABLE ONLY parking_payment_methods
