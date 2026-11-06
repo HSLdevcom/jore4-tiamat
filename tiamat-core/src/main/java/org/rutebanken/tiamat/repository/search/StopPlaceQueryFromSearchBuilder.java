@@ -121,7 +121,7 @@ public class StopPlaceQueryFromSearchBuilder {
                     "WHERE nearby.netex_id != s.netex_id " +
                     " AND nearby.parent_stop_place = false " +
                     " AND nearby.stop_place_type = s.stop_place_type " +
-                    " AND ST_Distance(s.centroid, nearby.centroid) < :nearbyThreshold " +
+                    " AND public.ST_Distance(s.centroid, nearby.centroid) < :nearbyThreshold " +
                     " AND s.name_value = nearby.name_value ";
     // Together with distinct and nearby search, the next line slows everything down too much:
 //                     "  AND similarity(s.name_value , s2.name_value) > :similarityThreshold ";

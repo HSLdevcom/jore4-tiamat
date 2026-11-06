@@ -4,7 +4,7 @@ CREATE SEQUENCE persistable_multi_polygon_seq START WITH 1 INCREMENT BY 10;
 -- Create table for persistable multi polygon
 CREATE TABLE persistable_multi_polygon (
     id BIGINT NOT NULL PRIMARY KEY,
-    multi_polygon GEOMETRY(MULTIPOLYGON, 4326)
+    multi_polygon public.GEOMETRY(MULTIPOLYGON, 4326)
 );
 
 -- Add multi_surface_id column to tables that inherit from Zone_VersionStructure

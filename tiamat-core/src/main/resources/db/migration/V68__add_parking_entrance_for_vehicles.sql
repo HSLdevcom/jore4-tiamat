@@ -45,7 +45,7 @@ CREATE TABLE parking_entrance_for_vehicles (
     level_ref_version               varchar(255),
     site_ref                        varchar(255),
     site_ref_version                varchar(255),
-    centroid                        geometry,
+    centroid                        public.geometry,
     accessibility_assessment_id     bigint UNIQUE,
     multi_surface_id                bigint UNIQUE,
     place_equipments_id             bigint UNIQUE,
