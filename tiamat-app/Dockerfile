@@ -42,7 +42,8 @@ COPY --chmod=555 ./script/build-jdbc-urls.sh /tmp/
 COPY --from=builder /build/tiamat-app/target/jore4-tiamat.jar /usr/src/jore4-tiamat/jore4-tiamat.jar
 
 # read Docker secrets into environment variables and run application
-CMD ["/bin/bash", "-c", "source /tmp/read-secrets.sh && source /tmp/build-jdbc-urls.sh && exec java --add-opens java.base/java.lang=ALL-UNNAMED -javaagent:/usr/src/jore4-tiamat/applicationinsights-agent.jar -jar /usr/src/jore4-tiamat/jore4-tiamat.jar"]
+# remove -XX:-UseBASE64Intrinsics once java4shell has been patched
+CMD ["/bin/bash", "-c", "source /tmp/read-secrets.sh && source /tmp/build-jdbc-urls.sh && exec java --add-opens java.base/java.lang=ALL-UNNAMED -XX:-UseBASE64Intrinsics -javaagent:/usr/src/jore4-tiamat/applicationinsights-agent.jar -jar /usr/src/jore4-tiamat/jore4-tiamat.jar"]
 
 HEALTHCHECK --interval=1m --timeout=5s \
   CMD ["java", "-jar", "/app/scripts/HealthCheck.jar", "1888"]
