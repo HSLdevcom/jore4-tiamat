@@ -41,4 +41,5 @@ jobs:
     uses: HSLdevcom/jore4-tools/.github/workflows/shared-run-e2e.yml@main
     with:
       tiamat_version: "${{ needs.publish_docker_image_to_acr.outputs.docker_image }}"
+      hasura_version: "crjore4prod001.azurecr.io/jore4-hsl-hasura:main-metadata-2026-11-24-43bcc8abc3fe278c7436e8232e16e906e8171a41"
       test-tags: ''
