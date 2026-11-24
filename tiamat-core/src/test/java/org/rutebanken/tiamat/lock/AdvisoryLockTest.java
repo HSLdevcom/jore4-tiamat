@@ -19,6 +19,7 @@ import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
+import org.awaitility.Awaitility;
 import org.junit.Test;
 import org.rutebanken.tiamat.TiamatIntegrationTest;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +33,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -256,7 +258,7 @@ public class AdvisoryLockTest extends TiamatIntegrationTest {
 
             lock.releaseSessionLock(connection, TEST_LOCK_NAME, null);
 
-            assertThat(heldLocks(TEST_LOCK_NAME)).as("evicting the connection ends the session and its lock").isZero();
+            awaitNoHeldLocks(TEST_LOCK_NAME, "evicting the connection ends the session and its lock");
             try (Connection next = pool.getConnection()) {
                 assertThat(backendPid(next)).isNotEqualTo(backendBefore);
             }
@@ -276,7 +278,7 @@ public class AdvisoryLockTest extends TiamatIntegrationTest {
         assertThat(workFailure.getSuppressed()).singleElement()
                 .isInstanceOf(LockException.class)
                 .extracting(Throwable::getCause).isInstanceOf(SQLException.class);
-        assertThat(heldLocks(TEST_LOCK_NAME)).isZero();
+        awaitNoHeldLocks(TEST_LOCK_NAME, "terminating the backend ends the session and its lock");
         assertThat(advisoryLock.executeInSessionLock(TEST_LOCK_NAME, 1, () -> "got it")).isEqualTo("got it");
     }
 
@@ -333,6 +335,12 @@ public class AdvisoryLockTest extends TiamatIntegrationTest {
     private int heldLocks(String lockName) {
         return queryInt("select count(*) from pg_locks where locktype = 'advisory' and granted and classid = "
                 + AdvisoryLock.LOCK_NAMESPACE + " and objid = (hashtext('" + lockName + "'))::oid and objsubid = 2");
+    }
+
+    // Closing an evicted connection and the backend exit both happen asynchronously, so the lock disappears with a delay.
+    private void awaitNoHeldLocks(String lockName, String description) {
+        Awaitility.await().atMost(Duration.ofSeconds(10))
+                .untilAsserted(() -> assertThat(heldLocks(lockName)).as(description).isZero());
     }
 
     private void terminateBackendHolding(String lockName) {
