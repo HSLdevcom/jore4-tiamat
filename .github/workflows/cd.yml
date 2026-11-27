@@ -38,7 +38,10 @@ jobs:
     needs:
       - run_java_tests
       - publish_docker_image_to_acr
-    uses: HSLdevcom/jore4-tools/.github/workflows/shared-run-e2e.yml@main
+    uses: HSLdevcom/jore4-tools/.github/workflows/shared-run-e2e.yml@use-main-db
     with:
       tiamat_version: "${{ needs.publish_docker_image_to_acr.outputs.docker_image }}"
+      hasura_version: "crjore4prod001.azurecr.io/jore4-hsl-hasura:main-metadata-2026-11-24-13131c5215768bfcbc9638c89ac43646967b46ba"
+      cypress_version: 'crjore4prod001.azurecr.io/jore4-cypress:use-main-db-2026-11-25-8031b9c198da2e3b2b75de33674e2a711c4799bd'
+      custom_docker_compose: ".github/docker-compose.ci.yml"
       test-tags: ''

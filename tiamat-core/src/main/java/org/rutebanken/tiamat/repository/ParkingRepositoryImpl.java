@@ -19,7 +19,6 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.Query;
-import jakarta.persistence.TypedQuery;
 import jakarta.transaction.Transactional;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.ScrollMode;
@@ -181,18 +180,18 @@ public class ParkingRepositoryImpl implements ParkingRepositoryCustom {
     public String findNearbyParking(Envelope envelope, String name, ParkingTypeEnumeration parkingTypeEnumeration) {
         Geometry geometryFilter = geometryFactory.toGeometry(envelope);
 
-        TypedQuery<String> query = entityManager
-                .createQuery("SELECT p.netexId FROM Parking p " +
-                        "WHERE within(p.centroid, :filter) = true " +
-                        "AND p.version = (SELECT MAX(pv.version) FROM Parking pv WHERE pv.netexId = p.netexId) " +
-                        "AND p.name.value = :name " +
-                        (parkingTypeEnumeration != null ? "AND p.parkingType = :parkingType":""),
-                        String.class);
+        String sql = "SELECT p.netex_id FROM parking p " +
+            "WHERE public.ST_Within(p.centroid, :filter) = true " +
+            "AND p.version = (SELECT MAX(pv.version) FROM parking pv WHERE pv.netex_id = p.netex_id) " +
+            "AND p.name_value = :name " +
+            (parkingTypeEnumeration != null ? "AND p.parking_type = :parkingType " : "");
+
+        Query query = entityManager.createNativeQuery(sql);
 
         query.setParameter("filter", geometryFilter);
         query.setParameter("name", name);
         if (parkingTypeEnumeration != null) {
-            query.setParameter("parkingType", parkingTypeEnumeration);
+            query.setParameter("parkingType", parkingTypeEnumeration.toString());
         }
         return getOneOrNull(query);
     }
@@ -220,11 +219,16 @@ public class ParkingRepositoryImpl implements ParkingRepositoryCustom {
         }
     }
 
-    private <T> T getOneOrNull(TypedQuery<T> query) {
+    private String getOneOrNull(Query query) {
         try {
-            List<T> resultList = query.getResultList();
-            return resultList.isEmpty() ? null : resultList.getFirst();
-        } catch (NoResultException e) {
+            @SuppressWarnings("unchecked")
+            List<String> results = query.getResultList();
+            if (results.isEmpty()) {
+                return null;
+            } else {
+                return results.getFirst();
+            }
+        } catch (NoResultException noResultException) {
             return null;
         }
     }

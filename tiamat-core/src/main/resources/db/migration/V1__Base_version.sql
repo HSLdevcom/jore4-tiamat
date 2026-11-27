@@ -22,14 +22,14 @@ SET row_security = off;
 --- The Tiamat user does not have rights to create these in the Jore4 environment, they must be
 --- initialized in the database setup script in Jore4-postgres or in the cloud setup.
 
-SET search_path = public, pg_catalog;
+SET search_path = stopregistry, pg_catalog;
 
 SET default_tablespace = '';
 
 SET default_with_oids = false;
 
 --
--- Name: access_space; Type: TABLE; Schema: public; Owner: tiamat
+-- Name: access_space; Type: TABLE; Schema: stopregistry; Owner: tiamat
 --
 
 CREATE TABLE access_space (
@@ -49,7 +49,7 @@ CREATE TABLE access_space (
     private_code_value character varying(255),
     short_name_lang character varying(5),
     short_name_value character varying(255),
-    centroid geometry,
+    centroid public.geometry,
     all_areas_wheelchair_accessible boolean,
     covered integer,
     level_ref character varying(255),
@@ -68,7 +68,7 @@ CREATE TABLE access_space (
 ALTER TABLE access_space OWNER TO tiamat;
 
 --
--- Name: access_space_alternative_names; Type: TABLE; Schema: public; Owner: tiamat
+-- Name: access_space_alternative_names; Type: TABLE; Schema: stopregistry; Owner: tiamat
 --
 
 CREATE TABLE access_space_alternative_names (
@@ -80,7 +80,7 @@ CREATE TABLE access_space_alternative_names (
 ALTER TABLE access_space_alternative_names OWNER TO tiamat;
 
 --
--- Name: access_space_check_constraints; Type: TABLE; Schema: public; Owner: tiamat
+-- Name: access_space_check_constraints; Type: TABLE; Schema: stopregistry; Owner: tiamat
 --
 
 CREATE TABLE access_space_check_constraints (
@@ -92,7 +92,7 @@ CREATE TABLE access_space_check_constraints (
 ALTER TABLE access_space_check_constraints OWNER TO tiamat;
 
 --
--- Name: access_space_equipment_places; Type: TABLE; Schema: public; Owner: tiamat
+-- Name: access_space_equipment_places; Type: TABLE; Schema: stopregistry; Owner: tiamat
 --
 
 CREATE TABLE access_space_equipment_places (
@@ -104,7 +104,7 @@ CREATE TABLE access_space_equipment_places (
 ALTER TABLE access_space_equipment_places OWNER TO tiamat;
 
 --
--- Name: access_space_key_values; Type: TABLE; Schema: public; Owner: tiamat
+-- Name: access_space_key_values; Type: TABLE; Schema: stopregistry; Owner: tiamat
 --
 
 CREATE TABLE access_space_key_values (
@@ -117,7 +117,7 @@ CREATE TABLE access_space_key_values (
 ALTER TABLE access_space_key_values OWNER TO tiamat;
 
 --
--- Name: access_space_seq; Type: SEQUENCE; Schema: public; Owner: tiamat
+-- Name: access_space_seq; Type: SEQUENCE; Schema: stopregistry; Owner: tiamat
 --
 
 CREATE SEQUENCE access_space_seq
@@ -131,7 +131,7 @@ CREATE SEQUENCE access_space_seq
 ALTER TABLE access_space_seq OWNER TO tiamat;
 
 --
--- Name: access_space_valid_betweens; Type: TABLE; Schema: public; Owner: tiamat
+-- Name: access_space_valid_betweens; Type: TABLE; Schema: stopregistry; Owner: tiamat
 --
 
 CREATE TABLE access_space_valid_betweens (
@@ -143,7 +143,7 @@ CREATE TABLE access_space_valid_betweens (
 ALTER TABLE access_space_valid_betweens OWNER TO tiamat;
 
 --
--- Name: accesses_rel_structure; Type: TABLE; Schema: public; Owner: tiamat
+-- Name: accesses_rel_structure; Type: TABLE; Schema: stopregistry; Owner: tiamat
 --
 
 CREATE TABLE accesses_rel_structure (
@@ -154,7 +154,7 @@ CREATE TABLE accesses_rel_structure (
 ALTER TABLE accesses_rel_structure OWNER TO tiamat;
 
 --
--- Name: accesses_rel_structure_access_ref_or_access; Type: TABLE; Schema: public; Owner: tiamat
+-- Name: accesses_rel_structure_access_ref_or_access; Type: TABLE; Schema: stopregistry; Owner: tiamat
 --
 
 CREATE TABLE accesses_rel_structure_access_ref_or_access (
@@ -166,7 +166,7 @@ CREATE TABLE accesses_rel_structure_access_ref_or_access (
 ALTER TABLE accesses_rel_structure_access_ref_or_access OWNER TO tiamat;
 
 --
--- Name: accesses_rel_structure_seq; Type: SEQUENCE; Schema: public; Owner: tiamat
+-- Name: accesses_rel_structure_seq; Type: SEQUENCE; Schema: stopregistry; Owner: tiamat
 --
 
 CREATE SEQUENCE accesses_rel_structure_seq
@@ -180,7 +180,7 @@ CREATE SEQUENCE accesses_rel_structure_seq
 ALTER TABLE accesses_rel_structure_seq OWNER TO tiamat;
 
 --
--- Name: accessibility_assessment; Type: TABLE; Schema: public; Owner: tiamat
+-- Name: accessibility_assessment; Type: TABLE; Schema: stopregistry; Owner: tiamat
 --
 
 CREATE TABLE accessibility_assessment (
@@ -200,7 +200,7 @@ CREATE TABLE accessibility_assessment (
 ALTER TABLE accessibility_assessment OWNER TO tiamat;
 
 --
--- Name: accessibility_assessment_limitations; Type: TABLE; Schema: public; Owner: tiamat
+-- Name: accessibility_assessment_limitations; Type: TABLE; Schema: stopregistry; Owner: tiamat
 --
 
 CREATE TABLE accessibility_assessment_limitations (
@@ -212,7 +212,7 @@ CREATE TABLE accessibility_assessment_limitations (
 ALTER TABLE accessibility_assessment_limitations OWNER TO tiamat;
 
 --
--- Name: accessibility_assessment_seq; Type: SEQUENCE; Schema: public; Owner: tiamat
+-- Name: accessibility_assessment_seq; Type: SEQUENCE; Schema: stopregistry; Owner: tiamat
 --
 
 CREATE SEQUENCE accessibility_assessment_seq
@@ -226,7 +226,7 @@ CREATE SEQUENCE accessibility_assessment_seq
 ALTER TABLE accessibility_assessment_seq OWNER TO tiamat;
 
 --
--- Name: accessibility_assessment_valid_betweens; Type: TABLE; Schema: public; Owner: tiamat
+-- Name: accessibility_assessment_valid_betweens; Type: TABLE; Schema: stopregistry; Owner: tiamat
 --
 
 CREATE TABLE accessibility_assessment_valid_betweens (
@@ -238,7 +238,7 @@ CREATE TABLE accessibility_assessment_valid_betweens (
 ALTER TABLE accessibility_assessment_valid_betweens OWNER TO tiamat;
 
 --
--- Name: accessibility_limitation; Type: TABLE; Schema: public; Owner: tiamat
+-- Name: accessibility_limitation; Type: TABLE; Schema: stopregistry; Owner: tiamat
 --
 
 CREATE TABLE accessibility_limitation (
@@ -263,7 +263,7 @@ CREATE TABLE accessibility_limitation (
 ALTER TABLE accessibility_limitation OWNER TO tiamat;
 
 --
--- Name: accessibility_limitation_seq; Type: SEQUENCE; Schema: public; Owner: tiamat
+-- Name: accessibility_limitation_seq; Type: SEQUENCE; Schema: stopregistry; Owner: tiamat
 --
 
 CREATE SEQUENCE accessibility_limitation_seq
@@ -277,7 +277,7 @@ CREATE SEQUENCE accessibility_limitation_seq
 ALTER TABLE accessibility_limitation_seq OWNER TO tiamat;
 
 --
--- Name: accessibility_limitation_valid_betweens; Type: TABLE; Schema: public; Owner: tiamat
+-- Name: accessibility_limitation_valid_betweens; Type: TABLE; Schema: stopregistry; Owner: tiamat
 --
 
 CREATE TABLE accessibility_limitation_valid_betweens (
@@ -289,7 +289,7 @@ CREATE TABLE accessibility_limitation_valid_betweens (
 ALTER TABLE accessibility_limitation_valid_betweens OWNER TO tiamat;
 
 --
--- Name: alternative_name; Type: TABLE; Schema: public; Owner: tiamat
+-- Name: alternative_name; Type: TABLE; Schema: stopregistry; Owner: tiamat
 --
 
 CREATE TABLE alternative_name (
@@ -320,7 +320,7 @@ CREATE TABLE alternative_name (
 ALTER TABLE alternative_name OWNER TO tiamat;
 
 --
--- Name: alternative_name_seq; Type: SEQUENCE; Schema: public; Owner: tiamat
+-- Name: alternative_name_seq; Type: SEQUENCE; Schema: stopregistry; Owner: tiamat
 --
 
 CREATE SEQUENCE alternative_name_seq
@@ -334,7 +334,7 @@ CREATE SEQUENCE alternative_name_seq
 ALTER TABLE alternative_name_seq OWNER TO tiamat;
 
 --
--- Name: alternative_name_valid_betweens; Type: TABLE; Schema: public; Owner: tiamat
+-- Name: alternative_name_valid_betweens; Type: TABLE; Schema: stopregistry; Owner: tiamat
 --
 
 CREATE TABLE alternative_name_valid_betweens (
@@ -346,7 +346,7 @@ CREATE TABLE alternative_name_valid_betweens (
 ALTER TABLE alternative_name_valid_betweens OWNER TO tiamat;
 
 --
--- Name: boarding_position; Type: TABLE; Schema: public; Owner: tiamat
+-- Name: boarding_position; Type: TABLE; Schema: stopregistry; Owner: tiamat
 --
 
 CREATE TABLE boarding_position (
@@ -366,7 +366,7 @@ CREATE TABLE boarding_position (
     private_code_value character varying(255),
     short_name_lang character varying(5),
     short_name_value character varying(255),
-    centroid geometry,
+    centroid public.geometry,
     all_areas_wheelchair_accessible boolean,
     covered integer,
     level_ref character varying(255),
@@ -387,7 +387,7 @@ CREATE TABLE boarding_position (
 ALTER TABLE boarding_position OWNER TO tiamat;
 
 --
--- Name: boarding_position_alternative_names; Type: TABLE; Schema: public; Owner: tiamat
+-- Name: boarding_position_alternative_names; Type: TABLE; Schema: stopregistry; Owner: tiamat
 --
 
 CREATE TABLE boarding_position_alternative_names (
@@ -399,7 +399,7 @@ CREATE TABLE boarding_position_alternative_names (
 ALTER TABLE boarding_position_alternative_names OWNER TO tiamat;
 
 --
--- Name: boarding_position_check_constraints; Type: TABLE; Schema: public; Owner: tiamat
+-- Name: boarding_position_check_constraints; Type: TABLE; Schema: stopregistry; Owner: tiamat
 --
 
 CREATE TABLE boarding_position_check_constraints (
@@ -411,7 +411,7 @@ CREATE TABLE boarding_position_check_constraints (
 ALTER TABLE boarding_position_check_constraints OWNER TO tiamat;
 
 --
--- Name: boarding_position_equipment_places; Type: TABLE; Schema: public; Owner: tiamat
+-- Name: boarding_position_equipment_places; Type: TABLE; Schema: stopregistry; Owner: tiamat
 --
 
 CREATE TABLE boarding_position_equipment_places (
@@ -423,7 +423,7 @@ CREATE TABLE boarding_position_equipment_places (
 ALTER TABLE boarding_position_equipment_places OWNER TO tiamat;
 
 --
--- Name: boarding_position_key_values; Type: TABLE; Schema: public; Owner: tiamat
+-- Name: boarding_position_key_values; Type: TABLE; Schema: stopregistry; Owner: tiamat
 --
 
 CREATE TABLE boarding_position_key_values (
@@ -436,7 +436,7 @@ CREATE TABLE boarding_position_key_values (
 ALTER TABLE boarding_position_key_values OWNER TO tiamat;
 
 --
--- Name: boarding_position_seq; Type: SEQUENCE; Schema: public; Owner: tiamat
+-- Name: boarding_position_seq; Type: SEQUENCE; Schema: stopregistry; Owner: tiamat
 --
 
 CREATE SEQUENCE boarding_position_seq
@@ -450,7 +450,7 @@ CREATE SEQUENCE boarding_position_seq
 ALTER TABLE boarding_position_seq OWNER TO tiamat;
 
 --
--- Name: boarding_position_valid_betweens; Type: TABLE; Schema: public; Owner: tiamat
+-- Name: boarding_position_valid_betweens; Type: TABLE; Schema: stopregistry; Owner: tiamat
 --
 
 CREATE TABLE boarding_position_valid_betweens (
@@ -462,7 +462,7 @@ CREATE TABLE boarding_position_valid_betweens (
 ALTER TABLE boarding_position_valid_betweens OWNER TO tiamat;
 
 --
--- Name: check_constraint; Type: TABLE; Schema: public; Owner: tiamat
+-- Name: check_constraint; Type: TABLE; Schema: stopregistry; Owner: tiamat
 --
 
 CREATE TABLE check_constraint (
@@ -483,7 +483,7 @@ CREATE TABLE check_constraint (
 ALTER TABLE check_constraint OWNER TO tiamat;
 
 --
--- Name: check_constraint_key_values; Type: TABLE; Schema: public; Owner: tiamat
+-- Name: check_constraint_key_values; Type: TABLE; Schema: stopregistry; Owner: tiamat
 --
 
 CREATE TABLE check_constraint_key_values (
@@ -496,7 +496,7 @@ CREATE TABLE check_constraint_key_values (
 ALTER TABLE check_constraint_key_values OWNER TO tiamat;
 
 --
--- Name: check_constraint_seq; Type: SEQUENCE; Schema: public; Owner: tiamat
+-- Name: check_constraint_seq; Type: SEQUENCE; Schema: stopregistry; Owner: tiamat
 --
 
 CREATE SEQUENCE check_constraint_seq
@@ -510,7 +510,7 @@ CREATE SEQUENCE check_constraint_seq
 ALTER TABLE check_constraint_seq OWNER TO tiamat;
 
 --
--- Name: check_constraint_valid_betweens; Type: TABLE; Schema: public; Owner: tiamat
+-- Name: check_constraint_valid_betweens; Type: TABLE; Schema: stopregistry; Owner: tiamat
 --
 
 CREATE TABLE check_constraint_valid_betweens (
@@ -522,7 +522,7 @@ CREATE TABLE check_constraint_valid_betweens (
 ALTER TABLE check_constraint_valid_betweens OWNER TO tiamat;
 
 --
--- Name: destination_display_view; Type: TABLE; Schema: public; Owner: tiamat
+-- Name: destination_display_view; Type: TABLE; Schema: stopregistry; Owner: tiamat
 --
 
 CREATE TABLE destination_display_view (
@@ -537,7 +537,7 @@ CREATE TABLE destination_display_view (
 ALTER TABLE destination_display_view OWNER TO tiamat;
 
 --
--- Name: equipment_place; Type: TABLE; Schema: public; Owner: tiamat
+-- Name: equipment_place; Type: TABLE; Schema: stopregistry; Owner: tiamat
 --
 
 CREATE TABLE equipment_place (
@@ -557,7 +557,7 @@ CREATE TABLE equipment_place (
     private_code_value character varying(255),
     short_name_lang character varying(5),
     short_name_value character varying(255),
-    centroid geometry,
+    centroid public.geometry,
     polygon_id bigint,
     changed_by character varying(255)
 );
@@ -566,7 +566,7 @@ CREATE TABLE equipment_place (
 ALTER TABLE equipment_place OWNER TO tiamat;
 
 --
--- Name: equipment_place_equipment_positions; Type: TABLE; Schema: public; Owner: tiamat
+-- Name: equipment_place_equipment_positions; Type: TABLE; Schema: stopregistry; Owner: tiamat
 --
 
 CREATE TABLE equipment_place_equipment_positions (
@@ -578,7 +578,7 @@ CREATE TABLE equipment_place_equipment_positions (
 ALTER TABLE equipment_place_equipment_positions OWNER TO tiamat;
 
 --
--- Name: equipment_place_key_values; Type: TABLE; Schema: public; Owner: tiamat
+-- Name: equipment_place_key_values; Type: TABLE; Schema: stopregistry; Owner: tiamat
 --
 
 CREATE TABLE equipment_place_key_values (
@@ -591,7 +591,7 @@ CREATE TABLE equipment_place_key_values (
 ALTER TABLE equipment_place_key_values OWNER TO tiamat;
 
 --
--- Name: equipment_place_seq; Type: SEQUENCE; Schema: public; Owner: tiamat
+-- Name: equipment_place_seq; Type: SEQUENCE; Schema: stopregistry; Owner: tiamat
 --
 
 CREATE SEQUENCE equipment_place_seq
@@ -605,7 +605,7 @@ CREATE SEQUENCE equipment_place_seq
 ALTER TABLE equipment_place_seq OWNER TO tiamat;
 
 --
--- Name: equipment_place_valid_betweens; Type: TABLE; Schema: public; Owner: tiamat
+-- Name: equipment_place_valid_betweens; Type: TABLE; Schema: stopregistry; Owner: tiamat
 --
 
 CREATE TABLE equipment_place_valid_betweens (
@@ -617,7 +617,7 @@ CREATE TABLE equipment_place_valid_betweens (
 ALTER TABLE equipment_place_valid_betweens OWNER TO tiamat;
 
 --
--- Name: equipment_position; Type: TABLE; Schema: public; Owner: tiamat
+-- Name: equipment_position; Type: TABLE; Schema: stopregistry; Owner: tiamat
 --
 
 CREATE TABLE equipment_position (
@@ -641,7 +641,7 @@ CREATE TABLE equipment_position (
 ALTER TABLE equipment_position OWNER TO tiamat;
 
 --
--- Name: equipment_position_key_values; Type: TABLE; Schema: public; Owner: tiamat
+-- Name: equipment_position_key_values; Type: TABLE; Schema: stopregistry; Owner: tiamat
 --
 
 CREATE TABLE equipment_position_key_values (
@@ -654,7 +654,7 @@ CREATE TABLE equipment_position_key_values (
 ALTER TABLE equipment_position_key_values OWNER TO tiamat;
 
 --
--- Name: equipment_position_seq; Type: SEQUENCE; Schema: public; Owner: tiamat
+-- Name: equipment_position_seq; Type: SEQUENCE; Schema: stopregistry; Owner: tiamat
 --
 
 CREATE SEQUENCE equipment_position_seq
@@ -668,7 +668,7 @@ CREATE SEQUENCE equipment_position_seq
 ALTER TABLE equipment_position_seq OWNER TO tiamat;
 
 --
--- Name: equipment_position_valid_betweens; Type: TABLE; Schema: public; Owner: tiamat
+-- Name: equipment_position_valid_betweens; Type: TABLE; Schema: stopregistry; Owner: tiamat
 --
 
 CREATE TABLE equipment_position_valid_betweens (
@@ -680,7 +680,7 @@ CREATE TABLE equipment_position_valid_betweens (
 ALTER TABLE equipment_position_valid_betweens OWNER TO tiamat;
 
 --
--- Name: explicit_equipments_rel_structure; Type: TABLE; Schema: public; Owner: tiamat
+-- Name: explicit_equipments_rel_structure; Type: TABLE; Schema: stopregistry; Owner: tiamat
 --
 
 CREATE TABLE explicit_equipments_rel_structure (
@@ -691,7 +691,7 @@ CREATE TABLE explicit_equipments_rel_structure (
 ALTER TABLE explicit_equipments_rel_structure OWNER TO tiamat;
 
 --
--- Name: explicit_equipments_rel_structure_seq; Type: SEQUENCE; Schema: public; Owner: tiamat
+-- Name: explicit_equipments_rel_structure_seq; Type: SEQUENCE; Schema: stopregistry; Owner: tiamat
 --
 
 CREATE SEQUENCE explicit_equipments_rel_structure_seq
@@ -705,7 +705,7 @@ CREATE SEQUENCE explicit_equipments_rel_structure_seq
 ALTER TABLE explicit_equipments_rel_structure_seq OWNER TO tiamat;
 
 --
--- Name: export_job; Type: TABLE; Schema: public; Owner: tiamat
+-- Name: export_job; Type: TABLE; Schema: stopregistry; Owner: tiamat
 --
 
 CREATE TABLE export_job (
@@ -722,7 +722,7 @@ CREATE TABLE export_job (
 ALTER TABLE export_job OWNER TO tiamat;
 
 --
--- Name: hibernate_sequence; Type: SEQUENCE; Schema: public; Owner: tiamat
+-- Name: hibernate_sequence; Type: SEQUENCE; Schema: stopregistry; Owner: tiamat
 --
 
 CREATE SEQUENCE hibernate_sequence
@@ -736,7 +736,7 @@ CREATE SEQUENCE hibernate_sequence
 ALTER TABLE hibernate_sequence OWNER TO tiamat;
 
 --
--- Name: id_generator; Type: TABLE; Schema: public; Owner: tiamat
+-- Name: id_generator; Type: TABLE; Schema: stopregistry; Owner: tiamat
 --
 
 CREATE TABLE id_generator (
@@ -748,7 +748,7 @@ CREATE TABLE id_generator (
 ALTER TABLE id_generator OWNER TO tiamat;
 
 --
--- Name: installed_equipment; Type: TABLE; Schema: public; Owner: tiamat
+-- Name: installed_equipment; Type: TABLE; Schema: stopregistry; Owner: tiamat
 --
 
 CREATE TABLE installed_equipment (
@@ -761,7 +761,7 @@ CREATE TABLE installed_equipment (
 ALTER TABLE installed_equipment OWNER TO tiamat;
 
 --
--- Name: installed_equipment_version_structure; Type: TABLE; Schema: public; Owner: tiamat
+-- Name: installed_equipment_version_structure; Type: TABLE; Schema: stopregistry; Owner: tiamat
 --
 
 CREATE TABLE installed_equipment_version_structure (
@@ -811,7 +811,7 @@ CREATE TABLE installed_equipment_version_structure (
 ALTER TABLE installed_equipment_version_structure OWNER TO tiamat;
 
 --
--- Name: installed_equipment_version_structure_installed_equipment; Type: TABLE; Schema: public; Owner: tiamat
+-- Name: installed_equipment_version_structure_installed_equipment; Type: TABLE; Schema: stopregistry; Owner: tiamat
 --
 
 CREATE TABLE installed_equipment_version_structure_installed_equipment (
@@ -823,7 +823,7 @@ CREATE TABLE installed_equipment_version_structure_installed_equipment (
 ALTER TABLE installed_equipment_version_structure_installed_equipment OWNER TO tiamat;
 
 --
--- Name: installed_equipment_version_structure_seq; Type: SEQUENCE; Schema: public; Owner: tiamat
+-- Name: installed_equipment_version_structure_seq; Type: SEQUENCE; Schema: stopregistry; Owner: tiamat
 --
 
 CREATE SEQUENCE installed_equipment_version_structure_seq
@@ -837,7 +837,7 @@ CREATE SEQUENCE installed_equipment_version_structure_seq
 ALTER TABLE installed_equipment_version_structure_seq OWNER TO tiamat;
 
 --
--- Name: installed_equipment_version_structure_valid_betweens; Type: TABLE; Schema: public; Owner: tiamat
+-- Name: installed_equipment_version_structure_valid_betweens; Type: TABLE; Schema: stopregistry; Owner: tiamat
 --
 
 CREATE TABLE installed_equipment_version_structure_valid_betweens (
@@ -849,7 +849,7 @@ CREATE TABLE installed_equipment_version_structure_valid_betweens (
 ALTER TABLE installed_equipment_version_structure_valid_betweens OWNER TO tiamat;
 
 --
--- Name: level; Type: TABLE; Schema: public; Owner: tiamat
+-- Name: level; Type: TABLE; Schema: stopregistry; Owner: tiamat
 --
 
 CREATE TABLE level (
@@ -874,7 +874,7 @@ CREATE TABLE level (
 ALTER TABLE level OWNER TO tiamat;
 
 --
--- Name: level_key_values; Type: TABLE; Schema: public; Owner: tiamat
+-- Name: level_key_values; Type: TABLE; Schema: stopregistry; Owner: tiamat
 --
 
 CREATE TABLE level_key_values (
@@ -887,7 +887,7 @@ CREATE TABLE level_key_values (
 ALTER TABLE level_key_values OWNER TO tiamat;
 
 --
--- Name: level_seq; Type: SEQUENCE; Schema: public; Owner: tiamat
+-- Name: level_seq; Type: SEQUENCE; Schema: stopregistry; Owner: tiamat
 --
 
 CREATE SEQUENCE level_seq
@@ -901,7 +901,7 @@ CREATE SEQUENCE level_seq
 ALTER TABLE level_seq OWNER TO tiamat;
 
 --
--- Name: level_valid_betweens; Type: TABLE; Schema: public; Owner: tiamat
+-- Name: level_valid_betweens; Type: TABLE; Schema: stopregistry; Owner: tiamat
 --
 
 CREATE TABLE level_valid_betweens (
@@ -913,7 +913,7 @@ CREATE TABLE level_valid_betweens (
 ALTER TABLE level_valid_betweens OWNER TO tiamat;
 
 --
--- Name: multilingual_string_entity; Type: TABLE; Schema: public; Owner: tiamat
+-- Name: multilingual_string_entity; Type: TABLE; Schema: stopregistry; Owner: tiamat
 --
 
 CREATE TABLE multilingual_string_entity (
@@ -926,7 +926,7 @@ CREATE TABLE multilingual_string_entity (
 ALTER TABLE multilingual_string_entity OWNER TO tiamat;
 
 --
--- Name: navigation_path; Type: TABLE; Schema: public; Owner: tiamat
+-- Name: navigation_path; Type: TABLE; Schema: stopregistry; Owner: tiamat
 --
 
 CREATE TABLE navigation_path (
@@ -939,7 +939,7 @@ CREATE TABLE navigation_path (
 ALTER TABLE navigation_path OWNER TO tiamat;
 
 --
--- Name: navigation_paths_rel_structure; Type: TABLE; Schema: public; Owner: tiamat
+-- Name: navigation_paths_rel_structure; Type: TABLE; Schema: stopregistry; Owner: tiamat
 --
 
 CREATE TABLE navigation_paths_rel_structure (
@@ -950,7 +950,7 @@ CREATE TABLE navigation_paths_rel_structure (
 ALTER TABLE navigation_paths_rel_structure OWNER TO tiamat;
 
 --
--- Name: navigation_paths_rel_structure_seq; Type: SEQUENCE; Schema: public; Owner: tiamat
+-- Name: navigation_paths_rel_structure_seq; Type: SEQUENCE; Schema: stopregistry; Owner: tiamat
 --
 
 CREATE SEQUENCE navigation_paths_rel_structure_seq
@@ -964,7 +964,7 @@ CREATE SEQUENCE navigation_paths_rel_structure_seq
 ALTER TABLE navigation_paths_rel_structure_seq OWNER TO tiamat;
 
 --
--- Name: parking; Type: TABLE; Schema: public; Owner: tiamat
+-- Name: parking; Type: TABLE; Schema: stopregistry; Owner: tiamat
 --
 
 CREATE TABLE parking (
@@ -984,7 +984,7 @@ CREATE TABLE parking (
     private_code_value character varying(255),
     short_name_lang character varying(5),
     short_name_value character varying(255),
-    centroid geometry,
+    centroid public.geometry,
     all_areas_wheelchair_accessible boolean,
     covered integer,
     parent_site_ref character varying(255),
@@ -1013,7 +1013,7 @@ CREATE TABLE parking (
 ALTER TABLE parking OWNER TO tiamat;
 
 --
--- Name: parking_alternative_names; Type: TABLE; Schema: public; Owner: tiamat
+-- Name: parking_alternative_names; Type: TABLE; Schema: stopregistry; Owner: tiamat
 --
 
 CREATE TABLE parking_alternative_names (
@@ -1025,7 +1025,7 @@ CREATE TABLE parking_alternative_names (
 ALTER TABLE parking_alternative_names OWNER TO tiamat;
 
 --
--- Name: parking_area; Type: TABLE; Schema: public; Owner: tiamat
+-- Name: parking_area; Type: TABLE; Schema: stopregistry; Owner: tiamat
 --
 
 CREATE TABLE parking_area (
@@ -1045,7 +1045,7 @@ CREATE TABLE parking_area (
     private_code_value character varying(255),
     short_name_lang character varying(5),
     short_name_value character varying(255),
-    centroid geometry,
+    centroid public.geometry,
     all_areas_wheelchair_accessible boolean,
     covered integer,
     level_ref character varying(255),
@@ -1064,7 +1064,7 @@ CREATE TABLE parking_area (
 ALTER TABLE parking_area OWNER TO tiamat;
 
 --
--- Name: parking_area_alternative_names; Type: TABLE; Schema: public; Owner: tiamat
+-- Name: parking_area_alternative_names; Type: TABLE; Schema: stopregistry; Owner: tiamat
 --
 
 CREATE TABLE parking_area_alternative_names (
@@ -1076,7 +1076,7 @@ CREATE TABLE parking_area_alternative_names (
 ALTER TABLE parking_area_alternative_names OWNER TO tiamat;
 
 --
--- Name: parking_area_check_constraints; Type: TABLE; Schema: public; Owner: tiamat
+-- Name: parking_area_check_constraints; Type: TABLE; Schema: stopregistry; Owner: tiamat
 --
 
 CREATE TABLE parking_area_check_constraints (
@@ -1088,7 +1088,7 @@ CREATE TABLE parking_area_check_constraints (
 ALTER TABLE parking_area_check_constraints OWNER TO tiamat;
 
 --
--- Name: parking_area_equipment_places; Type: TABLE; Schema: public; Owner: tiamat
+-- Name: parking_area_equipment_places; Type: TABLE; Schema: stopregistry; Owner: tiamat
 --
 
 CREATE TABLE parking_area_equipment_places (
@@ -1100,7 +1100,7 @@ CREATE TABLE parking_area_equipment_places (
 ALTER TABLE parking_area_equipment_places OWNER TO tiamat;
 
 --
--- Name: parking_area_key_values; Type: TABLE; Schema: public; Owner: tiamat
+-- Name: parking_area_key_values; Type: TABLE; Schema: stopregistry; Owner: tiamat
 --
 
 CREATE TABLE parking_area_key_values (
@@ -1113,7 +1113,7 @@ CREATE TABLE parking_area_key_values (
 ALTER TABLE parking_area_key_values OWNER TO tiamat;
 
 --
--- Name: parking_area_seq; Type: SEQUENCE; Schema: public; Owner: tiamat
+-- Name: parking_area_seq; Type: SEQUENCE; Schema: stopregistry; Owner: tiamat
 --
 
 CREATE SEQUENCE parking_area_seq
@@ -1127,7 +1127,7 @@ CREATE SEQUENCE parking_area_seq
 ALTER TABLE parking_area_seq OWNER TO tiamat;
 
 --
--- Name: parking_area_valid_betweens; Type: TABLE; Schema: public; Owner: tiamat
+-- Name: parking_area_valid_betweens; Type: TABLE; Schema: stopregistry; Owner: tiamat
 --
 
 CREATE TABLE parking_area_valid_betweens (
@@ -1139,7 +1139,7 @@ CREATE TABLE parking_area_valid_betweens (
 ALTER TABLE parking_area_valid_betweens OWNER TO tiamat;
 
 --
--- Name: parking_capacity; Type: TABLE; Schema: public; Owner: tiamat
+-- Name: parking_capacity; Type: TABLE; Schema: stopregistry; Owner: tiamat
 --
 
 CREATE TABLE parking_capacity (
@@ -1163,7 +1163,7 @@ CREATE TABLE parking_capacity (
 ALTER TABLE parking_capacity OWNER TO tiamat;
 
 --
--- Name: parking_capacity_seq; Type: SEQUENCE; Schema: public; Owner: tiamat
+-- Name: parking_capacity_seq; Type: SEQUENCE; Schema: stopregistry; Owner: tiamat
 --
 
 CREATE SEQUENCE parking_capacity_seq
@@ -1177,7 +1177,7 @@ CREATE SEQUENCE parking_capacity_seq
 ALTER TABLE parking_capacity_seq OWNER TO tiamat;
 
 --
--- Name: parking_capacity_valid_betweens; Type: TABLE; Schema: public; Owner: tiamat
+-- Name: parking_capacity_valid_betweens; Type: TABLE; Schema: stopregistry; Owner: tiamat
 --
 
 CREATE TABLE parking_capacity_valid_betweens (
@@ -1189,7 +1189,7 @@ CREATE TABLE parking_capacity_valid_betweens (
 ALTER TABLE parking_capacity_valid_betweens OWNER TO tiamat;
 
 --
--- Name: parking_equipment_places; Type: TABLE; Schema: public; Owner: tiamat
+-- Name: parking_equipment_places; Type: TABLE; Schema: stopregistry; Owner: tiamat
 --
 
 CREATE TABLE parking_equipment_places (
@@ -1201,7 +1201,7 @@ CREATE TABLE parking_equipment_places (
 ALTER TABLE parking_equipment_places OWNER TO tiamat;
 
 --
--- Name: parking_key_values; Type: TABLE; Schema: public; Owner: tiamat
+-- Name: parking_key_values; Type: TABLE; Schema: stopregistry; Owner: tiamat
 --
 
 CREATE TABLE parking_key_values (
@@ -1214,7 +1214,7 @@ CREATE TABLE parking_key_values (
 ALTER TABLE parking_key_values OWNER TO tiamat;
 
 --
--- Name: parking_parking_areas; Type: TABLE; Schema: public; Owner: tiamat
+-- Name: parking_parking_areas; Type: TABLE; Schema: stopregistry; Owner: tiamat
 --
 
 CREATE TABLE parking_parking_areas (
@@ -1226,7 +1226,7 @@ CREATE TABLE parking_parking_areas (
 ALTER TABLE parking_parking_areas OWNER TO tiamat;
 
 --
--- Name: parking_parking_properties; Type: TABLE; Schema: public; Owner: tiamat
+-- Name: parking_parking_properties; Type: TABLE; Schema: stopregistry; Owner: tiamat
 --
 
 CREATE TABLE parking_parking_properties (
@@ -1238,7 +1238,7 @@ CREATE TABLE parking_parking_properties (
 ALTER TABLE parking_parking_properties OWNER TO tiamat;
 
 --
--- Name: parking_parking_vehicle_types; Type: TABLE; Schema: public; Owner: tiamat
+-- Name: parking_parking_vehicle_types; Type: TABLE; Schema: stopregistry; Owner: tiamat
 --
 
 CREATE TABLE parking_parking_vehicle_types (
@@ -1250,7 +1250,7 @@ CREATE TABLE parking_parking_vehicle_types (
 ALTER TABLE parking_parking_vehicle_types OWNER TO tiamat;
 
 --
--- Name: parking_properties; Type: TABLE; Schema: public; Owner: tiamat
+-- Name: parking_properties; Type: TABLE; Schema: stopregistry; Owner: tiamat
 --
 
 CREATE TABLE parking_properties (
@@ -1269,7 +1269,7 @@ CREATE TABLE parking_properties (
 ALTER TABLE parking_properties OWNER TO tiamat;
 
 --
--- Name: parking_properties_parking_user_types; Type: TABLE; Schema: public; Owner: tiamat
+-- Name: parking_properties_parking_user_types; Type: TABLE; Schema: stopregistry; Owner: tiamat
 --
 
 CREATE TABLE parking_properties_parking_user_types (
@@ -1281,7 +1281,7 @@ CREATE TABLE parking_properties_parking_user_types (
 ALTER TABLE parking_properties_parking_user_types OWNER TO tiamat;
 
 --
--- Name: parking_properties_seq; Type: SEQUENCE; Schema: public; Owner: tiamat
+-- Name: parking_properties_seq; Type: SEQUENCE; Schema: stopregistry; Owner: tiamat
 --
 
 CREATE SEQUENCE parking_properties_seq
@@ -1295,7 +1295,7 @@ CREATE SEQUENCE parking_properties_seq
 ALTER TABLE parking_properties_seq OWNER TO tiamat;
 
 --
--- Name: parking_properties_spaces; Type: TABLE; Schema: public; Owner: tiamat
+-- Name: parking_properties_spaces; Type: TABLE; Schema: stopregistry; Owner: tiamat
 --
 
 CREATE TABLE parking_properties_spaces (
@@ -1307,7 +1307,7 @@ CREATE TABLE parking_properties_spaces (
 ALTER TABLE parking_properties_spaces OWNER TO tiamat;
 
 --
--- Name: parking_properties_valid_betweens; Type: TABLE; Schema: public; Owner: tiamat
+-- Name: parking_properties_valid_betweens; Type: TABLE; Schema: stopregistry; Owner: tiamat
 --
 
 CREATE TABLE parking_properties_valid_betweens (
@@ -1319,7 +1319,7 @@ CREATE TABLE parking_properties_valid_betweens (
 ALTER TABLE parking_properties_valid_betweens OWNER TO tiamat;
 
 --
--- Name: parking_seq; Type: SEQUENCE; Schema: public; Owner: tiamat
+-- Name: parking_seq; Type: SEQUENCE; Schema: stopregistry; Owner: tiamat
 --
 
 CREATE SEQUENCE parking_seq
@@ -1333,7 +1333,7 @@ CREATE SEQUENCE parking_seq
 ALTER TABLE parking_seq OWNER TO tiamat;
 
 --
--- Name: parking_valid_betweens; Type: TABLE; Schema: public; Owner: tiamat
+-- Name: parking_valid_betweens; Type: TABLE; Schema: stopregistry; Owner: tiamat
 --
 
 CREATE TABLE parking_valid_betweens (
@@ -1345,7 +1345,7 @@ CREATE TABLE parking_valid_betweens (
 ALTER TABLE parking_valid_betweens OWNER TO tiamat;
 
 --
--- Name: path_junction; Type: TABLE; Schema: public; Owner: tiamat
+-- Name: path_junction; Type: TABLE; Schema: stopregistry; Owner: tiamat
 --
 
 CREATE TABLE path_junction (
@@ -1364,7 +1364,7 @@ CREATE TABLE path_junction (
 ALTER TABLE path_junction OWNER TO tiamat;
 
 --
--- Name: path_junction_key_values; Type: TABLE; Schema: public; Owner: tiamat
+-- Name: path_junction_key_values; Type: TABLE; Schema: stopregistry; Owner: tiamat
 --
 
 CREATE TABLE path_junction_key_values (
@@ -1377,7 +1377,7 @@ CREATE TABLE path_junction_key_values (
 ALTER TABLE path_junction_key_values OWNER TO tiamat;
 
 --
--- Name: path_junction_seq; Type: SEQUENCE; Schema: public; Owner: tiamat
+-- Name: path_junction_seq; Type: SEQUENCE; Schema: stopregistry; Owner: tiamat
 --
 
 CREATE SEQUENCE path_junction_seq
@@ -1391,7 +1391,7 @@ CREATE SEQUENCE path_junction_seq
 ALTER TABLE path_junction_seq OWNER TO tiamat;
 
 --
--- Name: path_junction_valid_betweens; Type: TABLE; Schema: public; Owner: tiamat
+-- Name: path_junction_valid_betweens; Type: TABLE; Schema: stopregistry; Owner: tiamat
 --
 
 CREATE TABLE path_junction_valid_betweens (
@@ -1403,7 +1403,7 @@ CREATE TABLE path_junction_valid_betweens (
 ALTER TABLE path_junction_valid_betweens OWNER TO tiamat;
 
 --
--- Name: path_junctions_rel_structure; Type: TABLE; Schema: public; Owner: tiamat
+-- Name: path_junctions_rel_structure; Type: TABLE; Schema: stopregistry; Owner: tiamat
 --
 
 CREATE TABLE path_junctions_rel_structure (
@@ -1414,7 +1414,7 @@ CREATE TABLE path_junctions_rel_structure (
 ALTER TABLE path_junctions_rel_structure OWNER TO tiamat;
 
 --
--- Name: path_junctions_rel_structure_path_junction_ref_or_path_junction; Type: TABLE; Schema: public; Owner: tiamat
+-- Name: path_junctions_rel_structure_path_junction_ref_or_path_junction; Type: TABLE; Schema: stopregistry; Owner: tiamat
 --
 
 CREATE TABLE path_junctions_rel_structure_path_junction_ref_or_path_junction (
@@ -1426,7 +1426,7 @@ CREATE TABLE path_junctions_rel_structure_path_junction_ref_or_path_junction (
 ALTER TABLE path_junctions_rel_structure_path_junction_ref_or_path_junction OWNER TO tiamat;
 
 --
--- Name: path_junctions_rel_structure_seq; Type: SEQUENCE; Schema: public; Owner: tiamat
+-- Name: path_junctions_rel_structure_seq; Type: SEQUENCE; Schema: stopregistry; Owner: tiamat
 --
 
 CREATE SEQUENCE path_junctions_rel_structure_seq
@@ -1440,7 +1440,7 @@ CREATE SEQUENCE path_junctions_rel_structure_seq
 ALTER TABLE path_junctions_rel_structure_seq OWNER TO tiamat;
 
 --
--- Name: path_link; Type: TABLE; Schema: public; Owner: tiamat
+-- Name: path_link; Type: TABLE; Schema: stopregistry; Owner: tiamat
 --
 
 CREATE TABLE path_link (
@@ -1452,7 +1452,7 @@ CREATE TABLE path_link (
     to_date timestamp without time zone,
     version bigint NOT NULL,
     version_comment character varying(255),
-    line_string geometry,
+    line_string public.geometry,
     default_duration bytea,
     frequent_traveller_duration bytea,
     mobility_restricted_traveller_duration bytea,
@@ -1466,7 +1466,7 @@ CREATE TABLE path_link (
 ALTER TABLE path_link OWNER TO tiamat;
 
 --
--- Name: path_link_end; Type: TABLE; Schema: public; Owner: tiamat
+-- Name: path_link_end; Type: TABLE; Schema: stopregistry; Owner: tiamat
 --
 
 CREATE TABLE path_link_end (
@@ -1481,7 +1481,7 @@ CREATE TABLE path_link_end (
 ALTER TABLE path_link_end OWNER TO tiamat;
 
 --
--- Name: path_link_end_seq; Type: SEQUENCE; Schema: public; Owner: tiamat
+-- Name: path_link_end_seq; Type: SEQUENCE; Schema: stopregistry; Owner: tiamat
 --
 
 CREATE SEQUENCE path_link_end_seq
@@ -1495,7 +1495,7 @@ CREATE SEQUENCE path_link_end_seq
 ALTER TABLE path_link_end_seq OWNER TO tiamat;
 
 --
--- Name: path_link_key_values; Type: TABLE; Schema: public; Owner: tiamat
+-- Name: path_link_key_values; Type: TABLE; Schema: stopregistry; Owner: tiamat
 --
 
 CREATE TABLE path_link_key_values (
@@ -1508,7 +1508,7 @@ CREATE TABLE path_link_key_values (
 ALTER TABLE path_link_key_values OWNER TO tiamat;
 
 --
--- Name: path_link_seq; Type: SEQUENCE; Schema: public; Owner: tiamat
+-- Name: path_link_seq; Type: SEQUENCE; Schema: stopregistry; Owner: tiamat
 --
 
 CREATE SEQUENCE path_link_seq
@@ -1522,7 +1522,7 @@ CREATE SEQUENCE path_link_seq
 ALTER TABLE path_link_seq OWNER TO tiamat;
 
 --
--- Name: path_link_valid_betweens; Type: TABLE; Schema: public; Owner: tiamat
+-- Name: path_link_valid_betweens; Type: TABLE; Schema: stopregistry; Owner: tiamat
 --
 
 CREATE TABLE path_link_valid_betweens (
@@ -1534,19 +1534,19 @@ CREATE TABLE path_link_valid_betweens (
 ALTER TABLE path_link_valid_betweens OWNER TO tiamat;
 
 --
--- Name: persistable_polygon; Type: TABLE; Schema: public; Owner: tiamat
+-- Name: persistable_polygon; Type: TABLE; Schema: stopregistry; Owner: tiamat
 --
 
 CREATE TABLE persistable_polygon (
     id bigint NOT NULL,
-    polygon geometry
+    polygon public.geometry
 );
 
 
 ALTER TABLE persistable_polygon OWNER TO tiamat;
 
 --
--- Name: persistable_polygon_seq; Type: SEQUENCE; Schema: public; Owner: tiamat
+-- Name: persistable_polygon_seq; Type: SEQUENCE; Schema: stopregistry; Owner: tiamat
 --
 
 CREATE SEQUENCE persistable_polygon_seq
@@ -1560,7 +1560,7 @@ CREATE SEQUENCE persistable_polygon_seq
 ALTER TABLE persistable_polygon_seq OWNER TO tiamat;
 
 --
--- Name: quay; Type: TABLE; Schema: public; Owner: tiamat
+-- Name: quay; Type: TABLE; Schema: stopregistry; Owner: tiamat
 --
 
 CREATE TABLE quay (
@@ -1580,7 +1580,7 @@ CREATE TABLE quay (
     private_code_value character varying(255),
     short_name_lang character varying(5),
     short_name_value character varying(255),
-    centroid geometry,
+    centroid public.geometry,
     all_areas_wheelchair_accessible boolean,
     covered integer,
     level_ref character varying(255),
@@ -1601,7 +1601,7 @@ CREATE TABLE quay (
 ALTER TABLE quay OWNER TO tiamat;
 
 --
--- Name: quay_alternative_names; Type: TABLE; Schema: public; Owner: tiamat
+-- Name: quay_alternative_names; Type: TABLE; Schema: stopregistry; Owner: tiamat
 --
 
 CREATE TABLE quay_alternative_names (
@@ -1613,7 +1613,7 @@ CREATE TABLE quay_alternative_names (
 ALTER TABLE quay_alternative_names OWNER TO tiamat;
 
 --
--- Name: quay_boarding_positions; Type: TABLE; Schema: public; Owner: tiamat
+-- Name: quay_boarding_positions; Type: TABLE; Schema: stopregistry; Owner: tiamat
 --
 
 CREATE TABLE quay_boarding_positions (
@@ -1625,7 +1625,7 @@ CREATE TABLE quay_boarding_positions (
 ALTER TABLE quay_boarding_positions OWNER TO tiamat;
 
 --
--- Name: quay_check_constraints; Type: TABLE; Schema: public; Owner: tiamat
+-- Name: quay_check_constraints; Type: TABLE; Schema: stopregistry; Owner: tiamat
 --
 
 CREATE TABLE quay_check_constraints (
@@ -1637,7 +1637,7 @@ CREATE TABLE quay_check_constraints (
 ALTER TABLE quay_check_constraints OWNER TO tiamat;
 
 --
--- Name: quay_equipment_places; Type: TABLE; Schema: public; Owner: tiamat
+-- Name: quay_equipment_places; Type: TABLE; Schema: stopregistry; Owner: tiamat
 --
 
 CREATE TABLE quay_equipment_places (
@@ -1649,7 +1649,7 @@ CREATE TABLE quay_equipment_places (
 ALTER TABLE quay_equipment_places OWNER TO tiamat;
 
 --
--- Name: quay_key_values; Type: TABLE; Schema: public; Owner: tiamat
+-- Name: quay_key_values; Type: TABLE; Schema: stopregistry; Owner: tiamat
 --
 
 CREATE TABLE quay_key_values (
@@ -1662,7 +1662,7 @@ CREATE TABLE quay_key_values (
 ALTER TABLE quay_key_values OWNER TO tiamat;
 
 --
--- Name: quay_seq; Type: SEQUENCE; Schema: public; Owner: tiamat
+-- Name: quay_seq; Type: SEQUENCE; Schema: stopregistry; Owner: tiamat
 --
 
 CREATE SEQUENCE quay_seq
@@ -1676,7 +1676,7 @@ CREATE SEQUENCE quay_seq
 ALTER TABLE quay_seq OWNER TO tiamat;
 
 --
--- Name: quay_valid_betweens; Type: TABLE; Schema: public; Owner: tiamat
+-- Name: quay_valid_betweens; Type: TABLE; Schema: stopregistry; Owner: tiamat
 --
 
 CREATE TABLE quay_valid_betweens (
@@ -1688,7 +1688,7 @@ CREATE TABLE quay_valid_betweens (
 ALTER TABLE quay_valid_betweens OWNER TO tiamat;
 
 --
--- Name: quays_rel_structure; Type: TABLE; Schema: public; Owner: tiamat
+-- Name: quays_rel_structure; Type: TABLE; Schema: stopregistry; Owner: tiamat
 --
 
 CREATE TABLE quays_rel_structure (
@@ -1699,7 +1699,7 @@ CREATE TABLE quays_rel_structure (
 ALTER TABLE quays_rel_structure OWNER TO tiamat;
 
 --
--- Name: quays_rel_structure_quay_ref_or_quay; Type: TABLE; Schema: public; Owner: tiamat
+-- Name: quays_rel_structure_quay_ref_or_quay; Type: TABLE; Schema: stopregistry; Owner: tiamat
 --
 
 CREATE TABLE quays_rel_structure_quay_ref_or_quay (
@@ -1711,7 +1711,7 @@ CREATE TABLE quays_rel_structure_quay_ref_or_quay (
 ALTER TABLE quays_rel_structure_quay_ref_or_quay OWNER TO tiamat;
 
 --
--- Name: quays_rel_structure_seq; Type: SEQUENCE; Schema: public; Owner: tiamat
+-- Name: quays_rel_structure_seq; Type: SEQUENCE; Schema: stopregistry; Owner: tiamat
 --
 
 CREATE SEQUENCE quays_rel_structure_seq
@@ -1725,7 +1725,7 @@ CREATE SEQUENCE quays_rel_structure_seq
 ALTER TABLE quays_rel_structure_seq OWNER TO tiamat;
 
 --
--- Name: road_address; Type: TABLE; Schema: public; Owner: tiamat
+-- Name: road_address; Type: TABLE; Schema: stopregistry; Owner: tiamat
 --
 
 CREATE TABLE road_address (
@@ -1745,7 +1745,7 @@ CREATE TABLE road_address (
     private_code_value character varying(255),
     short_name_lang character varying(5),
     short_name_value character varying(255),
-    centroid geometry,
+    centroid public.geometry,
     bearing_compass character varying(255),
     bearing_degrees numeric(19,2),
     gis_feature_ref character varying(255),
@@ -1759,7 +1759,7 @@ CREATE TABLE road_address (
 ALTER TABLE road_address OWNER TO tiamat;
 
 --
--- Name: road_address_key_values; Type: TABLE; Schema: public; Owner: tiamat
+-- Name: road_address_key_values; Type: TABLE; Schema: stopregistry; Owner: tiamat
 --
 
 CREATE TABLE road_address_key_values (
@@ -1772,7 +1772,7 @@ CREATE TABLE road_address_key_values (
 ALTER TABLE road_address_key_values OWNER TO tiamat;
 
 --
--- Name: road_address_seq; Type: SEQUENCE; Schema: public; Owner: tiamat
+-- Name: road_address_seq; Type: SEQUENCE; Schema: stopregistry; Owner: tiamat
 --
 
 CREATE SEQUENCE road_address_seq
@@ -1786,7 +1786,7 @@ CREATE SEQUENCE road_address_seq
 ALTER TABLE road_address_seq OWNER TO tiamat;
 
 --
--- Name: road_address_valid_betweens; Type: TABLE; Schema: public; Owner: tiamat
+-- Name: road_address_valid_betweens; Type: TABLE; Schema: stopregistry; Owner: tiamat
 --
 
 CREATE TABLE road_address_valid_betweens (
@@ -1798,7 +1798,7 @@ CREATE TABLE road_address_valid_betweens (
 ALTER TABLE road_address_valid_betweens OWNER TO tiamat;
 
 --
--- Name: seq_multilingual_string_entity; Type: SEQUENCE; Schema: public; Owner: tiamat
+-- Name: seq_multilingual_string_entity; Type: SEQUENCE; Schema: stopregistry; Owner: tiamat
 --
 
 CREATE SEQUENCE seq_multilingual_string_entity
@@ -1812,7 +1812,7 @@ CREATE SEQUENCE seq_multilingual_string_entity
 ALTER TABLE seq_multilingual_string_entity OWNER TO tiamat;
 
 --
--- Name: site_path_links_rel_structure; Type: TABLE; Schema: public; Owner: tiamat
+-- Name: site_path_links_rel_structure; Type: TABLE; Schema: stopregistry; Owner: tiamat
 --
 
 CREATE TABLE site_path_links_rel_structure (
@@ -1823,7 +1823,7 @@ CREATE TABLE site_path_links_rel_structure (
 ALTER TABLE site_path_links_rel_structure OWNER TO tiamat;
 
 --
--- Name: site_path_links_rel_structure_path_link_ref_or_site_path_link; Type: TABLE; Schema: public; Owner: tiamat
+-- Name: site_path_links_rel_structure_path_link_ref_or_site_path_link; Type: TABLE; Schema: stopregistry; Owner: tiamat
 --
 
 CREATE TABLE site_path_links_rel_structure_path_link_ref_or_site_path_link (
@@ -1835,7 +1835,7 @@ CREATE TABLE site_path_links_rel_structure_path_link_ref_or_site_path_link (
 ALTER TABLE site_path_links_rel_structure_path_link_ref_or_site_path_link OWNER TO tiamat;
 
 --
--- Name: site_path_links_rel_structure_seq; Type: SEQUENCE; Schema: public; Owner: tiamat
+-- Name: site_path_links_rel_structure_seq; Type: SEQUENCE; Schema: stopregistry; Owner: tiamat
 --
 
 CREATE SEQUENCE site_path_links_rel_structure_seq
@@ -1849,7 +1849,7 @@ CREATE SEQUENCE site_path_links_rel_structure_seq
 ALTER TABLE site_path_links_rel_structure_seq OWNER TO tiamat;
 
 --
--- Name: stop_place; Type: TABLE; Schema: public; Owner: tiamat
+-- Name: stop_place; Type: TABLE; Schema: stopregistry; Owner: tiamat
 --
 
 CREATE TABLE stop_place (
@@ -1869,7 +1869,7 @@ CREATE TABLE stop_place (
     private_code_value character varying(255),
     short_name_lang character varying(5),
     short_name_value character varying(255),
-    centroid geometry,
+    centroid public.geometry,
     all_areas_wheelchair_accessible boolean,
     covered integer,
     parent_site_ref character varying(255),
@@ -1899,7 +1899,7 @@ CREATE TABLE stop_place (
 ALTER TABLE stop_place OWNER TO tiamat;
 
 --
--- Name: stop_place_access_spaces; Type: TABLE; Schema: public; Owner: tiamat
+-- Name: stop_place_access_spaces; Type: TABLE; Schema: stopregistry; Owner: tiamat
 --
 
 CREATE TABLE stop_place_access_spaces (
@@ -1911,7 +1911,7 @@ CREATE TABLE stop_place_access_spaces (
 ALTER TABLE stop_place_access_spaces OWNER TO tiamat;
 
 --
--- Name: stop_place_alternative_names; Type: TABLE; Schema: public; Owner: tiamat
+-- Name: stop_place_alternative_names; Type: TABLE; Schema: stopregistry; Owner: tiamat
 --
 
 CREATE TABLE stop_place_alternative_names (
@@ -1923,7 +1923,7 @@ CREATE TABLE stop_place_alternative_names (
 ALTER TABLE stop_place_alternative_names OWNER TO tiamat;
 
 --
--- Name: stop_place_equipment_places; Type: TABLE; Schema: public; Owner: tiamat
+-- Name: stop_place_equipment_places; Type: TABLE; Schema: stopregistry; Owner: tiamat
 --
 
 CREATE TABLE stop_place_equipment_places (
@@ -1935,7 +1935,7 @@ CREATE TABLE stop_place_equipment_places (
 ALTER TABLE stop_place_equipment_places OWNER TO tiamat;
 
 --
--- Name: stop_place_key_values; Type: TABLE; Schema: public; Owner: tiamat
+-- Name: stop_place_key_values; Type: TABLE; Schema: stopregistry; Owner: tiamat
 --
 
 CREATE TABLE stop_place_key_values (
@@ -1948,7 +1948,7 @@ CREATE TABLE stop_place_key_values (
 ALTER TABLE stop_place_key_values OWNER TO tiamat;
 
 --
--- Name: stop_place_quays; Type: TABLE; Schema: public; Owner: tiamat
+-- Name: stop_place_quays; Type: TABLE; Schema: stopregistry; Owner: tiamat
 --
 
 CREATE TABLE stop_place_quays (
@@ -1960,7 +1960,7 @@ CREATE TABLE stop_place_quays (
 ALTER TABLE stop_place_quays OWNER TO tiamat;
 
 --
--- Name: stop_place_seq; Type: SEQUENCE; Schema: public; Owner: tiamat
+-- Name: stop_place_seq; Type: SEQUENCE; Schema: stopregistry; Owner: tiamat
 --
 
 CREATE SEQUENCE stop_place_seq
@@ -1974,7 +1974,7 @@ CREATE SEQUENCE stop_place_seq
 ALTER TABLE stop_place_seq OWNER TO tiamat;
 
 --
--- Name: stop_place_tariff_zones; Type: TABLE; Schema: public; Owner: tiamat
+-- Name: stop_place_tariff_zones; Type: TABLE; Schema: stopregistry; Owner: tiamat
 --
 
 CREATE TABLE stop_place_tariff_zones (
@@ -1986,7 +1986,7 @@ CREATE TABLE stop_place_tariff_zones (
 ALTER TABLE stop_place_tariff_zones OWNER TO tiamat;
 
 --
--- Name: stop_place_valid_betweens; Type: TABLE; Schema: public; Owner: tiamat
+-- Name: stop_place_valid_betweens; Type: TABLE; Schema: stopregistry; Owner: tiamat
 --
 
 CREATE TABLE stop_place_valid_betweens (
@@ -1998,7 +1998,7 @@ CREATE TABLE stop_place_valid_betweens (
 ALTER TABLE stop_place_valid_betweens OWNER TO tiamat;
 
 --
--- Name: tariff_zone; Type: TABLE; Schema: public; Owner: tiamat
+-- Name: tariff_zone; Type: TABLE; Schema: stopregistry; Owner: tiamat
 --
 
 CREATE TABLE tariff_zone (
@@ -2018,7 +2018,7 @@ CREATE TABLE tariff_zone (
     private_code_value character varying(255),
     short_name_lang character varying(5),
     short_name_value character varying(255),
-    centroid geometry,
+    centroid public.geometry,
     polygon_id bigint,
     changed_by character varying(255)
 );
@@ -2027,7 +2027,7 @@ CREATE TABLE tariff_zone (
 ALTER TABLE tariff_zone OWNER TO tiamat;
 
 --
--- Name: tariff_zone_key_values; Type: TABLE; Schema: public; Owner: tiamat
+-- Name: tariff_zone_key_values; Type: TABLE; Schema: stopregistry; Owner: tiamat
 --
 
 CREATE TABLE tariff_zone_key_values (
@@ -2040,7 +2040,7 @@ CREATE TABLE tariff_zone_key_values (
 ALTER TABLE tariff_zone_key_values OWNER TO tiamat;
 
 --
--- Name: tariff_zone_ref; Type: TABLE; Schema: public; Owner: tiamat
+-- Name: tariff_zone_ref; Type: TABLE; Schema: stopregistry; Owner: tiamat
 --
 
 CREATE TABLE tariff_zone_ref (
@@ -2053,7 +2053,7 @@ CREATE TABLE tariff_zone_ref (
 ALTER TABLE tariff_zone_ref OWNER TO tiamat;
 
 --
--- Name: tariff_zone_ref_seq; Type: SEQUENCE; Schema: public; Owner: tiamat
+-- Name: tariff_zone_ref_seq; Type: SEQUENCE; Schema: stopregistry; Owner: tiamat
 --
 
 CREATE SEQUENCE tariff_zone_ref_seq
@@ -2067,7 +2067,7 @@ CREATE SEQUENCE tariff_zone_ref_seq
 ALTER TABLE tariff_zone_ref_seq OWNER TO tiamat;
 
 --
--- Name: tariff_zone_seq; Type: SEQUENCE; Schema: public; Owner: tiamat
+-- Name: tariff_zone_seq; Type: SEQUENCE; Schema: stopregistry; Owner: tiamat
 --
 
 CREATE SEQUENCE tariff_zone_seq
@@ -2081,7 +2081,7 @@ CREATE SEQUENCE tariff_zone_seq
 ALTER TABLE tariff_zone_seq OWNER TO tiamat;
 
 --
--- Name: tariff_zone_valid_betweens; Type: TABLE; Schema: public; Owner: tiamat
+-- Name: tariff_zone_valid_betweens; Type: TABLE; Schema: stopregistry; Owner: tiamat
 --
 
 CREATE TABLE tariff_zone_valid_betweens (
@@ -2093,7 +2093,7 @@ CREATE TABLE tariff_zone_valid_betweens (
 ALTER TABLE tariff_zone_valid_betweens OWNER TO tiamat;
 
 --
--- Name: topographic_place; Type: TABLE; Schema: public; Owner: tiamat
+-- Name: topographic_place; Type: TABLE; Schema: stopregistry; Owner: tiamat
 --
 
 CREATE TABLE topographic_place (
@@ -2113,7 +2113,7 @@ CREATE TABLE topographic_place (
     private_code_value character varying(255),
     short_name_lang character varying(5),
     short_name_value character varying(255),
-    centroid geometry,
+    centroid public.geometry,
     country_ref character varying(255),
     country_ref_value character varying(255),
     iso_code character varying(255),
@@ -2128,7 +2128,7 @@ CREATE TABLE topographic_place (
 ALTER TABLE topographic_place OWNER TO tiamat;
 
 --
--- Name: topographic_place_key_values; Type: TABLE; Schema: public; Owner: tiamat
+-- Name: topographic_place_key_values; Type: TABLE; Schema: stopregistry; Owner: tiamat
 --
 
 CREATE TABLE topographic_place_key_values (
@@ -2141,7 +2141,7 @@ CREATE TABLE topographic_place_key_values (
 ALTER TABLE topographic_place_key_values OWNER TO tiamat;
 
 --
--- Name: topographic_place_seq; Type: SEQUENCE; Schema: public; Owner: tiamat
+-- Name: topographic_place_seq; Type: SEQUENCE; Schema: stopregistry; Owner: tiamat
 --
 
 CREATE SEQUENCE topographic_place_seq
@@ -2155,7 +2155,7 @@ CREATE SEQUENCE topographic_place_seq
 ALTER TABLE topographic_place_seq OWNER TO tiamat;
 
 --
--- Name: topographic_place_valid_betweens; Type: TABLE; Schema: public; Owner: tiamat
+-- Name: topographic_place_valid_betweens; Type: TABLE; Schema: stopregistry; Owner: tiamat
 --
 
 CREATE TABLE topographic_place_valid_betweens (
@@ -2167,7 +2167,7 @@ CREATE TABLE topographic_place_valid_betweens (
 ALTER TABLE topographic_place_valid_betweens OWNER TO tiamat;
 
 --
--- Name: valid_between; Type: TABLE; Schema: public; Owner: tiamat
+-- Name: valid_between; Type: TABLE; Schema: stopregistry; Owner: tiamat
 --
 
 CREATE TABLE valid_between (
@@ -2189,7 +2189,7 @@ CREATE TABLE valid_between (
 ALTER TABLE valid_between OWNER TO tiamat;
 
 --
--- Name: valid_between_key_values; Type: TABLE; Schema: public; Owner: tiamat
+-- Name: valid_between_key_values; Type: TABLE; Schema: stopregistry; Owner: tiamat
 --
 
 CREATE TABLE valid_between_key_values (
@@ -2202,7 +2202,7 @@ CREATE TABLE valid_between_key_values (
 ALTER TABLE valid_between_key_values OWNER TO tiamat;
 
 --
--- Name: valid_between_seq; Type: SEQUENCE; Schema: public; Owner: tiamat
+-- Name: valid_between_seq; Type: SEQUENCE; Schema: stopregistry; Owner: tiamat
 --
 
 CREATE SEQUENCE valid_between_seq
@@ -2216,7 +2216,7 @@ CREATE SEQUENCE valid_between_seq
 ALTER TABLE valid_between_seq OWNER TO tiamat;
 
 --
--- Name: valid_between_valid_betweens; Type: TABLE; Schema: public; Owner: tiamat
+-- Name: valid_between_valid_betweens; Type: TABLE; Schema: stopregistry; Owner: tiamat
 --
 
 CREATE TABLE valid_between_valid_betweens (
@@ -2228,7 +2228,7 @@ CREATE TABLE valid_between_valid_betweens (
 ALTER TABLE valid_between_valid_betweens OWNER TO tiamat;
 
 --
--- Name: value; Type: TABLE; Schema: public; Owner: tiamat
+-- Name: value; Type: TABLE; Schema: stopregistry; Owner: tiamat
 --
 
 CREATE TABLE value (
@@ -2239,7 +2239,7 @@ CREATE TABLE value (
 ALTER TABLE value OWNER TO tiamat;
 
 --
--- Name: value_items; Type: TABLE; Schema: public; Owner: tiamat
+-- Name: value_items; Type: TABLE; Schema: stopregistry; Owner: tiamat
 --
 
 CREATE TABLE value_items (
@@ -2251,7 +2251,7 @@ CREATE TABLE value_items (
 ALTER TABLE value_items OWNER TO tiamat;
 
 --
--- Name: vehicle_stopping_places_rel_structure; Type: TABLE; Schema: public; Owner: tiamat
+-- Name: vehicle_stopping_places_rel_structure; Type: TABLE; Schema: stopregistry; Owner: tiamat
 --
 
 CREATE TABLE vehicle_stopping_places_rel_structure (
@@ -2262,7 +2262,7 @@ CREATE TABLE vehicle_stopping_places_rel_structure (
 ALTER TABLE vehicle_stopping_places_rel_structure OWNER TO tiamat;
 
 --
--- Name: vehicle_stopping_places_rel_structure_seq; Type: SEQUENCE; Schema: public; Owner: tiamat
+-- Name: vehicle_stopping_places_rel_structure_seq; Type: SEQUENCE; Schema: stopregistry; Owner: tiamat
 --
 
 CREATE SEQUENCE vehicle_stopping_places_rel_structure_seq
@@ -2276,7 +2276,7 @@ CREATE SEQUENCE vehicle_stopping_places_rel_structure_seq
 ALTER TABLE vehicle_stopping_places_rel_structure_seq OWNER TO tiamat;
 
 --
--- Name: vehicle_stopping_places_rel_structure_vehicle_stopping_place_re; Type: TABLE; Schema: public; Owner: tiamat
+-- Name: vehicle_stopping_places_rel_structure_vehicle_stopping_place_re; Type: TABLE; Schema: stopregistry; Owner: tiamat
 --
 
 CREATE TABLE vehicle_stopping_places_rel_structure_vehicle_stopping_place_re (
@@ -2288,7 +2288,7 @@ CREATE TABLE vehicle_stopping_places_rel_structure_vehicle_stopping_place_re (
 ALTER TABLE vehicle_stopping_places_rel_structure_vehicle_stopping_place_re OWNER TO tiamat;
 
 --
--- Name: access_space_key_values access_space_key_values_pkey; Type: CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: access_space_key_values access_space_key_values_pkey; Type: CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY access_space_key_values
@@ -2296,7 +2296,7 @@ ALTER TABLE ONLY access_space_key_values
 
 
 --
--- Name: access_space access_space_pkey; Type: CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: access_space access_space_pkey; Type: CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY access_space
@@ -2304,7 +2304,7 @@ ALTER TABLE ONLY access_space
 
 
 --
--- Name: accesses_rel_structure accesses_rel_structure_pkey; Type: CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: accesses_rel_structure accesses_rel_structure_pkey; Type: CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY accesses_rel_structure
@@ -2312,7 +2312,7 @@ ALTER TABLE ONLY accesses_rel_structure
 
 
 --
--- Name: accessibility_assessment accessibility_assessment_pkey; Type: CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: accessibility_assessment accessibility_assessment_pkey; Type: CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY accessibility_assessment
@@ -2320,7 +2320,7 @@ ALTER TABLE ONLY accessibility_assessment
 
 
 --
--- Name: accessibility_limitation accessibility_limitation_pkey; Type: CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: accessibility_limitation accessibility_limitation_pkey; Type: CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY accessibility_limitation
@@ -2328,7 +2328,7 @@ ALTER TABLE ONLY accessibility_limitation
 
 
 --
--- Name: alternative_name alternative_name_pkey; Type: CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: alternative_name alternative_name_pkey; Type: CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY alternative_name
@@ -2336,7 +2336,7 @@ ALTER TABLE ONLY alternative_name
 
 
 --
--- Name: boarding_position_key_values boarding_position_key_values_pkey; Type: CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: boarding_position_key_values boarding_position_key_values_pkey; Type: CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY boarding_position_key_values
@@ -2344,7 +2344,7 @@ ALTER TABLE ONLY boarding_position_key_values
 
 
 --
--- Name: boarding_position boarding_position_pkey; Type: CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: boarding_position boarding_position_pkey; Type: CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY boarding_position
@@ -2352,7 +2352,7 @@ ALTER TABLE ONLY boarding_position
 
 
 --
--- Name: check_constraint_key_values check_constraint_key_values_pkey; Type: CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: check_constraint_key_values check_constraint_key_values_pkey; Type: CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY check_constraint_key_values
@@ -2360,7 +2360,7 @@ ALTER TABLE ONLY check_constraint_key_values
 
 
 --
--- Name: check_constraint check_constraint_pkey; Type: CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: check_constraint check_constraint_pkey; Type: CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY check_constraint
@@ -2368,7 +2368,7 @@ ALTER TABLE ONLY check_constraint
 
 
 --
--- Name: destination_display_view destination_display_view_pkey; Type: CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: destination_display_view destination_display_view_pkey; Type: CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY destination_display_view
@@ -2376,7 +2376,7 @@ ALTER TABLE ONLY destination_display_view
 
 
 --
--- Name: equipment_place_key_values equipment_place_key_values_pkey; Type: CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: equipment_place_key_values equipment_place_key_values_pkey; Type: CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY equipment_place_key_values
@@ -2384,7 +2384,7 @@ ALTER TABLE ONLY equipment_place_key_values
 
 
 --
--- Name: equipment_place equipment_place_pkey; Type: CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: equipment_place equipment_place_pkey; Type: CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY equipment_place
@@ -2392,7 +2392,7 @@ ALTER TABLE ONLY equipment_place
 
 
 --
--- Name: equipment_position_key_values equipment_position_key_values_pkey; Type: CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: equipment_position_key_values equipment_position_key_values_pkey; Type: CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY equipment_position_key_values
@@ -2400,7 +2400,7 @@ ALTER TABLE ONLY equipment_position_key_values
 
 
 --
--- Name: equipment_position equipment_position_pkey; Type: CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: equipment_position equipment_position_pkey; Type: CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY equipment_position
@@ -2408,7 +2408,7 @@ ALTER TABLE ONLY equipment_position
 
 
 --
--- Name: explicit_equipments_rel_structure explicit_equipments_rel_structure_pkey; Type: CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: explicit_equipments_rel_structure explicit_equipments_rel_structure_pkey; Type: CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY explicit_equipments_rel_structure
@@ -2416,7 +2416,7 @@ ALTER TABLE ONLY explicit_equipments_rel_structure
 
 
 --
--- Name: export_job export_job_pkey; Type: CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: export_job export_job_pkey; Type: CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY export_job
@@ -2424,7 +2424,7 @@ ALTER TABLE ONLY export_job
 
 
 --
--- Name: id_generator id_constraint; Type: CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: id_generator id_constraint; Type: CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY id_generator
@@ -2432,7 +2432,7 @@ ALTER TABLE ONLY id_generator
 
 
 --
--- Name: installed_equipment_version_structure installed_equipment_version_structure_pkey; Type: CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: installed_equipment_version_structure installed_equipment_version_structure_pkey; Type: CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY installed_equipment_version_structure
@@ -2440,7 +2440,7 @@ ALTER TABLE ONLY installed_equipment_version_structure
 
 
 --
--- Name: level_key_values level_key_values_pkey; Type: CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: level_key_values level_key_values_pkey; Type: CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY level_key_values
@@ -2448,7 +2448,7 @@ ALTER TABLE ONLY level_key_values
 
 
 --
--- Name: level level_pkey; Type: CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: level level_pkey; Type: CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY level
@@ -2456,7 +2456,7 @@ ALTER TABLE ONLY level
 
 
 --
--- Name: multilingual_string_entity multilingual_string_entity_pkey; Type: CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: multilingual_string_entity multilingual_string_entity_pkey; Type: CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY multilingual_string_entity
@@ -2464,7 +2464,7 @@ ALTER TABLE ONLY multilingual_string_entity
 
 
 --
--- Name: navigation_paths_rel_structure navigation_paths_rel_structure_pkey; Type: CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: navigation_paths_rel_structure navigation_paths_rel_structure_pkey; Type: CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY navigation_paths_rel_structure
@@ -2472,7 +2472,7 @@ ALTER TABLE ONLY navigation_paths_rel_structure
 
 
 --
--- Name: parking_area_key_values parking_area_key_values_pkey; Type: CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: parking_area_key_values parking_area_key_values_pkey; Type: CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY parking_area_key_values
@@ -2480,7 +2480,7 @@ ALTER TABLE ONLY parking_area_key_values
 
 
 --
--- Name: parking_area parking_area_pkey; Type: CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: parking_area parking_area_pkey; Type: CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY parking_area
@@ -2488,7 +2488,7 @@ ALTER TABLE ONLY parking_area
 
 
 --
--- Name: parking_capacity parking_capacity_pkey; Type: CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: parking_capacity parking_capacity_pkey; Type: CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY parking_capacity
@@ -2496,7 +2496,7 @@ ALTER TABLE ONLY parking_capacity
 
 
 --
--- Name: parking_key_values parking_key_values_pkey; Type: CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: parking_key_values parking_key_values_pkey; Type: CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY parking_key_values
@@ -2504,7 +2504,7 @@ ALTER TABLE ONLY parking_key_values
 
 
 --
--- Name: parking parking_pkey; Type: CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: parking parking_pkey; Type: CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY parking
@@ -2512,7 +2512,7 @@ ALTER TABLE ONLY parking
 
 
 --
--- Name: parking_properties parking_properties_pkey; Type: CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: parking_properties parking_properties_pkey; Type: CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY parking_properties
@@ -2520,7 +2520,7 @@ ALTER TABLE ONLY parking_properties
 
 
 --
--- Name: path_junction_key_values path_junction_key_values_pkey; Type: CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: path_junction_key_values path_junction_key_values_pkey; Type: CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY path_junction_key_values
@@ -2528,7 +2528,7 @@ ALTER TABLE ONLY path_junction_key_values
 
 
 --
--- Name: path_junction path_junction_pkey; Type: CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: path_junction path_junction_pkey; Type: CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY path_junction
@@ -2536,7 +2536,7 @@ ALTER TABLE ONLY path_junction
 
 
 --
--- Name: path_junctions_rel_structure path_junctions_rel_structure_pkey; Type: CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: path_junctions_rel_structure path_junctions_rel_structure_pkey; Type: CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY path_junctions_rel_structure
@@ -2544,7 +2544,7 @@ ALTER TABLE ONLY path_junctions_rel_structure
 
 
 --
--- Name: path_link_end path_link_end_pkey; Type: CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: path_link_end path_link_end_pkey; Type: CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY path_link_end
@@ -2552,7 +2552,7 @@ ALTER TABLE ONLY path_link_end
 
 
 --
--- Name: path_link_key_values path_link_key_values_pkey; Type: CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: path_link_key_values path_link_key_values_pkey; Type: CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY path_link_key_values
@@ -2560,7 +2560,7 @@ ALTER TABLE ONLY path_link_key_values
 
 
 --
--- Name: path_link path_link_pkey; Type: CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: path_link path_link_pkey; Type: CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY path_link
@@ -2568,7 +2568,7 @@ ALTER TABLE ONLY path_link
 
 
 --
--- Name: persistable_polygon persistable_polygon_pkey; Type: CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: persistable_polygon persistable_polygon_pkey; Type: CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY persistable_polygon
@@ -2576,7 +2576,7 @@ ALTER TABLE ONLY persistable_polygon
 
 
 --
--- Name: quay_key_values quay_key_values_pkey; Type: CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: quay_key_values quay_key_values_pkey; Type: CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY quay_key_values
@@ -2584,7 +2584,7 @@ ALTER TABLE ONLY quay_key_values
 
 
 --
--- Name: quay quay_netex_id_version_constraint; Type: CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: quay quay_netex_id_version_constraint; Type: CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY quay
@@ -2592,7 +2592,7 @@ ALTER TABLE ONLY quay
 
 
 --
--- Name: quay quay_pkey; Type: CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: quay quay_pkey; Type: CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY quay
@@ -2600,7 +2600,7 @@ ALTER TABLE ONLY quay
 
 
 --
--- Name: quays_rel_structure quays_rel_structure_pkey; Type: CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: quays_rel_structure quays_rel_structure_pkey; Type: CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY quays_rel_structure
@@ -2608,7 +2608,7 @@ ALTER TABLE ONLY quays_rel_structure
 
 
 --
--- Name: road_address_key_values road_address_key_values_pkey; Type: CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: road_address_key_values road_address_key_values_pkey; Type: CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY road_address_key_values
@@ -2616,7 +2616,7 @@ ALTER TABLE ONLY road_address_key_values
 
 
 --
--- Name: road_address road_address_pkey; Type: CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: road_address road_address_pkey; Type: CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY road_address
@@ -2624,7 +2624,7 @@ ALTER TABLE ONLY road_address
 
 
 --
--- Name: site_path_links_rel_structure site_path_links_rel_structure_pkey; Type: CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: site_path_links_rel_structure site_path_links_rel_structure_pkey; Type: CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY site_path_links_rel_structure
@@ -2632,7 +2632,7 @@ ALTER TABLE ONLY site_path_links_rel_structure
 
 
 --
--- Name: stop_place_key_values stop_place_key_values_pkey; Type: CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: stop_place_key_values stop_place_key_values_pkey; Type: CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY stop_place_key_values
@@ -2640,7 +2640,7 @@ ALTER TABLE ONLY stop_place_key_values
 
 
 --
--- Name: stop_place stop_place_netex_id_version_constraint; Type: CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: stop_place stop_place_netex_id_version_constraint; Type: CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY stop_place
@@ -2648,7 +2648,7 @@ ALTER TABLE ONLY stop_place
 
 
 --
--- Name: stop_place stop_place_pkey; Type: CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: stop_place stop_place_pkey; Type: CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY stop_place
@@ -2656,7 +2656,7 @@ ALTER TABLE ONLY stop_place
 
 
 --
--- Name: stop_place_quays stop_place_quays_pkey; Type: CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: stop_place_quays stop_place_quays_pkey; Type: CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY stop_place_quays
@@ -2664,7 +2664,7 @@ ALTER TABLE ONLY stop_place_quays
 
 
 --
--- Name: stop_place_tariff_zones stop_place_tariff_zones_pkey; Type: CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: stop_place_tariff_zones stop_place_tariff_zones_pkey; Type: CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY stop_place_tariff_zones
@@ -2672,7 +2672,7 @@ ALTER TABLE ONLY stop_place_tariff_zones
 
 
 --
--- Name: tariff_zone_key_values tariff_zone_key_values_pkey; Type: CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: tariff_zone_key_values tariff_zone_key_values_pkey; Type: CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY tariff_zone_key_values
@@ -2680,7 +2680,7 @@ ALTER TABLE ONLY tariff_zone_key_values
 
 
 --
--- Name: tariff_zone tariff_zone_pkey; Type: CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: tariff_zone tariff_zone_pkey; Type: CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY tariff_zone
@@ -2688,7 +2688,7 @@ ALTER TABLE ONLY tariff_zone
 
 
 --
--- Name: tariff_zone_ref tariff_zone_ref_pkey; Type: CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: tariff_zone_ref tariff_zone_ref_pkey; Type: CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY tariff_zone_ref
@@ -2696,7 +2696,7 @@ ALTER TABLE ONLY tariff_zone_ref
 
 
 --
--- Name: topographic_place_key_values topographic_place_key_values_pkey; Type: CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: topographic_place_key_values topographic_place_key_values_pkey; Type: CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY topographic_place_key_values
@@ -2704,7 +2704,7 @@ ALTER TABLE ONLY topographic_place_key_values
 
 
 --
--- Name: topographic_place topographic_place_netex_id_version_constraint; Type: CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: topographic_place topographic_place_netex_id_version_constraint; Type: CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY topographic_place
@@ -2712,7 +2712,7 @@ ALTER TABLE ONLY topographic_place
 
 
 --
--- Name: topographic_place topographic_place_pkey; Type: CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: topographic_place topographic_place_pkey; Type: CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY topographic_place
@@ -2720,7 +2720,7 @@ ALTER TABLE ONLY topographic_place
 
 
 --
--- Name: access_space_equipment_places uk_15g5ep156j0s0m3dmh1by6dof; Type: CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: access_space_equipment_places uk_15g5ep156j0s0m3dmh1by6dof; Type: CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY access_space_equipment_places
@@ -2728,7 +2728,7 @@ ALTER TABLE ONLY access_space_equipment_places
 
 
 --
--- Name: access_space_valid_betweens uk_1dl0sl7qgx0ekaxtc4sa3yosw; Type: CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: access_space_valid_betweens uk_1dl0sl7qgx0ekaxtc4sa3yosw; Type: CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY access_space_valid_betweens
@@ -2736,7 +2736,7 @@ ALTER TABLE ONLY access_space_valid_betweens
 
 
 --
--- Name: road_address_key_values uk_1np4afp1fxetn44d0f98n6tix; Type: CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: road_address_key_values uk_1np4afp1fxetn44d0f98n6tix; Type: CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY road_address_key_values
@@ -2744,7 +2744,7 @@ ALTER TABLE ONLY road_address_key_values
 
 
 --
--- Name: quay_check_constraints uk_1tirlnmtpwtd5i69kn8hy05v6; Type: CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: quay_check_constraints uk_1tirlnmtpwtd5i69kn8hy05v6; Type: CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY quay_check_constraints
@@ -2752,7 +2752,7 @@ ALTER TABLE ONLY quay_check_constraints
 
 
 --
--- Name: parking_area_check_constraints uk_1vh5s3bg8ag28aip9fbx1l32r; Type: CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: parking_area_check_constraints uk_1vh5s3bg8ag28aip9fbx1l32r; Type: CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY parking_area_check_constraints
@@ -2760,7 +2760,7 @@ ALTER TABLE ONLY parking_area_check_constraints
 
 
 --
--- Name: boarding_position_alternative_names uk_250rbh3vi00fvoca1dqy5dnwa; Type: CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: boarding_position_alternative_names uk_250rbh3vi00fvoca1dqy5dnwa; Type: CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY boarding_position_alternative_names
@@ -2768,7 +2768,7 @@ ALTER TABLE ONLY boarding_position_alternative_names
 
 
 --
--- Name: quay_equipment_places uk_2kygsfeskolk0dcv3580xknh4; Type: CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: quay_equipment_places uk_2kygsfeskolk0dcv3580xknh4; Type: CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY quay_equipment_places
@@ -2776,7 +2776,7 @@ ALTER TABLE ONLY quay_equipment_places
 
 
 --
--- Name: stop_place_alternative_names uk_2mabhvrur7dd4xuqf7be5tq6h; Type: CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: stop_place_alternative_names uk_2mabhvrur7dd4xuqf7be5tq6h; Type: CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY stop_place_alternative_names
@@ -2784,7 +2784,7 @@ ALTER TABLE ONLY stop_place_alternative_names
 
 
 --
--- Name: parking_properties_spaces uk_2rhu1u10q5achulke0kwg4e0o; Type: CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: parking_properties_spaces uk_2rhu1u10q5achulke0kwg4e0o; Type: CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY parking_properties_spaces
@@ -2792,7 +2792,7 @@ ALTER TABLE ONLY parking_properties_spaces
 
 
 --
--- Name: access_space_check_constraints uk_35wb7oemdnk85n1hg680228tv; Type: CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: access_space_check_constraints uk_35wb7oemdnk85n1hg680228tv; Type: CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY access_space_check_constraints
@@ -2800,7 +2800,7 @@ ALTER TABLE ONLY access_space_check_constraints
 
 
 --
--- Name: level_key_values uk_4eghmku46yje2lg3f1u6p949e; Type: CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: level_key_values uk_4eghmku46yje2lg3f1u6p949e; Type: CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY level_key_values
@@ -2808,7 +2808,7 @@ ALTER TABLE ONLY level_key_values
 
 
 --
--- Name: quays_rel_structure_quay_ref_or_quay uk_53tvnkst6i59fxx7kt1rjqmlr; Type: CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: quays_rel_structure_quay_ref_or_quay uk_53tvnkst6i59fxx7kt1rjqmlr; Type: CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY quays_rel_structure_quay_ref_or_quay
@@ -2816,7 +2816,7 @@ ALTER TABLE ONLY quays_rel_structure_quay_ref_or_quay
 
 
 --
--- Name: stop_place_key_values uk_54aj7c8yuc5751x4c7qly6e5t; Type: CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: stop_place_key_values uk_54aj7c8yuc5751x4c7qly6e5t; Type: CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY stop_place_key_values
@@ -2824,7 +2824,7 @@ ALTER TABLE ONLY stop_place_key_values
 
 
 --
--- Name: accessibility_assessment_valid_betweens uk_5uyvf8r9ck1uggsa96r0nbm3x; Type: CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: accessibility_assessment_valid_betweens uk_5uyvf8r9ck1uggsa96r0nbm3x; Type: CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY accessibility_assessment_valid_betweens
@@ -2832,7 +2832,7 @@ ALTER TABLE ONLY accessibility_assessment_valid_betweens
 
 
 --
--- Name: parking_parking_areas uk_66npakygxb5mjymo8x06yf9sj; Type: CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: parking_parking_areas uk_66npakygxb5mjymo8x06yf9sj; Type: CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY parking_parking_areas
@@ -2840,7 +2840,7 @@ ALTER TABLE ONLY parking_parking_areas
 
 
 --
--- Name: quay_alternative_names uk_6h2bs7xhqq2ca64hjpp8can1w; Type: CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: quay_alternative_names uk_6h2bs7xhqq2ca64hjpp8can1w; Type: CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY quay_alternative_names
@@ -2848,7 +2848,7 @@ ALTER TABLE ONLY quay_alternative_names
 
 
 --
--- Name: path_junction_key_values uk_8au15celles62v9ug5bvq2t4x; Type: CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: path_junction_key_values uk_8au15celles62v9ug5bvq2t4x; Type: CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY path_junction_key_values
@@ -2856,7 +2856,7 @@ ALTER TABLE ONLY path_junction_key_values
 
 
 --
--- Name: stop_place_tariff_zones uk_8ybr6imk0qaj2qffwdcraa8uy; Type: CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: stop_place_tariff_zones uk_8ybr6imk0qaj2qffwdcraa8uy; Type: CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY stop_place_tariff_zones
@@ -2864,7 +2864,7 @@ ALTER TABLE ONLY stop_place_tariff_zones
 
 
 --
--- Name: check_constraint_valid_betweens uk_98ukm2hh8fd68ubjt9f7oix9x; Type: CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: check_constraint_valid_betweens uk_98ukm2hh8fd68ubjt9f7oix9x; Type: CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY check_constraint_valid_betweens
@@ -2872,7 +2872,7 @@ ALTER TABLE ONLY check_constraint_valid_betweens
 
 
 --
--- Name: parking_equipment_places uk_9sg6v3vst7yq7nvli7tt317wg; Type: CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: parking_equipment_places uk_9sg6v3vst7yq7nvli7tt317wg; Type: CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY parking_equipment_places
@@ -2880,7 +2880,7 @@ ALTER TABLE ONLY parking_equipment_places
 
 
 --
--- Name: equipment_place_equipment_positions uk_a3yu015il8xu4ty68idmk8csl; Type: CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: equipment_place_equipment_positions uk_a3yu015il8xu4ty68idmk8csl; Type: CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY equipment_place_equipment_positions
@@ -2888,7 +2888,7 @@ ALTER TABLE ONLY equipment_place_equipment_positions
 
 
 --
--- Name: accessibility_assessment_limitations uk_aeu5728ehva06k95lioaubr8s; Type: CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: accessibility_assessment_limitations uk_aeu5728ehva06k95lioaubr8s; Type: CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY accessibility_assessment_limitations
@@ -2896,7 +2896,7 @@ ALTER TABLE ONLY accessibility_assessment_limitations
 
 
 --
--- Name: path_junction_valid_betweens uk_bsgfke5ffpxuuh3cyvqoox24r; Type: CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: path_junction_valid_betweens uk_bsgfke5ffpxuuh3cyvqoox24r; Type: CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY path_junction_valid_betweens
@@ -2904,7 +2904,7 @@ ALTER TABLE ONLY path_junction_valid_betweens
 
 
 --
--- Name: tariff_zone_valid_betweens uk_d39n8acn65jct462t6p8f7srl; Type: CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: tariff_zone_valid_betweens uk_d39n8acn65jct462t6p8f7srl; Type: CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY tariff_zone_valid_betweens
@@ -2912,7 +2912,7 @@ ALTER TABLE ONLY tariff_zone_valid_betweens
 
 
 --
--- Name: quay_valid_betweens uk_dblosogjiilnish16n5xlhkhb; Type: CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: quay_valid_betweens uk_dblosogjiilnish16n5xlhkhb; Type: CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY quay_valid_betweens
@@ -2920,7 +2920,7 @@ ALTER TABLE ONLY quay_valid_betweens
 
 
 --
--- Name: valid_between_key_values uk_de17h8ecjda6gm8uaheykevxh; Type: CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: valid_between_key_values uk_de17h8ecjda6gm8uaheykevxh; Type: CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY valid_between_key_values
@@ -2928,7 +2928,7 @@ ALTER TABLE ONLY valid_between_key_values
 
 
 --
--- Name: equipment_place_valid_betweens uk_emwfqf3w17jcyme3cop0awqi1; Type: CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: equipment_place_valid_betweens uk_emwfqf3w17jcyme3cop0awqi1; Type: CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY equipment_place_valid_betweens
@@ -2936,7 +2936,7 @@ ALTER TABLE ONLY equipment_place_valid_betweens
 
 
 --
--- Name: stop_place_quays uk_f684i92mysvn6hqigs0j3m2nr; Type: CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: stop_place_quays uk_f684i92mysvn6hqigs0j3m2nr; Type: CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY stop_place_quays
@@ -2944,7 +2944,7 @@ ALTER TABLE ONLY stop_place_quays
 
 
 --
--- Name: equipment_place_key_values uk_fyyde9f6a3dq1436v1wykpur2; Type: CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: equipment_place_key_values uk_fyyde9f6a3dq1436v1wykpur2; Type: CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY equipment_place_key_values
@@ -2952,7 +2952,7 @@ ALTER TABLE ONLY equipment_place_key_values
 
 
 --
--- Name: boarding_position_valid_betweens uk_gd8o8x5d6t3wccds6mvc0k1qo; Type: CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: boarding_position_valid_betweens uk_gd8o8x5d6t3wccds6mvc0k1qo; Type: CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY boarding_position_valid_betweens
@@ -2960,7 +2960,7 @@ ALTER TABLE ONLY boarding_position_valid_betweens
 
 
 --
--- Name: boarding_position_equipment_places uk_gq09mcv5i3kkrwltbnj3120j5; Type: CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: boarding_position_equipment_places uk_gq09mcv5i3kkrwltbnj3120j5; Type: CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY boarding_position_equipment_places
@@ -2968,7 +2968,7 @@ ALTER TABLE ONLY boarding_position_equipment_places
 
 
 --
--- Name: check_constraint_key_values uk_gsegfx5ipotsd45aqbmq7kux0; Type: CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: check_constraint_key_values uk_gsegfx5ipotsd45aqbmq7kux0; Type: CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY check_constraint_key_values
@@ -2976,7 +2976,7 @@ ALTER TABLE ONLY check_constraint_key_values
 
 
 --
--- Name: parking_area_alternative_names uk_hb8tvxumnj3j12b5i3a161lcm; Type: CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: parking_area_alternative_names uk_hb8tvxumnj3j12b5i3a161lcm; Type: CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY parking_area_alternative_names
@@ -2984,7 +2984,7 @@ ALTER TABLE ONLY parking_area_alternative_names
 
 
 --
--- Name: equipment_position_key_values uk_hw9nq847b38qyxa25ide9ltyy; Type: CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: equipment_position_key_values uk_hw9nq847b38qyxa25ide9ltyy; Type: CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY equipment_position_key_values
@@ -2992,7 +2992,7 @@ ALTER TABLE ONLY equipment_position_key_values
 
 
 --
--- Name: parking_key_values uk_iteh0to4gqim61p74lq2ugc2k; Type: CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: parking_key_values uk_iteh0to4gqim61p74lq2ugc2k; Type: CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY parking_key_values
@@ -3000,7 +3000,7 @@ ALTER TABLE ONLY parking_key_values
 
 
 --
--- Name: parking_parking_properties uk_j9vtca7vmg7ee8588wdseipvv; Type: CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: parking_parking_properties uk_j9vtca7vmg7ee8588wdseipvv; Type: CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY parking_parking_properties
@@ -3008,7 +3008,7 @@ ALTER TABLE ONLY parking_parking_properties
 
 
 --
--- Name: parking_area_valid_betweens uk_jdy9utvmvxwylyqgvedm5dos3; Type: CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: parking_area_valid_betweens uk_jdy9utvmvxwylyqgvedm5dos3; Type: CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY parking_area_valid_betweens
@@ -3016,7 +3016,7 @@ ALTER TABLE ONLY parking_area_valid_betweens
 
 
 --
--- Name: boarding_position_key_values uk_jilhh4jbyloqka3r1xpv88lpb; Type: CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: boarding_position_key_values uk_jilhh4jbyloqka3r1xpv88lpb; Type: CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY boarding_position_key_values
@@ -3024,7 +3024,7 @@ ALTER TABLE ONLY boarding_position_key_values
 
 
 --
--- Name: access_space_key_values uk_kcsgl47aba68824kjdceo60ql; Type: CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: access_space_key_values uk_kcsgl47aba68824kjdceo60ql; Type: CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY access_space_key_values
@@ -3032,7 +3032,7 @@ ALTER TABLE ONLY access_space_key_values
 
 
 --
--- Name: path_link_key_values uk_kn4m9f3l3gdgyg7mdus6qd1r1; Type: CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: path_link_key_values uk_kn4m9f3l3gdgyg7mdus6qd1r1; Type: CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY path_link_key_values
@@ -3040,7 +3040,7 @@ ALTER TABLE ONLY path_link_key_values
 
 
 --
--- Name: road_address_valid_betweens uk_lhxytq6yrya40euhfxecpbhbu; Type: CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: road_address_valid_betweens uk_lhxytq6yrya40euhfxecpbhbu; Type: CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY road_address_valid_betweens
@@ -3048,7 +3048,7 @@ ALTER TABLE ONLY road_address_valid_betweens
 
 
 --
--- Name: valid_between_valid_betweens uk_lm5dl4quqhh5t8gkiqo25f9ge; Type: CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: valid_between_valid_betweens uk_lm5dl4quqhh5t8gkiqo25f9ge; Type: CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY valid_between_valid_betweens
@@ -3056,7 +3056,7 @@ ALTER TABLE ONLY valid_between_valid_betweens
 
 
 --
--- Name: parking_area_equipment_places uk_lpu10934dkewquqflehpo95ye; Type: CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: parking_area_equipment_places uk_lpu10934dkewquqflehpo95ye; Type: CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY parking_area_equipment_places
@@ -3064,7 +3064,7 @@ ALTER TABLE ONLY parking_area_equipment_places
 
 
 --
--- Name: quay_boarding_positions uk_lx6ql0b834b5l0agvouh1w860; Type: CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: quay_boarding_positions uk_lx6ql0b834b5l0agvouh1w860; Type: CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY quay_boarding_positions
@@ -3072,7 +3072,7 @@ ALTER TABLE ONLY quay_boarding_positions
 
 
 --
--- Name: topographic_place_valid_betweens uk_m4i65tb22asrk1cdixner5d39; Type: CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: topographic_place_valid_betweens uk_m4i65tb22asrk1cdixner5d39; Type: CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY topographic_place_valid_betweens
@@ -3080,7 +3080,7 @@ ALTER TABLE ONLY topographic_place_valid_betweens
 
 
 --
--- Name: level_valid_betweens uk_mj4jpgl0f24b81lgby5fkhfhp; Type: CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: level_valid_betweens uk_mj4jpgl0f24b81lgby5fkhfhp; Type: CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY level_valid_betweens
@@ -3088,7 +3088,7 @@ ALTER TABLE ONLY level_valid_betweens
 
 
 --
--- Name: stop_place_equipment_places uk_mnksrduwpe1bfxskob1pkbi28; Type: CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: stop_place_equipment_places uk_mnksrduwpe1bfxskob1pkbi28; Type: CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY stop_place_equipment_places
@@ -3096,7 +3096,7 @@ ALTER TABLE ONLY stop_place_equipment_places
 
 
 --
--- Name: tariff_zone_key_values uk_n3n61qrmgry87uoc7sho0nphm; Type: CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: tariff_zone_key_values uk_n3n61qrmgry87uoc7sho0nphm; Type: CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY tariff_zone_key_values
@@ -3104,7 +3104,7 @@ ALTER TABLE ONLY tariff_zone_key_values
 
 
 --
--- Name: parking_valid_betweens uk_n3w1cx9chahe5xpqf6ydbf4ii; Type: CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: parking_valid_betweens uk_n3w1cx9chahe5xpqf6ydbf4ii; Type: CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY parking_valid_betweens
@@ -3112,7 +3112,7 @@ ALTER TABLE ONLY parking_valid_betweens
 
 
 --
--- Name: accessibility_limitation_valid_betweens uk_o14whpqpjvsamtn7a5wfw9fox; Type: CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: accessibility_limitation_valid_betweens uk_o14whpqpjvsamtn7a5wfw9fox; Type: CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY accessibility_limitation_valid_betweens
@@ -3120,7 +3120,7 @@ ALTER TABLE ONLY accessibility_limitation_valid_betweens
 
 
 --
--- Name: installed_equipment_version_structure_valid_betweens uk_oxepctl7tykkut1o280slkov9; Type: CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: installed_equipment_version_structure_valid_betweens uk_oxepctl7tykkut1o280slkov9; Type: CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY installed_equipment_version_structure_valid_betweens
@@ -3128,7 +3128,7 @@ ALTER TABLE ONLY installed_equipment_version_structure_valid_betweens
 
 
 --
--- Name: boarding_position_check_constraints uk_pcbtfcjcauaikel1s4uqjfldp; Type: CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: boarding_position_check_constraints uk_pcbtfcjcauaikel1s4uqjfldp; Type: CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY boarding_position_check_constraints
@@ -3136,7 +3136,7 @@ ALTER TABLE ONLY boarding_position_check_constraints
 
 
 --
--- Name: quay_key_values uk_plgcx1aoolr4vngts8ifkrse6; Type: CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: quay_key_values uk_plgcx1aoolr4vngts8ifkrse6; Type: CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY quay_key_values
@@ -3144,7 +3144,7 @@ ALTER TABLE ONLY quay_key_values
 
 
 --
--- Name: stop_place_valid_betweens uk_q5ji9gx7hj719d39r6ntcrrw5; Type: CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: stop_place_valid_betweens uk_q5ji9gx7hj719d39r6ntcrrw5; Type: CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY stop_place_valid_betweens
@@ -3152,7 +3152,7 @@ ALTER TABLE ONLY stop_place_valid_betweens
 
 
 --
--- Name: parking_capacity_valid_betweens uk_q5ylsbm98vfu6bqe16tihdsvx; Type: CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: parking_capacity_valid_betweens uk_q5ylsbm98vfu6bqe16tihdsvx; Type: CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY parking_capacity_valid_betweens
@@ -3160,7 +3160,7 @@ ALTER TABLE ONLY parking_capacity_valid_betweens
 
 
 --
--- Name: equipment_position_valid_betweens uk_qjb05t28jumd7j5ap3sl6knpr; Type: CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: equipment_position_valid_betweens uk_qjb05t28jumd7j5ap3sl6knpr; Type: CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY equipment_position_valid_betweens
@@ -3168,7 +3168,7 @@ ALTER TABLE ONLY equipment_position_valid_betweens
 
 
 --
--- Name: access_space_alternative_names uk_qvw904jxmey0b5c2oenaks4o6; Type: CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: access_space_alternative_names uk_qvw904jxmey0b5c2oenaks4o6; Type: CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY access_space_alternative_names
@@ -3176,7 +3176,7 @@ ALTER TABLE ONLY access_space_alternative_names
 
 
 --
--- Name: parking_alternative_names uk_rlf4rns9qabhhdins8l3y89fo; Type: CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: parking_alternative_names uk_rlf4rns9qabhhdins8l3y89fo; Type: CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY parking_alternative_names
@@ -3184,7 +3184,7 @@ ALTER TABLE ONLY parking_alternative_names
 
 
 --
--- Name: parking_area_key_values uk_rxv53i59u1pf70kxtdchlxird; Type: CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: parking_area_key_values uk_rxv53i59u1pf70kxtdchlxird; Type: CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY parking_area_key_values
@@ -3192,7 +3192,7 @@ ALTER TABLE ONLY parking_area_key_values
 
 
 --
--- Name: installed_equipment_version_structure_installed_equipment uk_s4px36fd2jutbf4p8lagcocbd; Type: CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: installed_equipment_version_structure_installed_equipment uk_s4px36fd2jutbf4p8lagcocbd; Type: CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY installed_equipment_version_structure_installed_equipment
@@ -3200,7 +3200,7 @@ ALTER TABLE ONLY installed_equipment_version_structure_installed_equipment
 
 
 --
--- Name: alternative_name_valid_betweens uk_s5bgkw8nxr3gupw1v1n63ee5p; Type: CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: alternative_name_valid_betweens uk_s5bgkw8nxr3gupw1v1n63ee5p; Type: CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY alternative_name_valid_betweens
@@ -3208,7 +3208,7 @@ ALTER TABLE ONLY alternative_name_valid_betweens
 
 
 --
--- Name: path_link_valid_betweens uk_s7dlt7ydrvxyj3iiscoqj9aud; Type: CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: path_link_valid_betweens uk_s7dlt7ydrvxyj3iiscoqj9aud; Type: CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY path_link_valid_betweens
@@ -3216,7 +3216,7 @@ ALTER TABLE ONLY path_link_valid_betweens
 
 
 --
--- Name: stop_place_access_spaces uk_stiis59w04hmptq2wkpsfjpb8; Type: CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: stop_place_access_spaces uk_stiis59w04hmptq2wkpsfjpb8; Type: CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY stop_place_access_spaces
@@ -3224,7 +3224,7 @@ ALTER TABLE ONLY stop_place_access_spaces
 
 
 --
--- Name: parking_properties_valid_betweens uk_t9d85xdrq9ipw4v93fo3vkwji; Type: CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: parking_properties_valid_betweens uk_t9d85xdrq9ipw4v93fo3vkwji; Type: CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY parking_properties_valid_betweens
@@ -3232,7 +3232,7 @@ ALTER TABLE ONLY parking_properties_valid_betweens
 
 
 --
--- Name: topographic_place_key_values uk_tq5dgj811w1k4w86m4x66iwso; Type: CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: topographic_place_key_values uk_tq5dgj811w1k4w86m4x66iwso; Type: CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY topographic_place_key_values
@@ -3240,7 +3240,7 @@ ALTER TABLE ONLY topographic_place_key_values
 
 
 --
--- Name: valid_between_key_values valid_between_key_values_pkey; Type: CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: valid_between_key_values valid_between_key_values_pkey; Type: CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY valid_between_key_values
@@ -3248,7 +3248,7 @@ ALTER TABLE ONLY valid_between_key_values
 
 
 --
--- Name: valid_between valid_between_pkey; Type: CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: valid_between valid_between_pkey; Type: CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY valid_between
@@ -3256,7 +3256,7 @@ ALTER TABLE ONLY valid_between
 
 
 --
--- Name: value value_pkey; Type: CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: value value_pkey; Type: CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY value
@@ -3264,7 +3264,7 @@ ALTER TABLE ONLY value
 
 
 --
--- Name: vehicle_stopping_places_rel_structure vehicle_stopping_places_rel_structure_pkey; Type: CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: vehicle_stopping_places_rel_structure vehicle_stopping_places_rel_structure_pkey; Type: CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY vehicle_stopping_places_rel_structure
@@ -3272,119 +3272,119 @@ ALTER TABLE ONLY vehicle_stopping_places_rel_structure
 
 
 --
--- Name: id_value_index; Type: INDEX; Schema: public; Owner: tiamat
+-- Name: id_value_index; Type: INDEX; Schema: stopregistry; Owner: tiamat
 --
 
 CREATE INDEX id_value_index ON id_generator USING btree (id_value);
 
 
 --
--- Name: items_index; Type: INDEX; Schema: public; Owner: tiamat
+-- Name: items_index; Type: INDEX; Schema: stopregistry; Owner: tiamat
 --
 
 CREATE INDEX items_index ON value_items USING btree (items);
 
 
 --
--- Name: items_trgm_gin_index; Type: INDEX; Schema: public; Owner: tiamat
+-- Name: items_trgm_gin_index; Type: INDEX; Schema: stopregistry; Owner: tiamat
 --
 
-CREATE INDEX items_trgm_gin_index ON value_items USING gin (items gin_trgm_ops);
+CREATE INDEX items_trgm_gin_index ON value_items USING gin (items public.gin_trgm_ops);
 
 
 --
--- Name: lower_case_stop_place_name_value; Type: INDEX; Schema: public; Owner: tiamat
+-- Name: lower_case_stop_place_name_value; Type: INDEX; Schema: stopregistry; Owner: tiamat
 --
 
 CREATE INDEX lower_case_stop_place_name_value ON stop_place USING btree (lower((name_value)::text));
 
 
 --
--- Name: persistable_polygon_index; Type: INDEX; Schema: public; Owner: tiamat
+-- Name: persistable_polygon_index; Type: INDEX; Schema: stopregistry; Owner: tiamat
 --
 
 CREATE INDEX persistable_polygon_index ON persistable_polygon USING gist (polygon);
 
 
 --
--- Name: quay_netex_id_index; Type: INDEX; Schema: public; Owner: tiamat
+-- Name: quay_netex_id_index; Type: INDEX; Schema: stopregistry; Owner: tiamat
 --
 
 CREATE INDEX quay_netex_id_index ON quay USING btree (netex_id);
 
 
 --
--- Name: quay_version_index; Type: INDEX; Schema: public; Owner: tiamat
+-- Name: quay_version_index; Type: INDEX; Schema: stopregistry; Owner: tiamat
 --
 
 CREATE INDEX quay_version_index ON quay USING btree (version);
 
 
 --
--- Name: stop_place_centroid_index; Type: INDEX; Schema: public; Owner: tiamat
+-- Name: stop_place_centroid_index; Type: INDEX; Schema: stopregistry; Owner: tiamat
 --
 
 CREATE INDEX stop_place_centroid_index ON stop_place USING gist (centroid);
 
 
 --
--- Name: stop_place_name_value_index; Type: INDEX; Schema: public; Owner: tiamat
+-- Name: stop_place_name_value_index; Type: INDEX; Schema: stopregistry; Owner: tiamat
 --
 
 CREATE INDEX stop_place_name_value_index ON stop_place USING btree (name_value);
 
 
 --
--- Name: stop_place_netex_id_index; Type: INDEX; Schema: public; Owner: tiamat
+-- Name: stop_place_netex_id_index; Type: INDEX; Schema: stopregistry; Owner: tiamat
 --
 
 CREATE INDEX stop_place_netex_id_index ON stop_place USING btree (netex_id);
 
 
 --
--- Name: stop_place_type_index; Type: INDEX; Schema: public; Owner: tiamat
+-- Name: stop_place_type_index; Type: INDEX; Schema: stopregistry; Owner: tiamat
 --
 
 CREATE INDEX stop_place_type_index ON stop_place USING btree (stop_place_type);
 
 
 --
--- Name: stop_place_version_index; Type: INDEX; Schema: public; Owner: tiamat
+-- Name: stop_place_version_index; Type: INDEX; Schema: stopregistry; Owner: tiamat
 --
 
 CREATE INDEX stop_place_version_index ON stop_place USING btree (version);
 
 
 --
--- Name: table_name_index; Type: INDEX; Schema: public; Owner: tiamat
+-- Name: table_name_index; Type: INDEX; Schema: stopregistry; Owner: tiamat
 --
 
 CREATE INDEX table_name_index ON id_generator USING btree (table_name);
 
 
 --
--- Name: topographic_place_name_value_index; Type: INDEX; Schema: public; Owner: tiamat
+-- Name: topographic_place_name_value_index; Type: INDEX; Schema: stopregistry; Owner: tiamat
 --
 
 CREATE INDEX topographic_place_name_value_index ON topographic_place USING btree (name_value);
 
 
 --
--- Name: trgm_idx; Type: INDEX; Schema: public; Owner: tiamat
+-- Name: trgm_idx; Type: INDEX; Schema: stopregistry; Owner: tiamat
 --
 
-CREATE INDEX trgm_idx ON stop_place USING gist (name_value gist_trgm_ops);
+CREATE INDEX trgm_idx ON stop_place USING gist (name_value public.gist_trgm_ops);
 
 
 --
--- Name: value_id_index; Type: INDEX; Schema: public; Owner: tiamat
+-- Name: value_id_index; Type: INDEX; Schema: stopregistry; Owner: tiamat
 --
 
 CREATE INDEX value_id_index ON value_items USING btree (value_id);
 
 
 --
--- Name: quay fk10uxphnmebvjuua8n3erlo1n1; Type: FK CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: quay fk10uxphnmebvjuua8n3erlo1n1; Type: FK CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY quay
@@ -3392,7 +3392,7 @@ ALTER TABLE ONLY quay
 
 
 --
--- Name: parking_parking_areas fk117owm5bl41inj5bxrwp84awc; Type: FK CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: parking_parking_areas fk117owm5bl41inj5bxrwp84awc; Type: FK CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY parking_parking_areas
@@ -3400,7 +3400,7 @@ ALTER TABLE ONLY parking_parking_areas
 
 
 --
--- Name: access_space fk1fidaattdqbcu4jlypwcf4p2m; Type: FK CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: access_space fk1fidaattdqbcu4jlypwcf4p2m; Type: FK CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY access_space
@@ -3408,7 +3408,7 @@ ALTER TABLE ONLY access_space
 
 
 --
--- Name: stop_place_quays fk22h93cna6b2o9o8vybqb1i9qb; Type: FK CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: stop_place_quays fk22h93cna6b2o9o8vybqb1i9qb; Type: FK CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY stop_place_quays
@@ -3416,7 +3416,7 @@ ALTER TABLE ONLY stop_place_quays
 
 
 --
--- Name: road_address_valid_betweens fk26l1117lde2skl59m7a9pnjtn; Type: FK CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: road_address_valid_betweens fk26l1117lde2skl59m7a9pnjtn; Type: FK CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY road_address_valid_betweens
@@ -3424,7 +3424,7 @@ ALTER TABLE ONLY road_address_valid_betweens
 
 
 --
--- Name: quay_check_constraints fk2a38aoc67evygl1e6xk0iybta; Type: FK CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: quay_check_constraints fk2a38aoc67evygl1e6xk0iybta; Type: FK CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY quay_check_constraints
@@ -3432,7 +3432,7 @@ ALTER TABLE ONLY quay_check_constraints
 
 
 --
--- Name: boarding_position_equipment_places fk2afgri1bcaay1etgl7sw5wljq; Type: FK CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: boarding_position_equipment_places fk2afgri1bcaay1etgl7sw5wljq; Type: FK CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY boarding_position_equipment_places
@@ -3440,7 +3440,7 @@ ALTER TABLE ONLY boarding_position_equipment_places
 
 
 --
--- Name: equipment_place_key_values fk2hxfx966yjfx66s7e0rwkc807; Type: FK CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: equipment_place_key_values fk2hxfx966yjfx66s7e0rwkc807; Type: FK CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY equipment_place_key_values
@@ -3448,7 +3448,7 @@ ALTER TABLE ONLY equipment_place_key_values
 
 
 --
--- Name: installed_equipment fk2vtm888bpalre9vtw62crif92; Type: FK CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: installed_equipment fk2vtm888bpalre9vtw62crif92; Type: FK CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY installed_equipment
@@ -3456,7 +3456,7 @@ ALTER TABLE ONLY installed_equipment
 
 
 --
--- Name: parking_area_equipment_places fk32yrc89194bun5bwjy1u6pan4; Type: FK CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: parking_area_equipment_places fk32yrc89194bun5bwjy1u6pan4; Type: FK CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY parking_area_equipment_places
@@ -3464,7 +3464,7 @@ ALTER TABLE ONLY parking_area_equipment_places
 
 
 --
--- Name: parking_properties_valid_betweens fk35p0yeb9jo2713cgbduado87r; Type: FK CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: parking_properties_valid_betweens fk35p0yeb9jo2713cgbduado87r; Type: FK CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY parking_properties_valid_betweens
@@ -3472,7 +3472,7 @@ ALTER TABLE ONLY parking_properties_valid_betweens
 
 
 --
--- Name: stop_place_valid_betweens fk38f2hoi2fn3ao3vaqutdhckee; Type: FK CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: stop_place_valid_betweens fk38f2hoi2fn3ao3vaqutdhckee; Type: FK CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY stop_place_valid_betweens
@@ -3480,7 +3480,7 @@ ALTER TABLE ONLY stop_place_valid_betweens
 
 
 --
--- Name: stop_place_alternative_names fk38wmuiuq889ldydpbyrybc7od; Type: FK CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: stop_place_alternative_names fk38wmuiuq889ldydpbyrybc7od; Type: FK CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY stop_place_alternative_names
@@ -3488,7 +3488,7 @@ ALTER TABLE ONLY stop_place_alternative_names
 
 
 --
--- Name: stop_place_tariff_zones fk3j2paa5yrolwcuvpsx15jx9x9; Type: FK CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: stop_place_tariff_zones fk3j2paa5yrolwcuvpsx15jx9x9; Type: FK CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY stop_place_tariff_zones
@@ -3496,7 +3496,7 @@ ALTER TABLE ONLY stop_place_tariff_zones
 
 
 --
--- Name: boarding_position_alternative_names fk3kk76shxnjbca405imdodyx5x; Type: FK CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: boarding_position_alternative_names fk3kk76shxnjbca405imdodyx5x; Type: FK CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY boarding_position_alternative_names
@@ -3504,7 +3504,7 @@ ALTER TABLE ONLY boarding_position_alternative_names
 
 
 --
--- Name: parking_properties_spaces fk3whnrr5j2addxg4vv3vnx4x4e; Type: FK CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: parking_properties_spaces fk3whnrr5j2addxg4vv3vnx4x4e; Type: FK CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY parking_properties_spaces
@@ -3512,7 +3512,7 @@ ALTER TABLE ONLY parking_properties_spaces
 
 
 --
--- Name: accesses_rel_structure_access_ref_or_access fk4513k7hxo6ya27u77tf6fyw4b; Type: FK CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: accesses_rel_structure_access_ref_or_access fk4513k7hxo6ya27u77tf6fyw4b; Type: FK CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY accesses_rel_structure_access_ref_or_access
@@ -3520,7 +3520,7 @@ ALTER TABLE ONLY accesses_rel_structure_access_ref_or_access
 
 
 --
--- Name: road_address fk47skmegkxltud8u4iv6e6dbyf; Type: FK CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: road_address fk47skmegkxltud8u4iv6e6dbyf; Type: FK CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY road_address
@@ -3528,7 +3528,7 @@ ALTER TABLE ONLY road_address
 
 
 --
--- Name: tariff_zone_valid_betweens fk4anxg0h47lwrq9ssrm349tprr; Type: FK CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: tariff_zone_valid_betweens fk4anxg0h47lwrq9ssrm349tprr; Type: FK CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY tariff_zone_valid_betweens
@@ -3536,7 +3536,7 @@ ALTER TABLE ONLY tariff_zone_valid_betweens
 
 
 --
--- Name: path_junction_key_values fk4cgeli3mja440oxomtpvjed6t; Type: FK CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: path_junction_key_values fk4cgeli3mja440oxomtpvjed6t; Type: FK CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY path_junction_key_values
@@ -3544,7 +3544,7 @@ ALTER TABLE ONLY path_junction_key_values
 
 
 --
--- Name: check_constraint_key_values fk4sgvgvx1dy8kvkyhvmpb4b0u5; Type: FK CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: check_constraint_key_values fk4sgvgvx1dy8kvkyhvmpb4b0u5; Type: FK CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY check_constraint_key_values
@@ -3552,7 +3552,7 @@ ALTER TABLE ONLY check_constraint_key_values
 
 
 --
--- Name: quay_equipment_places fk543bcymfury929rotvx4qsvjp; Type: FK CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: quay_equipment_places fk543bcymfury929rotvx4qsvjp; Type: FK CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY quay_equipment_places
@@ -3560,7 +3560,7 @@ ALTER TABLE ONLY quay_equipment_places
 
 
 --
--- Name: stop_place_equipment_places fk5fxel42imvy86cikp0d27uubw; Type: FK CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: stop_place_equipment_places fk5fxel42imvy86cikp0d27uubw; Type: FK CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY stop_place_equipment_places
@@ -3568,7 +3568,7 @@ ALTER TABLE ONLY stop_place_equipment_places
 
 
 --
--- Name: stop_place_alternative_names fk5h4utprl88fnjm48xnwhuly5q; Type: FK CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: stop_place_alternative_names fk5h4utprl88fnjm48xnwhuly5q; Type: FK CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY stop_place_alternative_names
@@ -3576,7 +3576,7 @@ ALTER TABLE ONLY stop_place_alternative_names
 
 
 --
--- Name: quay fk5pa1d6xv2ad8gd33gcubl1dhb; Type: FK CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: quay fk5pa1d6xv2ad8gd33gcubl1dhb; Type: FK CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY quay
@@ -3584,7 +3584,7 @@ ALTER TABLE ONLY quay
 
 
 --
--- Name: installed_equipment_version_structure_valid_betweens fk5w2ducmkuo2swd4hfdawj2xyd; Type: FK CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: installed_equipment_version_structure_valid_betweens fk5w2ducmkuo2swd4hfdawj2xyd; Type: FK CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY installed_equipment_version_structure_valid_betweens
@@ -3592,7 +3592,7 @@ ALTER TABLE ONLY installed_equipment_version_structure_valid_betweens
 
 
 --
--- Name: accessibility_assessment_valid_betweens fk68hrxhopogkq98ow69wyhuc0s; Type: FK CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: accessibility_assessment_valid_betweens fk68hrxhopogkq98ow69wyhuc0s; Type: FK CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY accessibility_assessment_valid_betweens
@@ -3600,7 +3600,7 @@ ALTER TABLE ONLY accessibility_assessment_valid_betweens
 
 
 --
--- Name: boarding_position fk698fd5rwmie70j91ngq0jfau2; Type: FK CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: boarding_position fk698fd5rwmie70j91ngq0jfau2; Type: FK CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY boarding_position
@@ -3608,7 +3608,7 @@ ALTER TABLE ONLY boarding_position
 
 
 --
--- Name: boarding_position_key_values fk6pdfundcf9ro8reay93b03l4f; Type: FK CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: boarding_position_key_values fk6pdfundcf9ro8reay93b03l4f; Type: FK CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY boarding_position_key_values
@@ -3616,7 +3616,7 @@ ALTER TABLE ONLY boarding_position_key_values
 
 
 --
--- Name: quays_rel_structure_quay_ref_or_quay fk6r7nb1umrkunlk2e6ccm7qjf8; Type: FK CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: quays_rel_structure_quay_ref_or_quay fk6r7nb1umrkunlk2e6ccm7qjf8; Type: FK CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY quays_rel_structure_quay_ref_or_quay
@@ -3624,7 +3624,7 @@ ALTER TABLE ONLY quays_rel_structure_quay_ref_or_quay
 
 
 --
--- Name: stop_place_key_values fk6v8qe1uxjok2wrexhprfusrpy; Type: FK CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: stop_place_key_values fk6v8qe1uxjok2wrexhprfusrpy; Type: FK CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY stop_place_key_values
@@ -3632,7 +3632,7 @@ ALTER TABLE ONLY stop_place_key_values
 
 
 --
--- Name: stop_place_equipment_places fk6ywi2d8ytfi5m3e5emowdysen; Type: FK CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: stop_place_equipment_places fk6ywi2d8ytfi5m3e5emowdysen; Type: FK CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY stop_place_equipment_places
@@ -3640,7 +3640,7 @@ ALTER TABLE ONLY stop_place_equipment_places
 
 
 --
--- Name: parking_parking_properties fk70urag9nyyejkivm7bodubg0l; Type: FK CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: parking_parking_properties fk70urag9nyyejkivm7bodubg0l; Type: FK CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY parking_parking_properties
@@ -3648,7 +3648,7 @@ ALTER TABLE ONLY parking_parking_properties
 
 
 --
--- Name: accessibility_assessment_limitations fk71lv2d2xdl6il9t8lxhiw2oxr; Type: FK CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: accessibility_assessment_limitations fk71lv2d2xdl6il9t8lxhiw2oxr; Type: FK CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY accessibility_assessment_limitations
@@ -3656,7 +3656,7 @@ ALTER TABLE ONLY accessibility_assessment_limitations
 
 
 --
--- Name: path_junction_key_values fk79i9vyw1kl8vv6qt5t5ag37ib; Type: FK CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: path_junction_key_values fk79i9vyw1kl8vv6qt5t5ag37ib; Type: FK CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY path_junction_key_values
@@ -3664,7 +3664,7 @@ ALTER TABLE ONLY path_junction_key_values
 
 
 --
--- Name: parking_alternative_names fk7l8e26etcpfmcd63bqvioh7bt; Type: FK CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: parking_alternative_names fk7l8e26etcpfmcd63bqvioh7bt; Type: FK CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY parking_alternative_names
@@ -3672,7 +3672,7 @@ ALTER TABLE ONLY parking_alternative_names
 
 
 --
--- Name: parking_area_alternative_names fk83bhdbmy03cgn1v7vfm2hc25g; Type: FK CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: parking_area_alternative_names fk83bhdbmy03cgn1v7vfm2hc25g; Type: FK CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY parking_area_alternative_names
@@ -3680,7 +3680,7 @@ ALTER TABLE ONLY parking_area_alternative_names
 
 
 --
--- Name: check_constraint_valid_betweens fk88yo3st5oqbqhfq3gb6njy51u; Type: FK CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: check_constraint_valid_betweens fk88yo3st5oqbqhfq3gb6njy51u; Type: FK CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY check_constraint_valid_betweens
@@ -3688,7 +3688,7 @@ ALTER TABLE ONLY check_constraint_valid_betweens
 
 
 --
--- Name: level fk8h6xjcugey2fg2dhix15v4lsm; Type: FK CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: level fk8h6xjcugey2fg2dhix15v4lsm; Type: FK CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY level
@@ -3696,7 +3696,7 @@ ALTER TABLE ONLY level
 
 
 --
--- Name: level fk8icvbp3tjonuijcbajsgdvkjp; Type: FK CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: level fk8icvbp3tjonuijcbajsgdvkjp; Type: FK CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY level
@@ -3704,7 +3704,7 @@ ALTER TABLE ONLY level
 
 
 --
--- Name: tariff_zone_key_values fk8ulw0u13r8x9tytsrvo6tr8ak; Type: FK CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: tariff_zone_key_values fk8ulw0u13r8x9tytsrvo6tr8ak; Type: FK CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY tariff_zone_key_values
@@ -3712,7 +3712,7 @@ ALTER TABLE ONLY tariff_zone_key_values
 
 
 --
--- Name: parking fk96p5d5t8n4r0mqxjhkwktud4; Type: FK CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: parking fk96p5d5t8n4r0mqxjhkwktud4; Type: FK CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY parking
@@ -3720,7 +3720,7 @@ ALTER TABLE ONLY parking
 
 
 --
--- Name: level_key_values fk99i09lflmm3dtvdh479gybs5g; Type: FK CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: level_key_values fk99i09lflmm3dtvdh479gybs5g; Type: FK CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY level_key_values
@@ -3728,7 +3728,7 @@ ALTER TABLE ONLY level_key_values
 
 
 --
--- Name: navigation_path fk9m5x0ndxgplk60o86dsr1da8m; Type: FK CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: navigation_path fk9m5x0ndxgplk60o86dsr1da8m; Type: FK CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY navigation_path
@@ -3736,7 +3736,7 @@ ALTER TABLE ONLY navigation_path
 
 
 --
--- Name: path_link_key_values fk9qwypjgswmctp5fn2tahr0l7o; Type: FK CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: path_link_key_values fk9qwypjgswmctp5fn2tahr0l7o; Type: FK CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY path_link_key_values
@@ -3744,7 +3744,7 @@ ALTER TABLE ONLY path_link_key_values
 
 
 --
--- Name: stop_place_access_spaces fk9v547jr8nnbcfvv4tsi229kxn; Type: FK CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: stop_place_access_spaces fk9v547jr8nnbcfvv4tsi229kxn; Type: FK CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY stop_place_access_spaces
@@ -3752,7 +3752,7 @@ ALTER TABLE ONLY stop_place_access_spaces
 
 
 --
--- Name: parking_key_values fk9y6amcojpo70vg2ydp3p5il9s; Type: FK CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: parking_key_values fk9y6amcojpo70vg2ydp3p5il9s; Type: FK CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY parking_key_values
@@ -3760,7 +3760,7 @@ ALTER TABLE ONLY parking_key_values
 
 
 --
--- Name: parking_area fka20x6t18riu82sahee5mn0g7n; Type: FK CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: parking_area fka20x6t18riu82sahee5mn0g7n; Type: FK CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY parking_area
@@ -3768,7 +3768,7 @@ ALTER TABLE ONLY parking_area
 
 
 --
--- Name: check_constraint_key_values fka88lssnbb1kj1s052nckd6dn4; Type: FK CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: check_constraint_key_values fka88lssnbb1kj1s052nckd6dn4; Type: FK CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY check_constraint_key_values
@@ -3776,7 +3776,7 @@ ALTER TABLE ONLY check_constraint_key_values
 
 
 --
--- Name: equipment_position_key_values fka9k2btoq1hylsxgdc2r4y7c6h; Type: FK CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: equipment_position_key_values fka9k2btoq1hylsxgdc2r4y7c6h; Type: FK CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY equipment_position_key_values
@@ -3784,7 +3784,7 @@ ALTER TABLE ONLY equipment_position_key_values
 
 
 --
--- Name: equipment_place_equipment_positions fkabblwcd7yqvqcueubgds9g79p; Type: FK CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: equipment_place_equipment_positions fkabblwcd7yqvqcueubgds9g79p; Type: FK CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY equipment_place_equipment_positions
@@ -3792,7 +3792,7 @@ ALTER TABLE ONLY equipment_place_equipment_positions
 
 
 --
--- Name: access_space_equipment_places fkahpl2sexrde229vbbli7grrp4; Type: FK CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: access_space_equipment_places fkahpl2sexrde229vbbli7grrp4; Type: FK CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY access_space_equipment_places
@@ -3800,7 +3800,7 @@ ALTER TABLE ONLY access_space_equipment_places
 
 
 --
--- Name: alternative_name_valid_betweens fkb76kc1l21vk6d4mj6to9wf4rt; Type: FK CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: alternative_name_valid_betweens fkb76kc1l21vk6d4mj6to9wf4rt; Type: FK CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY alternative_name_valid_betweens
@@ -3808,7 +3808,7 @@ ALTER TABLE ONLY alternative_name_valid_betweens
 
 
 --
--- Name: equipment_position_key_values fkb9i1yjga0o91xdhcb3rvpvkx9; Type: FK CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: equipment_position_key_values fkb9i1yjga0o91xdhcb3rvpvkx9; Type: FK CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY equipment_position_key_values
@@ -3816,7 +3816,7 @@ ALTER TABLE ONLY equipment_position_key_values
 
 
 --
--- Name: quay_key_values fkc18wd399ytds57bsuuip2pl41; Type: FK CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: quay_key_values fkc18wd399ytds57bsuuip2pl41; Type: FK CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY quay_key_values
@@ -3824,7 +3824,7 @@ ALTER TABLE ONLY quay_key_values
 
 
 --
--- Name: topographic_place_key_values fkc3wle51cxccfkwwkpiu2ekkim; Type: FK CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: topographic_place_key_values fkc3wle51cxccfkwwkpiu2ekkim; Type: FK CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY topographic_place_key_values
@@ -3832,7 +3832,7 @@ ALTER TABLE ONLY topographic_place_key_values
 
 
 --
--- Name: quay_alternative_names fkc51iijml1n53m15a3o1uytbxv; Type: FK CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: quay_alternative_names fkc51iijml1n53m15a3o1uytbxv; Type: FK CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY quay_alternative_names
@@ -3840,7 +3840,7 @@ ALTER TABLE ONLY quay_alternative_names
 
 
 --
--- Name: valid_between_valid_betweens fkc53kxwl8c9ui9yr2f95sc0b2x; Type: FK CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: valid_between_valid_betweens fkc53kxwl8c9ui9yr2f95sc0b2x; Type: FK CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY valid_between_valid_betweens
@@ -3848,7 +3848,7 @@ ALTER TABLE ONLY valid_between_valid_betweens
 
 
 --
--- Name: parking_properties_spaces fkc6bu1c3cyaxa6w9s096rurn7b; Type: FK CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: parking_properties_spaces fkc6bu1c3cyaxa6w9s096rurn7b; Type: FK CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY parking_properties_spaces
@@ -3856,7 +3856,7 @@ ALTER TABLE ONLY parking_properties_spaces
 
 
 --
--- Name: stop_place_access_spaces fkcfh3y91gw4ulh0x6tohnevsxt; Type: FK CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: stop_place_access_spaces fkcfh3y91gw4ulh0x6tohnevsxt; Type: FK CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY stop_place_access_spaces
@@ -3864,7 +3864,7 @@ ALTER TABLE ONLY stop_place_access_spaces
 
 
 --
--- Name: parking_key_values fkchgifjy5ltx55l2riu92p8rah; Type: FK CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: parking_key_values fkchgifjy5ltx55l2riu92p8rah; Type: FK CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY parking_key_values
@@ -3872,7 +3872,7 @@ ALTER TABLE ONLY parking_key_values
 
 
 --
--- Name: boarding_position fkckcw3qglsese2680ss59lq9yy; Type: FK CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: boarding_position fkckcw3qglsese2680ss59lq9yy; Type: FK CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY boarding_position
@@ -3880,7 +3880,7 @@ ALTER TABLE ONLY boarding_position
 
 
 --
--- Name: equipment_place_valid_betweens fkcusybby9eld3y0iika2juwq5l; Type: FK CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: equipment_place_valid_betweens fkcusybby9eld3y0iika2juwq5l; Type: FK CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY equipment_place_valid_betweens
@@ -3888,7 +3888,7 @@ ALTER TABLE ONLY equipment_place_valid_betweens
 
 
 --
--- Name: access_space_check_constraints fkd0f8scim513pkmar0rrtgmvk0; Type: FK CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: access_space_check_constraints fkd0f8scim513pkmar0rrtgmvk0; Type: FK CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY access_space_check_constraints
@@ -3896,7 +3896,7 @@ ALTER TABLE ONLY access_space_check_constraints
 
 
 --
--- Name: check_constraint fkd7kx2g2kfknuq180s9psrxheg; Type: FK CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: check_constraint fkd7kx2g2kfknuq180s9psrxheg; Type: FK CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY check_constraint
@@ -3904,7 +3904,7 @@ ALTER TABLE ONLY check_constraint
 
 
 --
--- Name: quay_boarding_positions fkddggv25j677uyu93kjcejrkoy; Type: FK CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: quay_boarding_positions fkddggv25j677uyu93kjcejrkoy; Type: FK CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY quay_boarding_positions
@@ -3912,7 +3912,7 @@ ALTER TABLE ONLY quay_boarding_positions
 
 
 --
--- Name: installed_equipment_version_structure_installed_equipment fkdjkqt8xtfm3betwint02yr8ul; Type: FK CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: installed_equipment_version_structure_installed_equipment fkdjkqt8xtfm3betwint02yr8ul; Type: FK CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY installed_equipment_version_structure_installed_equipment
@@ -3920,7 +3920,7 @@ ALTER TABLE ONLY installed_equipment_version_structure_installed_equipment
 
 
 --
--- Name: access_space fkdkxpwi2gsjyno21hnp5vxjcqx; Type: FK CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: access_space fkdkxpwi2gsjyno21hnp5vxjcqx; Type: FK CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY access_space
@@ -3928,7 +3928,7 @@ ALTER TABLE ONLY access_space
 
 
 --
--- Name: quay_key_values fke06xofaj85jd2715l5wvgcewf; Type: FK CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: quay_key_values fke06xofaj85jd2715l5wvgcewf; Type: FK CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY quay_key_values
@@ -3936,7 +3936,7 @@ ALTER TABLE ONLY quay_key_values
 
 
 --
--- Name: boarding_position_check_constraints fke3k0ye5cmkahhxwrarv52sxgg; Type: FK CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: boarding_position_check_constraints fke3k0ye5cmkahhxwrarv52sxgg; Type: FK CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY boarding_position_check_constraints
@@ -3944,7 +3944,7 @@ ALTER TABLE ONLY boarding_position_check_constraints
 
 
 --
--- Name: destination_display_view fke4decqec3uijjvob9y6nm1m4n; Type: FK CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: destination_display_view fke4decqec3uijjvob9y6nm1m4n; Type: FK CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY destination_display_view
@@ -3952,7 +3952,7 @@ ALTER TABLE ONLY destination_display_view
 
 
 --
--- Name: quay_equipment_places fkeaggpvk1rtleplvo725msboob; Type: FK CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: quay_equipment_places fkeaggpvk1rtleplvo725msboob; Type: FK CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY quay_equipment_places
@@ -3960,7 +3960,7 @@ ALTER TABLE ONLY quay_equipment_places
 
 
 --
--- Name: valid_between_valid_betweens fkec6fpjqub9jsmgybs0yg3mvev; Type: FK CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: valid_between_valid_betweens fkec6fpjqub9jsmgybs0yg3mvev; Type: FK CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY valid_between_valid_betweens
@@ -3968,7 +3968,7 @@ ALTER TABLE ONLY valid_between_valid_betweens
 
 
 --
--- Name: parking_area_alternative_names fked2qtdvpkkrp456ttsr04fdtd; Type: FK CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: parking_area_alternative_names fked2qtdvpkkrp456ttsr04fdtd; Type: FK CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY parking_area_alternative_names
@@ -3976,7 +3976,7 @@ ALTER TABLE ONLY parking_area_alternative_names
 
 
 --
--- Name: boarding_position_alternative_names fkeo5gxbxqw4nujvef4rbqlupjo; Type: FK CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: boarding_position_alternative_names fkeo5gxbxqw4nujvef4rbqlupjo; Type: FK CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY boarding_position_alternative_names
@@ -3984,7 +3984,7 @@ ALTER TABLE ONLY boarding_position_alternative_names
 
 
 --
--- Name: parking_valid_betweens fkeqdps969jigulg1m28bwy5ajb; Type: FK CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: parking_valid_betweens fkeqdps969jigulg1m28bwy5ajb; Type: FK CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY parking_valid_betweens
@@ -3992,7 +3992,7 @@ ALTER TABLE ONLY parking_valid_betweens
 
 
 --
--- Name: boarding_position_check_constraints fkexpjw5brnj2x19mke33ahb4v1; Type: FK CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: boarding_position_check_constraints fkexpjw5brnj2x19mke33ahb4v1; Type: FK CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY boarding_position_check_constraints
@@ -4000,7 +4000,7 @@ ALTER TABLE ONLY boarding_position_check_constraints
 
 
 --
--- Name: tariff_zone_key_values fkf0utp1a034yhbyt80kv99lu84; Type: FK CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: tariff_zone_key_values fkf0utp1a034yhbyt80kv99lu84; Type: FK CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY tariff_zone_key_values
@@ -4008,7 +4008,7 @@ ALTER TABLE ONLY tariff_zone_key_values
 
 
 --
--- Name: path_link_valid_betweens fkf51j0wp0kufnmgghpllvie8kx; Type: FK CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: path_link_valid_betweens fkf51j0wp0kufnmgghpllvie8kx; Type: FK CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY path_link_valid_betweens
@@ -4016,7 +4016,7 @@ ALTER TABLE ONLY path_link_valid_betweens
 
 
 --
--- Name: parking_area_key_values fkfavrlym6c13ftqqhybqdypaa0; Type: FK CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: parking_area_key_values fkfavrlym6c13ftqqhybqdypaa0; Type: FK CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY parking_area_key_values
@@ -4024,7 +4024,7 @@ ALTER TABLE ONLY parking_area_key_values
 
 
 --
--- Name: stop_place fkfb9cw77oshl15ax3v7o4x5ndb; Type: FK CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: stop_place fkfb9cw77oshl15ax3v7o4x5ndb; Type: FK CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY stop_place
@@ -4032,7 +4032,7 @@ ALTER TABLE ONLY stop_place
 
 
 --
--- Name: topographic_place_key_values fkfdntaoibnwcm1tjita53n8wp5; Type: FK CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: topographic_place_key_values fkfdntaoibnwcm1tjita53n8wp5; Type: FK CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY topographic_place_key_values
@@ -4040,7 +4040,7 @@ ALTER TABLE ONLY topographic_place_key_values
 
 
 --
--- Name: access_space_alternative_names fkfrvjdit8u3jfuwrfjj5kv7ej8; Type: FK CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: access_space_alternative_names fkfrvjdit8u3jfuwrfjj5kv7ej8; Type: FK CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY access_space_alternative_names
@@ -4048,7 +4048,7 @@ ALTER TABLE ONLY access_space_alternative_names
 
 
 --
--- Name: road_address_key_values fkfyaj3pe40wjw4ahh1686nva2f; Type: FK CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: road_address_key_values fkfyaj3pe40wjw4ahh1686nva2f; Type: FK CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY road_address_key_values
@@ -4056,7 +4056,7 @@ ALTER TABLE ONLY road_address_key_values
 
 
 --
--- Name: equipment_position fkg7tekxdtcgxc9nuqg1gtbfub; Type: FK CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: equipment_position fkg7tekxdtcgxc9nuqg1gtbfub; Type: FK CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY equipment_position
@@ -4064,7 +4064,7 @@ ALTER TABLE ONLY equipment_position
 
 
 --
--- Name: quay fkga2n69n19frbpsm112vnv7ujp; Type: FK CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: quay fkga2n69n19frbpsm112vnv7ujp; Type: FK CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY quay
@@ -4072,7 +4072,7 @@ ALTER TABLE ONLY quay
 
 
 --
--- Name: access_space_alternative_names fkggy00kekruqt7vq13o0hrishg; Type: FK CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: access_space_alternative_names fkggy00kekruqt7vq13o0hrishg; Type: FK CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY access_space_alternative_names
@@ -4080,7 +4080,7 @@ ALTER TABLE ONLY access_space_alternative_names
 
 
 --
--- Name: access_space_valid_betweens fkgtc4r7fqv35djtplnk0a4y9wk; Type: FK CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: access_space_valid_betweens fkgtc4r7fqv35djtplnk0a4y9wk; Type: FK CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY access_space_valid_betweens
@@ -4088,7 +4088,7 @@ ALTER TABLE ONLY access_space_valid_betweens
 
 
 --
--- Name: access_space_key_values fkguduxo8jkx68ewnlb9vkg6asj; Type: FK CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: access_space_key_values fkguduxo8jkx68ewnlb9vkg6asj; Type: FK CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY access_space_key_values
@@ -4096,7 +4096,7 @@ ALTER TABLE ONLY access_space_key_values
 
 
 --
--- Name: accessibility_limitation_valid_betweens fkgx8u7us15lfxbft4ld766shjs; Type: FK CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: accessibility_limitation_valid_betweens fkgx8u7us15lfxbft4ld766shjs; Type: FK CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY accessibility_limitation_valid_betweens
@@ -4104,7 +4104,7 @@ ALTER TABLE ONLY accessibility_limitation_valid_betweens
 
 
 --
--- Name: path_junctions_rel_structure_path_junction_ref_or_path_junction fkh0tejbxbyy99cmnjx82tsmfyf; Type: FK CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: path_junctions_rel_structure_path_junction_ref_or_path_junction fkh0tejbxbyy99cmnjx82tsmfyf; Type: FK CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY path_junctions_rel_structure_path_junction_ref_or_path_junction
@@ -4112,7 +4112,7 @@ ALTER TABLE ONLY path_junctions_rel_structure_path_junction_ref_or_path_junction
 
 
 --
--- Name: vehicle_stopping_places_rel_structure_vehicle_stopping_place_re fkh0yygn1jyuukkp0lasxsw4dvo; Type: FK CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: vehicle_stopping_places_rel_structure_vehicle_stopping_place_re fkh0yygn1jyuukkp0lasxsw4dvo; Type: FK CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY vehicle_stopping_places_rel_structure_vehicle_stopping_place_re
@@ -4120,7 +4120,7 @@ ALTER TABLE ONLY vehicle_stopping_places_rel_structure_vehicle_stopping_place_re
 
 
 --
--- Name: parking_area fkh6h52ajwscge6qctip0056ja5; Type: FK CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: parking_area fkh6h52ajwscge6qctip0056ja5; Type: FK CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY parking_area
@@ -4128,7 +4128,7 @@ ALTER TABLE ONLY parking_area
 
 
 --
--- Name: boarding_position_valid_betweens fkhnnap1wlq56ra6sl2nfehbd60; Type: FK CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: boarding_position_valid_betweens fkhnnap1wlq56ra6sl2nfehbd60; Type: FK CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY boarding_position_valid_betweens
@@ -4136,7 +4136,7 @@ ALTER TABLE ONLY boarding_position_valid_betweens
 
 
 --
--- Name: access_space_equipment_places fkhvudykavfk476h6yvqbe8uke7; Type: FK CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: access_space_equipment_places fkhvudykavfk476h6yvqbe8uke7; Type: FK CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY access_space_equipment_places
@@ -4144,7 +4144,7 @@ ALTER TABLE ONLY access_space_equipment_places
 
 
 --
--- Name: path_link_key_values fki5ewaofkg7dqyrfxmv05up23k; Type: FK CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: path_link_key_values fki5ewaofkg7dqyrfxmv05up23k; Type: FK CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY path_link_key_values
@@ -4152,7 +4152,7 @@ ALTER TABLE ONLY path_link_key_values
 
 
 --
--- Name: quays_rel_structure_quay_ref_or_quay fkieeq2yxpnhnb8r091jwdpos6n; Type: FK CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: quays_rel_structure_quay_ref_or_quay fkieeq2yxpnhnb8r091jwdpos6n; Type: FK CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY quays_rel_structure_quay_ref_or_quay
@@ -4160,7 +4160,7 @@ ALTER TABLE ONLY quays_rel_structure_quay_ref_or_quay
 
 
 --
--- Name: topographic_place fkin7vu25nr46n8tufgnrjdjpna; Type: FK CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: topographic_place fkin7vu25nr46n8tufgnrjdjpna; Type: FK CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY topographic_place
@@ -4168,7 +4168,7 @@ ALTER TABLE ONLY topographic_place
 
 
 --
--- Name: parking_equipment_places fkjdjk7xlyh5j4wwkdj7b55wwvr; Type: FK CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: parking_equipment_places fkjdjk7xlyh5j4wwkdj7b55wwvr; Type: FK CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY parking_equipment_places
@@ -4176,7 +4176,7 @@ ALTER TABLE ONLY parking_equipment_places
 
 
 --
--- Name: parking fkjdu5ypd58h2k87dgguvfx904d; Type: FK CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: parking fkjdu5ypd58h2k87dgguvfx904d; Type: FK CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY parking
@@ -4184,7 +4184,7 @@ ALTER TABLE ONLY parking
 
 
 --
--- Name: equipment_place fkji5u4pfe7mk8cb9m02xj9mydb; Type: FK CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: equipment_place fkji5u4pfe7mk8cb9m02xj9mydb; Type: FK CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY equipment_place
@@ -4192,7 +4192,7 @@ ALTER TABLE ONLY equipment_place
 
 
 --
--- Name: quay_valid_betweens fkju5f5s6y8x8ey1bqjbih8snew; Type: FK CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: quay_valid_betweens fkju5f5s6y8x8ey1bqjbih8snew; Type: FK CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY quay_valid_betweens
@@ -4200,7 +4200,7 @@ ALTER TABLE ONLY quay_valid_betweens
 
 
 --
--- Name: check_constraint fkjyh851p5h9hcg8fftuejisrbh; Type: FK CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: check_constraint fkjyh851p5h9hcg8fftuejisrbh; Type: FK CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY check_constraint
@@ -4208,7 +4208,7 @@ ALTER TABLE ONLY check_constraint
 
 
 --
--- Name: stop_place fkk40r06hkuvmp9bn3nqh3hc72p; Type: FK CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: stop_place fkk40r06hkuvmp9bn3nqh3hc72p; Type: FK CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY stop_place
@@ -4216,7 +4216,7 @@ ALTER TABLE ONLY stop_place
 
 
 --
--- Name: parking_capacity_valid_betweens fkk4js0atx4ji42j7dbrhjm0vki; Type: FK CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: parking_capacity_valid_betweens fkk4js0atx4ji42j7dbrhjm0vki; Type: FK CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY parking_capacity_valid_betweens
@@ -4224,7 +4224,7 @@ ALTER TABLE ONLY parking_capacity_valid_betweens
 
 
 --
--- Name: access_space fkkaorr2thiqfib1tp2u8hy7qjj; Type: FK CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: access_space fkkaorr2thiqfib1tp2u8hy7qjj; Type: FK CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY access_space
@@ -4232,7 +4232,7 @@ ALTER TABLE ONLY access_space
 
 
 --
--- Name: quay_boarding_positions fkkclc1cagtjsudx3cw7lseovcg; Type: FK CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: quay_boarding_positions fkkclc1cagtjsudx3cw7lseovcg; Type: FK CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY quay_boarding_positions
@@ -4240,7 +4240,7 @@ ALTER TABLE ONLY quay_boarding_positions
 
 
 --
--- Name: accessibility_assessment_limitations fkkghye5kl3gcgb4446yva0hqib; Type: FK CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: accessibility_assessment_limitations fkkghye5kl3gcgb4446yva0hqib; Type: FK CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY accessibility_assessment_limitations
@@ -4248,7 +4248,7 @@ ALTER TABLE ONLY accessibility_assessment_limitations
 
 
 --
--- Name: path_junction_valid_betweens fkkgi976775pm6mmpmqwvh4e385; Type: FK CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: path_junction_valid_betweens fkkgi976775pm6mmpmqwvh4e385; Type: FK CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY path_junction_valid_betweens
@@ -4256,7 +4256,7 @@ ALTER TABLE ONLY path_junction_valid_betweens
 
 
 --
--- Name: parking_parking_areas fklfn6esk2xmgy0abtbkxleg94h; Type: FK CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: parking_parking_areas fklfn6esk2xmgy0abtbkxleg94h; Type: FK CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY parking_parking_areas
@@ -4264,7 +4264,7 @@ ALTER TABLE ONLY parking_parking_areas
 
 
 --
--- Name: level fkliqsellqidqhi01xnad6d009h; Type: FK CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: level fkliqsellqidqhi01xnad6d009h; Type: FK CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY level
@@ -4272,7 +4272,7 @@ ALTER TABLE ONLY level
 
 
 --
--- Name: parking_area_equipment_places fklyjyw910bdsck4ia3cu5u02b7; Type: FK CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: parking_area_equipment_places fklyjyw910bdsck4ia3cu5u02b7; Type: FK CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY parking_area_equipment_places
@@ -4280,7 +4280,7 @@ ALTER TABLE ONLY parking_area_equipment_places
 
 
 --
--- Name: quay_check_constraints fkm3br6dbr6lfeirt677vgwhbkt; Type: FK CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: quay_check_constraints fkm3br6dbr6lfeirt677vgwhbkt; Type: FK CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY quay_check_constraints
@@ -4288,7 +4288,7 @@ ALTER TABLE ONLY quay_check_constraints
 
 
 --
--- Name: path_link fkmdata7200nfbkhwfiwbdr89gx; Type: FK CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: path_link fkmdata7200nfbkhwfiwbdr89gx; Type: FK CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY path_link
@@ -4296,7 +4296,7 @@ ALTER TABLE ONLY path_link
 
 
 --
--- Name: parking_parking_vehicle_types fkmdeyc63w7rq4oahia4ekbhpu9; Type: FK CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: parking_parking_vehicle_types fkmdeyc63w7rq4oahia4ekbhpu9; Type: FK CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY parking_parking_vehicle_types
@@ -4304,7 +4304,7 @@ ALTER TABLE ONLY parking_parking_vehicle_types
 
 
 --
--- Name: road_address_key_values fkmg898c5r0h3uvwbnltd4oh14y; Type: FK CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: road_address_key_values fkmg898c5r0h3uvwbnltd4oh14y; Type: FK CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY road_address_key_values
@@ -4312,7 +4312,7 @@ ALTER TABLE ONLY road_address_key_values
 
 
 --
--- Name: installed_equipment_version_structure_installed_equipment fkmjjjgsh44ditp528hx9nynkby; Type: FK CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: installed_equipment_version_structure_installed_equipment fkmjjjgsh44ditp528hx9nynkby; Type: FK CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY installed_equipment_version_structure_installed_equipment
@@ -4320,7 +4320,7 @@ ALTER TABLE ONLY installed_equipment_version_structure_installed_equipment
 
 
 --
--- Name: valid_between_key_values fkmqgoyep22m5k8w4dc32mbenkp; Type: FK CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: valid_between_key_values fkmqgoyep22m5k8w4dc32mbenkp; Type: FK CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY valid_between_key_values
@@ -4328,7 +4328,7 @@ ALTER TABLE ONLY valid_between_key_values
 
 
 --
--- Name: road_address fkms7te4qixovkuhj7fbl846a3g; Type: FK CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: road_address fkms7te4qixovkuhj7fbl846a3g; Type: FK CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY road_address
@@ -4336,7 +4336,7 @@ ALTER TABLE ONLY road_address
 
 
 --
--- Name: equipment_place_equipment_positions fkn4tdt95gfsvqido4rq1mjb8h8; Type: FK CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: equipment_place_equipment_positions fkn4tdt95gfsvqido4rq1mjb8h8; Type: FK CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY equipment_place_equipment_positions
@@ -4344,7 +4344,7 @@ ALTER TABLE ONLY equipment_place_equipment_positions
 
 
 --
--- Name: boarding_position fkndqqqjgyacwmv60e3qhsnkbhb; Type: FK CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: boarding_position fkndqqqjgyacwmv60e3qhsnkbhb; Type: FK CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY boarding_position
@@ -4352,7 +4352,7 @@ ALTER TABLE ONLY boarding_position
 
 
 --
--- Name: equipment_place_key_values fkns6x8o4fyw73gopona4fiihdu; Type: FK CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: equipment_place_key_values fkns6x8o4fyw73gopona4fiihdu; Type: FK CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY equipment_place_key_values
@@ -4360,7 +4360,7 @@ ALTER TABLE ONLY equipment_place_key_values
 
 
 --
--- Name: value_items fknuulrwd9o0m7ocvcntkig5csj; Type: FK CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: value_items fknuulrwd9o0m7ocvcntkig5csj; Type: FK CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY value_items
@@ -4368,7 +4368,7 @@ ALTER TABLE ONLY value_items
 
 
 --
--- Name: quay_alternative_names fknvsb6xd4x2jkguqx9hfnfsy74; Type: FK CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: quay_alternative_names fknvsb6xd4x2jkguqx9hfnfsy74; Type: FK CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY quay_alternative_names
@@ -4376,7 +4376,7 @@ ALTER TABLE ONLY quay_alternative_names
 
 
 --
--- Name: parking_alternative_names fknx3vhtx356nwc4fwg1dct6ic3; Type: FK CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: parking_alternative_names fknx3vhtx356nwc4fwg1dct6ic3; Type: FK CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY parking_alternative_names
@@ -4384,7 +4384,7 @@ ALTER TABLE ONLY parking_alternative_names
 
 
 --
--- Name: parking_area_check_constraints fkny2owjxs13whgj345oo4ghxco; Type: FK CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: parking_area_check_constraints fkny2owjxs13whgj345oo4ghxco; Type: FK CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY parking_area_check_constraints
@@ -4392,7 +4392,7 @@ ALTER TABLE ONLY parking_area_check_constraints
 
 
 --
--- Name: parking_properties_parking_user_types fko1j5k835d8tdh5x4ldjkvnjfv; Type: FK CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: parking_properties_parking_user_types fko1j5k835d8tdh5x4ldjkvnjfv; Type: FK CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY parking_properties_parking_user_types
@@ -4400,7 +4400,7 @@ ALTER TABLE ONLY parking_properties_parking_user_types
 
 
 --
--- Name: parking_area_check_constraints fko9rxbvt9bqk35ggadptkxsrna; Type: FK CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: parking_area_check_constraints fko9rxbvt9bqk35ggadptkxsrna; Type: FK CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY parking_area_check_constraints
@@ -4408,7 +4408,7 @@ ALTER TABLE ONLY parking_area_check_constraints
 
 
 --
--- Name: access_space_check_constraints fkob3boul2jifb3vekl11asof4v; Type: FK CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: access_space_check_constraints fkob3boul2jifb3vekl11asof4v; Type: FK CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY access_space_check_constraints
@@ -4416,7 +4416,7 @@ ALTER TABLE ONLY access_space_check_constraints
 
 
 --
--- Name: parking_area_key_values fkoj56x7qga6tilll3mor88hsru; Type: FK CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: parking_area_key_values fkoj56x7qga6tilll3mor88hsru; Type: FK CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY parking_area_key_values
@@ -4424,7 +4424,7 @@ ALTER TABLE ONLY parking_area_key_values
 
 
 --
--- Name: stop_place_key_values fkolek3mod8n2ncbfyp6t9nj1qh; Type: FK CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: stop_place_key_values fkolek3mod8n2ncbfyp6t9nj1qh; Type: FK CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY stop_place_key_values
@@ -4432,7 +4432,7 @@ ALTER TABLE ONLY stop_place_key_values
 
 
 --
--- Name: parking fkpbhyj09qvbw33cmw9wshgsg7y; Type: FK CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: parking fkpbhyj09qvbw33cmw9wshgsg7y; Type: FK CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY parking
@@ -4440,7 +4440,7 @@ ALTER TABLE ONLY parking
 
 
 --
--- Name: boarding_position_key_values fkqd4jmt7qmq7ecblajntgrae11; Type: FK CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: boarding_position_key_values fkqd4jmt7qmq7ecblajntgrae11; Type: FK CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY boarding_position_key_values
@@ -4448,7 +4448,7 @@ ALTER TABLE ONLY boarding_position_key_values
 
 
 --
--- Name: site_path_links_rel_structure_path_link_ref_or_site_path_link fkqht0wwe7ddpjcxp22vq5x6wcs; Type: FK CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: site_path_links_rel_structure_path_link_ref_or_site_path_link fkqht0wwe7ddpjcxp22vq5x6wcs; Type: FK CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY site_path_links_rel_structure_path_link_ref_or_site_path_link
@@ -4456,7 +4456,7 @@ ALTER TABLE ONLY site_path_links_rel_structure_path_link_ref_or_site_path_link
 
 
 --
--- Name: level_key_values fkql9va96wfvxdtrsar93qoqapf; Type: FK CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: level_key_values fkql9va96wfvxdtrsar93qoqapf; Type: FK CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY level_key_values
@@ -4464,7 +4464,7 @@ ALTER TABLE ONLY level_key_values
 
 
 --
--- Name: stop_place_quays fkr5tlsd2as2q238g2phacwql72; Type: FK CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: stop_place_quays fkr5tlsd2as2q238g2phacwql72; Type: FK CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY stop_place_quays
@@ -4472,7 +4472,7 @@ ALTER TABLE ONLY stop_place_quays
 
 
 --
--- Name: parking_parking_properties fkr8c26brhce4cxkxse6hsxb4ph; Type: FK CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: parking_parking_properties fkr8c26brhce4cxkxse6hsxb4ph; Type: FK CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY parking_parking_properties
@@ -4480,7 +4480,7 @@ ALTER TABLE ONLY parking_parking_properties
 
 
 --
--- Name: parking fkrksfqb92ty4tpgf0aegaijlal; Type: FK CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: parking fkrksfqb92ty4tpgf0aegaijlal; Type: FK CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY parking
@@ -4488,7 +4488,7 @@ ALTER TABLE ONLY parking
 
 
 --
--- Name: parking_area fkrksrhan2eax7wt85lu0khpuqn; Type: FK CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: parking_area fkrksrhan2eax7wt85lu0khpuqn; Type: FK CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY parking_area
@@ -4496,7 +4496,7 @@ ALTER TABLE ONLY parking_area
 
 
 --
--- Name: parking_area fkrm29xbq5804fmta4ttiki0qql; Type: FK CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: parking_area fkrm29xbq5804fmta4ttiki0qql; Type: FK CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY parking_area
@@ -4504,7 +4504,7 @@ ALTER TABLE ONLY parking_area
 
 
 --
--- Name: topographic_place_valid_betweens fkrr5uj74b1scqktbxs2qbx3bkp; Type: FK CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: topographic_place_valid_betweens fkrr5uj74b1scqktbxs2qbx3bkp; Type: FK CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY topographic_place_valid_betweens
@@ -4512,7 +4512,7 @@ ALTER TABLE ONLY topographic_place_valid_betweens
 
 
 --
--- Name: stop_place_tariff_zones fkrtg0y1vlnv40qupj0bkwp7k00; Type: FK CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: stop_place_tariff_zones fkrtg0y1vlnv40qupj0bkwp7k00; Type: FK CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY stop_place_tariff_zones
@@ -4520,7 +4520,7 @@ ALTER TABLE ONLY stop_place_tariff_zones
 
 
 --
--- Name: access_space_key_values fks5ltc1fbi2mbo1arc7ttr5u7t; Type: FK CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: access_space_key_values fks5ltc1fbi2mbo1arc7ttr5u7t; Type: FK CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY access_space_key_values
@@ -4528,7 +4528,7 @@ ALTER TABLE ONLY access_space_key_values
 
 
 --
--- Name: tariff_zone fksiof3uxjddw8koviv4omgimwc; Type: FK CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: tariff_zone fksiof3uxjddw8koviv4omgimwc; Type: FK CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY tariff_zone
@@ -4536,7 +4536,7 @@ ALTER TABLE ONLY tariff_zone
 
 
 --
--- Name: equipment_position_valid_betweens fkslxc7uh5ns9koh4tkdlqkp1fb; Type: FK CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: equipment_position_valid_betweens fkslxc7uh5ns9koh4tkdlqkp1fb; Type: FK CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY equipment_position_valid_betweens
@@ -4544,7 +4544,7 @@ ALTER TABLE ONLY equipment_position_valid_betweens
 
 
 --
--- Name: path_link fksyksujopo02932so13dt18a3n; Type: FK CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: path_link fksyksujopo02932so13dt18a3n; Type: FK CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY path_link
@@ -4552,7 +4552,7 @@ ALTER TABLE ONLY path_link
 
 
 --
--- Name: path_link_end fkt1jkprb71o8k98r1k9gl9767c; Type: FK CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: path_link_end fkt1jkprb71o8k98r1k9gl9767c; Type: FK CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY path_link_end
@@ -4560,7 +4560,7 @@ ALTER TABLE ONLY path_link_end
 
 
 --
--- Name: boarding_position_equipment_places fkt6b6123yefqwpog332fptv4wc; Type: FK CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: boarding_position_equipment_places fkt6b6123yefqwpog332fptv4wc; Type: FK CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY boarding_position_equipment_places
@@ -4568,7 +4568,7 @@ ALTER TABLE ONLY boarding_position_equipment_places
 
 
 --
--- Name: stop_place fkt75b2x29642ei9s99c7pue6h5; Type: FK CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: stop_place fkt75b2x29642ei9s99c7pue6h5; Type: FK CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY stop_place
@@ -4576,7 +4576,7 @@ ALTER TABLE ONLY stop_place
 
 
 --
--- Name: parking_area_valid_betweens fktmc4w66yn4udcky45jvcutwap; Type: FK CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: parking_area_valid_betweens fktmc4w66yn4udcky45jvcutwap; Type: FK CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY parking_area_valid_betweens
@@ -4584,7 +4584,7 @@ ALTER TABLE ONLY parking_area_valid_betweens
 
 
 --
--- Name: stop_place fktmqm9d5a1fuxiivaxmjluis6g; Type: FK CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: stop_place fktmqm9d5a1fuxiivaxmjluis6g; Type: FK CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY stop_place
@@ -4592,7 +4592,7 @@ ALTER TABLE ONLY stop_place
 
 
 --
--- Name: level_valid_betweens fkw40gfrfmxln7arsxe9cdlqty; Type: FK CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: level_valid_betweens fkw40gfrfmxln7arsxe9cdlqty; Type: FK CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY level_valid_betweens
@@ -4600,7 +4600,7 @@ ALTER TABLE ONLY level_valid_betweens
 
 
 --
--- Name: parking_equipment_places fkwgs9h00yk2uvhgsstupeyxii; Type: FK CONSTRAINT; Schema: public; Owner: tiamat
+-- Name: parking_equipment_places fkwgs9h00yk2uvhgsstupeyxii; Type: FK CONSTRAINT; Schema: stopregistry; Owner: tiamat
 --
 
 ALTER TABLE ONLY parking_equipment_places

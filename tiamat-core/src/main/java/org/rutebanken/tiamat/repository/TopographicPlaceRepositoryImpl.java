@@ -90,9 +90,9 @@ public class TopographicPlaceRepositoryImpl implements TopographicPlaceRepositor
         }
 		//or t.netex_id like concat('%', :query, '%'))
         if(!Strings.isNullOrEmpty(name)) {
-            sql.append("AND (similarity(tp.name_value, :name) > 0.2 OR  similarity(tp.netex_id, :name) = 1)");
+            sql.append("AND (public.similarity(tp.name_value, :name) > 0.2 OR  public.similarity(tp.netex_id, :name) = 1)");
             parameters.put("name", name);
-            sql.append("ORDER BY SIMILARITY(tp.name_value, :name) DESC");
+            sql.append("ORDER BY public.SIMILARITY(tp.name_value, :name) DESC");
         }
 
 		Query query = entityManager.createNativeQuery(sql.toString(), TopographicPlace.class);
@@ -199,7 +199,7 @@ public class TopographicPlaceRepositoryImpl implements TopographicPlaceRepositor
 				            0 AS geometry_priority
 				        FROM stop_place sp
 				        JOIN persistable_multi_polygon pmp
-				            ON ST_Contains(pmp.multi_polygon, sp.centroid)
+				            ON public.ST_Contains(pmp.multi_polygon, sp.centroid)
 				        JOIN topographic_place tp
 				            ON tp.multi_surface_id = pmp.id
 				            AND tp.version = (
@@ -241,7 +241,7 @@ public class TopographicPlaceRepositoryImpl implements TopographicPlaceRepositor
 				            1 AS geometry_priority
 				        FROM stop_place sp
 				        JOIN persistable_polygon pp
-				            ON ST_Contains(pp.polygon, sp.centroid)
+				            ON public.ST_Contains(pp.polygon, sp.centroid)
 				        JOIN topographic_place tp
 				            ON tp.polygon_id = pp.id
 				            AND tp.version = (
